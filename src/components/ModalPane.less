@@ -1,0 +1,65 @@
+.modal.modalpane {
+  background: none;
+
+  .modal-dialog {
+    position: fixed;
+    margin: auto;
+    width: 100%;
+    height: 200px;
+    max-width: 100%;
+    -webkit-transform: translate3d(0%, 0, 0);
+    -ms-transform: translate3d(0%, 0, 0);
+    -o-transform: translate3d(0%, 0, 0);
+    transform: translate3d(0%, 0, 0);
+
+    @media only screen and (max-width: 600px) {
+      height: 100%;
+    }
+  }
+
+  .modal-content {
+    height: 100%;
+    overflow-y: auto;
+    border-radius: 0;
+
+    background-color: #002645b0;
+    color: #29abfc;
+    text-shadow: 0 0 30px #29d1fc7f;
+  }
+
+  .modal-body {
+    padding: 15px;
+  }
+
+  .modal-header {
+    background-color: #01151fe0;
+    font-family: Roboto;
+    padding: 5px;
+    border: 0;
+
+    .modal-title {
+      margin-left: auto;
+      font-weight: 500;
+      font-size: 16px;
+    }
+
+    .close {
+      color: white;
+      padding: .1rem .1rem;
+      margin: -.2rem .2rem -.2rem auto;
+    }
+  }
+
+  .modal-footer {
+    display: none;
+  }
+}
+
+.modal.modalpane.fade .modal-dialog {
+  bottom: -200px;
+  transition: opacity 0.3s linear, bottom 0.3s ease-out;
+}
+
+.modal.modalpane.fade.show .modal-dialog {
+  bottom: 0;
+}

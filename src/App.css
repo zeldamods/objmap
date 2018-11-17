@@ -1,0 +1,66 @@
+@font-face {
+  font-family: Sheikah;
+  src: url('./assets/fonts/Sheikah-Complete.ttf');
+}
+
+@font-face {
+  font-family: Calamity;
+  font-style: italic;
+  src: url('./assets/fonts/Calamity-Regular.otf');
+}
+
+@font-face {
+  font-family: CalamityB;
+  font-weight: bold;
+  font-style: italic;
+  src: url('./assets/fonts/Calamity-Bold.otf');
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  font-family: Calamity, Roboto, sans-serif;
+  font-size: 16px;
+  background-color: #000000;
+  background-image: url("assets/background.png");
+  background-attachment: fixed;
+  box-sizing: border-box;
+}
+
+a, a:active, a:visited {
+  color: #29d1fc;
+}
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity .2s;
+}
+
+.fade-enter, .fade-leave-to {
+  opacity: 0;
+}
+
+.pane {
+  background-color: #002645b0;
+  color: #29abfc;
+  text-shadow: 0 0 30px #29d1fc7f;
+}
+
+.pane-header {
+  background-color: #01151ee0;
+}
+
+.pane-content {
+  padding: 15px;
+}
+
+.form-control, .form-control:focus, .custom-control-label::before {
+  color: white;
+  background-color: #01151fe0;
+  border: 1px solid #01151fe0;
+}
+
+.form-control::placeholder {
+  color: #7a7a7a;
+}

@@ -1,0 +1,61 @@
+import Vue from 'vue';
+import {Prop} from 'vue-property-decorator';
+import Component, {mixins} from 'vue-class-component';
+
+import MixinUtil from '@/components/MixinUtil';
+import {MsgMgr} from '@/services/MsgMgr';
+import {ObjectData, ObjectMinData, PlacementLink} from '@/services/MapMgr';
+
+@Component
+export default class ObjectInfo extends mixins(MixinUtil) {
+  @Prop()
+  private obj!: ObjectData|ObjectMinData|null;
+
+  @Prop()
+  private link!: PlacementLink|null;
+
+  @Prop({type: String, default: 'search-result'})
+  private className!: string;
+
+  @Prop({type: Boolean, default: true})
+  private isStatic!: boolean;
+
+  @Prop({type: Boolean, default: false})
+  private dropAsName!: boolean;
+
+  private data!: ObjectData|ObjectMinData;
+
+  private created() {
+    if ((!this.obj && !this.link) || (this.obj && this.link))
+      throw new Error('needs an object *or* a placement link');
+
+    if (this.link)
+      this.data = this.link.otherObj;
+    if (this.obj)
+      this.data = this.obj;
+  }
+
+  private name() {
+    if (this.dropAsName)
+      return this.drop();
+
+    const objName = this.data.name;
+    if (objName === 'LocationTag' && this.data.messageid) {
+      const locationName = MsgMgr.getInstance().getMsgWithFile('StaticMsg/LocationMarker', this.data.messageid)
+        || MsgMgr.getInstance().getMsgWithFile('StaticMsg/Dungeon', this.data.messageid);
+      return `Location: ${locationName}`;
+    }
+    return this.getName(objName);
+  }
+
+  private drop() {
+    let s = '';
+    if (!this.data.drop)
+      return s;
+
+    s += this.data.drop[0] == 2 ? 'Drop table: ' : '';
+    s += this.getName(this.data.drop[1]);
+
+    return s;
+  }
+}

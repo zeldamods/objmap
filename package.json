@@ -1,0 +1,47 @@
+{
+  "name": "botw-objmap",
+  "version": "0.1.0",
+  "private": true,
+  "author": "Léo Lam <leo@leolam.fr>",
+  "scripts": {
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build",
+    "lint": "vue-cli-service lint"
+  },
+  "dependencies": {
+    "@fortawesome/fontawesome-free": "^5.7.2",
+    "bootstrap": "^4.3.1",
+    "bootstrap-vue": "^2.0.0-rc.13",
+    "leaflet": "^1.4.0",
+    "leaflet-contextmenu": "^1.4.0",
+    "leaflet-defaulticon-compatibility": "^0.1.1",
+    "leaflet-draw": "^1.0.4",
+    "leaflet-rastercoords": "^1.0.3",
+    "leaflet-sidebar-v2": "^3.0.7",
+    "leaflet.markercluster": "^1.4.1",
+    "lodash": "^4.17.11",
+    "terser": "^3.16.1",
+    "vue": "^2.6.6",
+    "vue-class-component": "^7.0.1",
+    "vue-property-decorator": "^7.0.0",
+    "vue-router": "^3.0.2"
+  },
+  "devDependencies": {
+    "@types/leaflet": "^1.4.2",
+    "@types/leaflet-draw": "^0.4.13",
+    "@types/leaflet.markercluster": "^1.0.3",
+    "@types/lodash": "^4.14.121",
+    "@vue/cli-plugin-babel": "^3.4.0",
+    "@vue/cli-plugin-eslint": "^3.4.0",
+    "@vue/cli-plugin-typescript": "^3.4.0",
+    "@vue/cli-service": "^3.4.0",
+    "@vue/eslint-config-typescript": "^4.0.0",
+    "babel-eslint": "^10.0.1",
+    "eslint": "^5.14.1",
+    "eslint-plugin-vue": "^5.2.2",
+    "less": "^3.9.0",
+    "less-loader": "^4.1.0",
+    "typescript": "^3.3.3",
+    "vue-template-compiler": "^2.6.6"
+  }
+}
