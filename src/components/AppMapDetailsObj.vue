@@ -35,7 +35,7 @@
 
     <section v-show="linksToSelf.length">
       <hr>
-      <h4 class="subsection-heading">Linked by</h4>
+      <h4 class="subsection-heading"><i class="fas fa-sign-in-alt"></i> Linked by</h4>
       <div class="search-results">
         <ObjectInfo v-for="(link, idx) in linksToSelf" :key="'linktoself'+idx" :link="link" :isStatic="false" @click.native="jumpToObj(link.otherObj)" />
       </div>
@@ -43,7 +43,7 @@
 
     <section v-show="links.length">
       <hr>
-      <h4 class="subsection-heading">Links to</h4>
+      <h4 class="subsection-heading"><i class="fas fa-sign-out-alt"></i> Links to</h4>
       <div class="search-results">
         <ObjectInfo v-for="(link, idx) in links" :key="'link'+idx" :link="link" :isStatic="false" @click.native="jumpToObj(link.otherObj)" />
       </div>
