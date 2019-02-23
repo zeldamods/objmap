@@ -10,8 +10,8 @@
       <section v-if="obj.data.Rotate != null">Rotate: {{arrayOrNumToStr(obj.data.Rotate, 5)}}</section>
       <section v-if="obj.data.UniqueName">Unique name: {{obj.data.UniqueName}}</section>
 
-      <p class="mt-2" v-if="obj.name == 'LinkTagAnd' && !links.length && obj.data['!Parameters'].SaveFlag">Sets the <i>{{obj.data['!Parameters'].SaveFlag}}</i> flag.</p>
-      <p class="mt-2" v-if="obj.name == 'LinkTagAnd' && links.length && obj.data['!Parameters'].SaveFlag">Activates target links if the <i>{{obj.data['!Parameters'].SaveFlag}}</i> flag is set.</p>
+      <p class="mt-2" v-if="obj.name == 'LinkTagAnd' && !links.length && obj.data['!Parameters'].SaveFlag">Sets the <code>{{obj.data['!Parameters'].SaveFlag}}</code> flag.</p>
+      <p class="mt-2" v-if="obj.name == 'LinkTagAnd' && links.length && obj.data['!Parameters'].SaveFlag">Activates target links if the <code>{{obj.data['!Parameters'].SaveFlag}}</code> flag is set.</p>
       <p class="mt-2" v-if="obj.name == 'ActorObserverTag' && links.length">Sends basic signal if the configured actors are inside the specified Area.</p>
 
       <div class="mt-2" v-if="(obj.name == 'EventTag' || obj.name == 'SignalFlowchart') && obj.data['!Parameters']">
