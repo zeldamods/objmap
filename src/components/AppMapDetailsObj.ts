@@ -9,6 +9,52 @@ import {MapMgr, ObjectData, ObjectMinData, PlacementLink} from '@/services/MapMg
 import {MsgMgr} from '@/services/MsgMgr';
 import * as ui from '@/util/ui';
 
+enum MapLinkDefType {
+  BasicSig = 0x0,
+  AxisX = 0x1,
+  AxisY = 0x2,
+  AxisZ = 0x3,
+  '-AxisX' = 0x4,
+  '-AxisY' = 0x5,
+  '-AxisZ' = 0x6,
+  GimmickSuccess = 0x7,
+  VelocityControl = 0x8,
+  BasicSigOnOnly = 0x9,
+  Remains = 0xA,
+  DeadUp = 0xB,
+  LifeZero = 0xC,
+  Stable = 0xD,
+  ChangeAtnSig = 0xE,
+  Create = 0xF,
+  Delete = 0x10,
+  MtxCopyCreate = 0x11,
+  Freeze = 0x12,
+  ForbidAttention = 0x13,
+  SyncLink = 0x14,
+  CopyWaitRevival = 0x15,
+  OffWaitRevival = 0x16,
+  Recreate = 0x17,
+  AreaCol = 0x18,
+  SensorBind = 0x19,
+  ForSale = 0x1A,
+  ModelBind = 0x1B,
+  PlacementLOD = 0x1C,
+  DemoMember = 0x1D,
+  PhysSystemGroup = 0x1E,
+  StackLink = 0x1F,
+  FixedCs = 0x20,
+  HingeCs = 0x21,
+  LimitHingeCs = 0x22,
+  SliderCs = 0x23,
+  PulleyCs = 0x24,
+  BAndSCs = 0x25,
+  BAndSLimitAngYCs = 0x26,
+  CogWheelCs = 0x27,
+  RackAndPinionCs = 0x28,
+  Reference = 0x29,
+  Invalid = 0x2A,
+}
+
 @Component({
   components: {
     ObjectInfo,
@@ -22,6 +68,7 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj|Map
 
   private links: PlacementLink[] = [];
   private linksToSelf: PlacementLink[] = [];
+  private linkTagInputs: PlacementLink[] = [];
 
   async init() {
     this.minObj = this.marker.data.obj;
@@ -30,6 +77,7 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj|Map
     this.genGroupSet.clear();
     this.links = [];
     this.linksToSelf = [];
+    this.linkTagInputs = [];
 
     this.obj = await MapMgr.getInstance().getObjByObjId(this.minObj.objid);
     this.genGroup = await MapMgr.getInstance().getObjGenGroup('MainField', this.obj.map_name, this.obj.hash_id);
@@ -39,6 +87,7 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj|Map
 
     this.initLinks();
     this.initLinksToSelf();
+    this.initLinkTagLinks();
   }
 
   getLocationSub() {
@@ -130,6 +179,17 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj|Map
         if (link.DestUnitHashId === this.obj!.hash_id)
           this.linksToSelf.push(new PlacementLink(obj, link, link.DefinitionName));
       }
+    }
+  }
+
+  private initLinkTagLinks() {
+    if (!this.obj!.name.startsWith('LinkTag'))
+      return;
+
+    for (const link of this.linksToSelf) {
+      const type: number = (<any>MapLinkDefType)[link.ltype];
+      if (type <= 0xe)
+        this.linkTagInputs.push(link);
     }
   }
 }

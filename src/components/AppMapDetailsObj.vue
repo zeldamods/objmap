@@ -15,8 +15,27 @@
         <p class="mt-2" v-if="obj.name == 'ActorObserverTag' && links.length">Sends basic signal if the configured actors are inside the specified Area.</p>
 
         <!-- LinkTag -->
-        <p class="mt-2" v-if="obj.name.startsWith('LinkTag') && linksToSelf.length && linkTagSaveFlag()">{{linkTagSaveFlagAction()[0]}} the <code>{{linkTagSaveFlag()}}</code> flag when signalled.</p>
-        <p class="mt-2" v-if="obj.name.startsWith('LinkTag') && links.length && linkTagSaveFlag()">Activates target links if the <code>{{linkTagSaveFlag()}}</code> flag is {{linkTagSaveFlagAction()[1]}}.</p>
+        <section v-if="obj.name.startsWith('LinkTag')">
+          <p class="mt-2" v-if="linkTagInputs.length && linkTagSaveFlag()">{{linkTagSaveFlagAction()[0]}} the <code>{{linkTagSaveFlag()}}</code> flag when signalled.</p>
+          <p class="mt-2" v-if="links.length && linkTagSaveFlag()">
+            Activates target links if the <code>{{linkTagSaveFlag()}}</code> flag is {{linkTagSaveFlagAction()[1]}}.
+            <span v-show="linkTagInputs.length">In that case, input evaluation is skipped.</span>
+          </p>
+          <section v-show="linkTagInputs.length">
+            <hr>
+            <h4 class="subsection-heading">Inputs</h4>
+            <div class="search-results">
+              <ObjectInfo v-for="(link, idx) in linkTagInputs" :key="'linktag-input'+idx" :link="link" :isStatic="false" @click.native="jumpToObj(link.otherObj)" />
+            </div>
+          </section>
+          <section v-show="links.length">
+            <h4 class="subsection-heading">Triggers</h4>
+            <div class="search-results">
+              <ObjectInfo v-for="(link, idx) in links" :key="'linktag-output'+idx" :link="link" :isStatic="false" @click.native="jumpToObj(link.otherObj)" />
+            </div>
+          </section>
+
+        </section>
 
         <!-- EventTag, SignalFlowchart -->
         <div class="mt-2" v-if="(obj.name == 'EventTag' || obj.name == 'SignalFlowchart') && obj.data['!Parameters']">
