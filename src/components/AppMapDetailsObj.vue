@@ -10,16 +10,22 @@
       <section v-if="obj.data.Rotate != null">Rotate: {{arrayOrNumToStr(obj.data.Rotate, 5)}}</section>
       <section v-if="obj.data.UniqueName">Unique name: {{obj.data.UniqueName}}</section>
 
-      <p class="mt-2" v-if="obj.name.startsWith('LinkTag') && linksToSelf.length && linkTagSaveFlag()">{{linkTagSaveFlagAction()[0]}} the <code>{{linkTagSaveFlag()}}</code> flag when signalled.</p>
-      <p class="mt-2" v-if="obj.name.startsWith('LinkTag') && links.length && linkTagSaveFlag()">Activates target links if the <code>{{linkTagSaveFlag()}}</code> flag is {{linkTagSaveFlagAction()[1]}}.</p>
-      <p class="mt-2" v-if="obj.name == 'ActorObserverTag' && links.length">Sends basic signal if the configured actors are inside the specified Area.</p>
+      <section class="obj-actor-specific-info">
+        <!-- AreaObserverTag -->
+        <p class="mt-2" v-if="obj.name == 'ActorObserverTag' && links.length">Sends basic signal if the configured actors are inside the specified Area.</p>
 
-      <div class="mt-2" v-if="(obj.name == 'EventTag' || obj.name == 'SignalFlowchart') && obj.data['!Parameters']">
-        <p v-if="obj.name == 'EventTag'">Activates event <code>{{obj.data['!Parameters'].EventFlowName}}&lt;{{obj.data['!Parameters'].EventFlowEntryName}}&gt;</code> when signalled.</p>
-        <p v-if="obj.name == 'SignalFlowchart'">Runs <code>{{obj.data['!Parameters'].EventFlowName}}&lt;{{obj.data['!Parameters'].EventFlowEntryName}}&gt;</code> in a loop and emits a basic signal when a signal is sent from the event flow.</p>
+        <!-- LinkTag -->
+        <p class="mt-2" v-if="obj.name.startsWith('LinkTag') && linksToSelf.length && linkTagSaveFlag()">{{linkTagSaveFlagAction()[0]}} the <code>{{linkTagSaveFlag()}}</code> flag when signalled.</p>
+        <p class="mt-2" v-if="obj.name.startsWith('LinkTag') && links.length && linkTagSaveFlag()">Activates target links if the <code>{{linkTagSaveFlag()}}</code> flag is {{linkTagSaveFlagAction()[1]}}.</p>
 
-        <a target="_blank" :href="`https://eventviewer.zeldamods.org/viewer.html?data=/d/${obj.data['!Parameters'].EventFlowName}.json&params=1&entry=${obj.data['!Parameters'].EventFlowEntryName}`" class="btn btn-block btn-sm btn-info"><i class="fa fa-external-link-alt"></i> View in EventViewer</a>
-      </div>
+        <!-- EventTag, SignalFlowchart -->
+        <div class="mt-2" v-if="(obj.name == 'EventTag' || obj.name == 'SignalFlowchart') && obj.data['!Parameters']">
+          <p v-if="obj.name == 'EventTag'">Activates event <code>{{obj.data['!Parameters'].EventFlowName}}&lt;{{obj.data['!Parameters'].EventFlowEntryName}}&gt;</code> when signalled.</p>
+          <p v-if="obj.name == 'SignalFlowchart'">Runs <code>{{obj.data['!Parameters'].EventFlowName}}&lt;{{obj.data['!Parameters'].EventFlowEntryName}}&gt;</code> in a loop and emits a basic signal when a signal is sent from the event flow.</p>
+
+          <a target="_blank" :href="`https://eventviewer.zeldamods.org/viewer.html?data=/d/${obj.data['!Parameters'].EventFlowName}.json&params=1&entry=${obj.data['!Parameters'].EventFlowEntryName}`" class="btn btn-block btn-sm btn-info"><i class="fa fa-external-link-alt"></i> View in EventViewer</a>
+        </div>
+      </section>
 
       <section v-if="obj.data['!Parameters']">
         <hr>
