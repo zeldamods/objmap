@@ -10,6 +10,11 @@ export interface SearchPreset {
   query: string;
 }
 
+export interface SearchPresetGroup {
+  label: string;
+  presets: SearchPreset[];
+}
+
 const LAUNCHABLE_OBJS = `TwnObj_City_GoronPot_A_M_Act_01
 FldObj_BoardIron_A_01
 FldObj_FallingRock_*
@@ -23,17 +28,49 @@ Obj_LiftRock*
 Obj_RockCover
 Barrel`;
 
-export const SEARCH_PRESETS: ReadonlyArray<SearchPreset> = Object.freeze([
-  {label: 'Treasure Chests', query: 'actor:^"TBox_"'},
-  {label: 'Arrows', query: 'Arrow'},
-  {label: 'Cooking Pots', query: 'actor:Item_CookSet'},
-  {label: 'Goddess Statues', query: 'name:"Goddess Statue"'},
-  {label: 'Rafts', query: 'name:Raft'},
-  {label: 'Memory Locations', query: 'name:"Memory"'},
-  {label: 'Weapons (excluding Enemies)', query: 'Weapon_ NOT actor:^"Enemy_"'},
-  {label: 'Enemies', query: 'actor:^"Enemy_"'},
-  {label: 'BtB Enemies', query: 'actor:^"Enemy_Bokoblin" OR actor:^"Enemy_Lizalfos" OR actor:^"Enemy_Moriblin" OR actor:^"Enemy_Giant" OR actor:^"Enemy_Wizzrobe"'},
-  {label: 'Launchable Objects', query: LAUNCHABLE_OBJS.split('\n').map(x => `actor:^${x}`).join(' OR ')},
+function makeActorQuery(actors: string[]): string {
+  return actors.map(x => `actor:^${x}`).join(' OR ');
+}
+
+function makeNameQuery(names: string[]): string {
+  return names.map(x => `name:"^${x}"`).join(' OR ');
+}
+
+export const SEARCH_PRESETS: ReadonlyArray<SearchPresetGroup> = Object.freeze([
+  {
+    label: '<i class="far fa-gem"></i>',
+    presets: [
+      {label: 'Treasure Chests', query: 'actor:^"TBox_"'},
+      {label: 'Arrows', query: 'Arrow'},
+      {label: 'Ore Deposits', query: 'name:"Ore Deposit"'},
+      {label: 'Weapons (excluding enemies)', query: 'Weapon_ NOT actor:^"Enemy_"'},
+    ],
+  },
+  {
+    label: '<i class="fas fa-apple-alt"></i>',
+    presets: [
+      {label: 'Cooking Pots', query: 'actor:Item_CookSet'},
+      {label: 'Fruits', query: 'actor:^Item_Fruit_*'},
+      {label: 'Enduring Ingredients', query: makeNameQuery(['Endura', 'Tireless Frog'])},
+      {label: 'Fireproof Ingredients', query: makeNameQuery(['Fireproof', 'Smotherwing Butterfly'])},
+      {label: 'Hasty Ingredients', query: makeNameQuery(['Hightail Lizard', 'Hot-Footed Frog', 'Fleet-Lotus Seeds', 'Rushroom', 'Swift Carrot', 'Swift Violet'])},
+      {label: 'Hasty Ingredients (Lvl2 only)', query: makeNameQuery(['Hot-Footed Frog', 'Fleet-Lotus Seeds', 'Swift Violet'])},
+      {label: 'Hearty Ingredients', query: 'name:^Hearty'},
+      {label: 'Mighty Ingredients', query: makeNameQuery(['Mighty', 'Razorshroom', 'Razorclaw Crab', 'Bladed Rhino Beetle']),},
+      {label: 'Tough Ingredients', query: makeNameQuery(['Ironshroom', 'Fortified Pumpkin', 'Rugged Rhino Beetle', 'Ironshell Crab', 'Armored', 'Armoranth'])},
+    ],
+  },
+  {
+    label: '<i class="fa fa-ellipsis-h"></i>',
+    presets: [
+      {label: 'Memory Locations', query: 'name:"Memory"'},
+      {label: 'Goddess Statues', query: 'name:"Goddess Statue"'},
+      {label: 'Rafts', query: 'name:Raft'},
+      {label: 'Enemies', query: 'actor:^"Enemy_"'},
+      {label: 'BtB Enemies', query: makeActorQuery(['Enemy_Bokoblin', 'Enemy_Lizalfos', 'Enemy_Moriblin', 'Enemy_Giant', 'Enemy_Wizzrobe'])},
+      {label: 'Launchable Objects', query: makeActorQuery(LAUNCHABLE_OBJS.split('\n'))},
+    ],
+  },
 ]);
 
 export class SearchExcludeSet {

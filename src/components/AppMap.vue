@@ -75,8 +75,9 @@
             <input type="search" class="form-control search-main-input" placeholder="Search" @input="searchOnInput" v-model="searchQuery">
             <div class="d-flex justify-content-end">
               <b-btn size="sm" variant="link" @click="switchPane('spane-search-help')">Help</b-btn>
-              <b-dropdown size="sm" variant="link" text="Presets">
-                <b-dd-item v-for="preset in searchPresets" :key="preset.label" @click="searchAddGroup(preset.query, preset.label)">{{preset.label}}</b-dd-item>
+              <b-dropdown v-for="presetGroup in searchPresets" :key="presetGroup.label" size="sm" variant="link">
+                <template slot="button-content"><span v-html="presetGroup.label"></span></template>
+                <b-dd-item v-for="preset in presetGroup.presets" :key="preset.label" @click="searchAddGroup(preset.query, preset.label)">{{preset.label}}</b-dd-item>
               </b-dropdown>
             </div>
           </div>
