@@ -27,6 +27,11 @@ export const SEARCH_PRESETS: ReadonlyArray<SearchPreset> = Object.freeze([
   {label: 'Treasure Chests', query: 'actor:^"TBox_"'},
   {label: 'Arrows', query: 'Arrow'},
   {label: 'Cooking Pots', query: 'actor:Item_CookSet'},
+  {label: 'Goddess Statues', query: 'name:"Goddess Statue"'},
+  {label: 'Rafts', query: 'name:Raft'},
+  {label: 'Memory Locations', query: 'name:"Memory"'},
+  {label: 'Weapons (excluding Enemies)', query: 'Weapon_ NOT actor:^"Enemy_"'},
+  {label: 'Enemies', query: 'actor:^"Enemy_"'},
   {label: 'BtB Enemies', query: 'actor:^"Enemy_Bokoblin" OR actor:^"Enemy_Lizalfos" OR actor:^"Enemy_Moriblin" OR actor:^"Enemy_Giant" OR actor:^"Enemy_Wizzrobe"'},
   {label: 'Launchable Objects', query: LAUNCHABLE_OBJS.split('\n').map(x => `actor:^${x}`).join(' OR ')},
 ]);

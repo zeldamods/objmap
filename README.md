@@ -29,17 +29,17 @@ _Breath of the Wild_ object map.
   * Color by actor type / by search result group (suggested by Zant)
 * Objects
   * Custom handling for:
-    * TODO weapons
-      * show weapon stats from GeneralParamList.
-    * TODO enemies
-    * TODO RememberTag
-    * TODO rafts
+    * weapons
+      * TODO show weapon stats from GeneralParamList.
+    * enemies
+    * RememberTag
+    * rafts
     * cooking pots
     * Koroks:
       * TODO autogenerate information on puzzles if possible?
       * TODO [low-priority] show colors, leaf shapes using embedded UMii data?
     * treasure chests (show contents)
-    * TODO Goddess Statues
+    * Goddess Statues
   * Presets
     * BTB Enemies
     * Launchable Objects
