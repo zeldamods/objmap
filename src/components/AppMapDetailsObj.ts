@@ -71,6 +71,27 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj|Map
     return d.toFixed(digits);
   }
 
+  linkTagSaveFlagAction(): [string, string] {
+    if (!this.obj)
+      return ['???', '???'];
+    if (this.obj.data['!Parameters']!.IncrementSave || this.obj.name == 'LinkTagCount')
+      return ['Increments', '???'];
+    switch (this.obj.data['!Parameters']!.SaveFlagOnOffType) {
+    case 0:
+      if (this.obj.name == 'LinkTagAnd' || this.obj.name == 'LinkTagNAnd' || this.obj.name == 'LinkTagXOr')
+        return ['Sets', 'set'];
+      if (this.obj.name == 'LinkTagOr' || this.obj.name == 'LinkTagNOr')
+        return ['Clears', 'unset'];
+      return ['???', '???'];
+    case 1:
+      return ['Sets', 'set'];
+    case 2:
+      return ['Clears', 'unset'];
+    default:
+      return ['???', '???'];
+    }
+  }
+
   linkTagSaveFlag(): string {
     if (!this.obj)
       return '';
@@ -83,8 +104,9 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj|Map
       return 'Open_{DUNGEON_NAME}';
     case 3:
       return `MainField_${this.obj.name}_${this.obj.hash_id}`;
+    default:
+      return 'UNEXPECTED_MAKE_SAVE_FLAG';
     }
-    return 'UNEXPECTED_MAKE_SAVE_FLAG';
   }
 
   private initLinks() {
