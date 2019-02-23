@@ -16,10 +16,12 @@
 
         <!-- LinkTag -->
         <section v-if="obj.name.startsWith('LinkTag')">
-          <p class="mt-2" v-if="linkTagInputs.length && linkTagSaveFlag()">{{linkTagSaveFlagAction()[0]}} the <code>{{linkTagSaveFlag()}}</code> flag when signalled.</p>
+          <p class="mt-2" v-if="linkTagInputs.length && linkTagSaveFlag()">{{linkTagSaveFlagAction()}} the <code>{{linkTagSaveFlag()}}</code> flag when input evaluation gives a positive output.</p>
           <p class="mt-2" v-if="links.length && linkTagSaveFlag()">
-            Activates target links if the <code>{{linkTagSaveFlag()}}</code> flag is {{linkTagSaveFlagAction()[1]}}.
+            Activates target links if the <code>{{linkTagSaveFlag()}}</code> flag is set.
             <span v-show="linkTagInputs.length">In that case, input evaluation is skipped.</span>
+            <br>
+            Evaluates to {{isInvertedLogicTag ? 'OFF' : 'ON'}} when the flag is set and {{isInvertedLogicTag ? 'ON' : 'OFF'}} otherwise.
           </p>
           <section v-show="linkTagInputs.length">
             <hr>

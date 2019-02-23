@@ -69,6 +69,7 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj|Map
   private links: PlacementLink[] = [];
   private linksToSelf: PlacementLink[] = [];
   private linkTagInputs: PlacementLink[] = [];
+  private isInvertedLogicTag = false;
 
   async init() {
     this.minObj = this.marker.data.obj;
@@ -88,6 +89,7 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj|Map
     this.initLinks();
     this.initLinksToSelf();
     this.initLinkTagLinks();
+    this.isInvertedLogicTag = this.obj.name === 'LinkTagNAnd' || this.obj.name === 'LinkTagNOr';
   }
 
   getLocationSub() {
@@ -120,24 +122,24 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj|Map
     return d.toFixed(digits);
   }
 
-  linkTagSaveFlagAction(): [string, string] {
+  linkTagSaveFlagAction(): string {
     if (!this.obj)
-      return ['???', '???'];
+      return '???';
     if (this.obj.data['!Parameters']!.IncrementSave || this.obj.name == 'LinkTagCount')
-      return ['Increments', '???'];
+      return 'Increments';
     switch (this.obj.data['!Parameters']!.SaveFlagOnOffType) {
     case 0:
       if (this.obj.name == 'LinkTagAnd' || this.obj.name == 'LinkTagNAnd' || this.obj.name == 'LinkTagXOr')
-        return ['Sets', 'set'];
+        return 'Sets';
       if (this.obj.name == 'LinkTagOr' || this.obj.name == 'LinkTagNOr')
-        return ['Clears', 'unset'];
-      return ['???', '???'];
+        return 'Clears';
+      return '???';
     case 1:
-      return ['Sets', 'set'];
+      return 'Sets';
     case 2:
-      return ['Clears', 'unset'];
+      return 'Clears';
     default:
-      return ['???', '???'];
+      return '???';
     }
   }
 
