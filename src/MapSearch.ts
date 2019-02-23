@@ -40,6 +40,10 @@ export class SearchExcludeSet {
   constructor(public query: string, public label: string) {
   }
 
+  size() {
+    return this.ids.size;
+  }
+
   ids!: Set<number>;
 
   async init() {
@@ -49,6 +53,10 @@ export class SearchExcludeSet {
 
 export class SearchResultGroup {
   constructor(public query: string, public label: string) {
+  }
+
+  size() {
+    return this.markers.data ? this.markers.data.length : 0;
   }
 
   remove() {
