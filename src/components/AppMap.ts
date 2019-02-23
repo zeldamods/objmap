@@ -424,6 +424,12 @@ export default class AppMap extends mixins(MixinUtil) {
     this.searchGroups.push(group);
   }
 
+  searchViewGroup(idx: number) {
+    const group = this.searchGroups[idx];
+    this.searchQuery = group.query;
+    this.search();
+  }
+
   searchRemoveGroup(idx: number) {
     const group = this.searchGroups[idx];
     group.remove();
@@ -437,6 +443,7 @@ export default class AppMap extends mixins(MixinUtil) {
   }
 
   async search() {
+    this.searching = true;
     this.searchResultMarkers.forEach(m => m.data.getMarker().remove());
     this.searchResultMarkers = [];
 
