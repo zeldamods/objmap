@@ -147,6 +147,10 @@
   box-shadow: 0 0 50px 10px black;
 }
 
+.leaflet-container a {
+  color: inherit;
+}
+
 .leaflet-edit-move, .leaflet-editing-icon {
   z-index: 2000 !important;
 }

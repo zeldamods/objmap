@@ -81,8 +81,8 @@ _Breath of the Wild_ object map.
 
 ## Integration
 * Integration with other tools/viewers for special objects, such as:
-  * TODO EventTag: open event flow in EventEditor (if it exists)
-  * TODO SignalFlowchart: same
+  * EventTag: open event flow in EventEditor (if it exists)
+  * SignalFlowchart: same
   * TODO any actor with an event flow: same
 * TODO Autogen: link to EventEditor for AutoPlacement event flows.
 
