@@ -71,6 +71,22 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj|Map
     return d.toFixed(digits);
   }
 
+  linkTagSaveFlag(): string {
+    if (!this.obj)
+      return '';
+    switch (this.obj.data['!Parameters']!.MakeSaveFlag) {
+    case 0:
+      return this.obj.data['!Parameters']!.SaveFlag || '';
+    case 1:
+      return 'Clear_{CURRENT_MAP_NAME}';
+    case 2:
+      return 'Open_{DUNGEON_NAME}';
+    case 3:
+      return `MainField_${this.obj.name}_${this.obj.hash_id}`;
+    }
+    return 'UNEXPECTED_MAKE_SAVE_FLAG';
+  }
+
   private initLinks() {
     const links = this.obj!.data.LinksToObj;
     if (!links)
