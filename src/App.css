@@ -33,6 +33,10 @@ a, a:active, a:visited {
   color: #29d1fc;
 }
 
+code {
+  color: #ffd800;
+}
+
 .fade-enter-active, .fade-leave-active {
   transition: opacity .2s;
 }

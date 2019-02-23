@@ -8,6 +8,7 @@
     <div class="leaflet-sidebar-tabs">
       <ul role="tablist">
         <li class="d-none"><a href="#spane-details" role="tab"><i class="fa fa-map-marker-alt"></i></a></li>
+        <li class="d-none"><a href="#spane-search-help" role="tab"></a></li>
         <li><a href="#spane-search" role="tab"><i class="fa fa-search"></i></a></li>
         <li><a href="#spane-filter" role="tab"><i class="fa fa-filter"></i></a></li>
         <li class="disabled"><a href="#spane-dummy" role="tab"><i class="fa fa-tasks"></i></a></li>
@@ -18,10 +19,62 @@
     </div>
     <div class="leaflet-sidebar-content" id="sidebar-content">
 
+      <div class="leaflet-sidebar-pane" id="spane-search-help">
+        <h1 class="leaflet-sidebar-header">Help</h1>
+
+        <h4 class="subsection-heading">Basic search</h4>
+        <p>
+          Type what you are looking for in the search box. Examples:<br>
+          <code>Bokoblin</code><br>
+          <code>"Blue Bokoblin"</code> (use quotes for exact phrases)<br>
+          <code>"Soldier's Bow"</code> (' must be quoted)<br>
+          <code>Lizalfos "Royal Bow"</code> for Lizalfos <i>with</i> Royal Bows
+        </p>
+
+        <p>Internal actor names (e.g. Enemy_Bokoblin_Middle) also work.</p>
+
+        <h4 class="subsection-heading">Column filters</h4>
+        <p>Column filters allow you to search for particular attributes.<br>
+          Syntax: <code>COLUMN<b>:</b>QUERY</code><br>
+          Example: <code>^Bokoblin scale:0</code></p>
+        <p>Available columns:</p>
+        <p>
+          <code>map</code>: Map name (e.g. MainField/E-4)<br>
+          <code>actor</code>: Actor name (e.g. Weapon_Sword_001)<br>
+          <code>name</code>: User visible name (e.g. Traveler's Sword)<br>
+          <code>data</code>: Internal object data<br>
+          <code>drop</code>: Drops or treasure chest content<br>
+          <code>equip</code>: Enemy equipment<br>
+          <code>onehit</code>: Appears only during the One-Hit Obliterator challenge (1 or 0)<br>
+          <code>lastboss</code>: Spawns after entering Sanctum (1 or 0)<br>
+          <code>hard</code>: Only spawns in Master Mode (1 or 0)<br>
+          <code>no_rankup</code>: Won't rank up for Master Mode (1 or 0)<br>
+          <code>scale</code>: Will scale up (1 or 0)<br>
+          <code>bonus</code>: Minimum bonus modifier tier (0, 1, 2 or 3)<br>
+        </p>
+        <p>For more information on the last 4 columns, please read <a href="https://zeldamods.org/wiki/Difficulty_scaling">the article on <i>difficulty scaling</i></a>.</p>
+
+        <h4 class="subsection-heading">Boolean operators</h4>
+        <p>
+          <code>Lynel <b>OR</b> "Lynel Bow"</code> for Lynels or Lynel Bows<br>
+          <code>Lynel <b>NOT</b> "Lynel Bow"</code> to exclude Lynels that have Lynel Bows<br>
+          <code>Lynel <b>AND</b> "Lynel Bow"</code> for Lynels that have Lynel Bows (note: AND is optional)
+        </p>
+
+        <h4 class="subsection-heading">Special characters</h4>
+        <p>
+          <code><b>^</b>Bokoblin</code> to match only names with the <i>first word</i> equal to Bokoblin<br>
+          <code>TBox_<b>*</b></code> for TBox_Field_Wood, TBox_Field_Iron, etc.
+        </p>
+
+        <b-btn block size="sm" variant="primary" @click="switchPane('spane-search')"><i class="fa fa-chevron-left"></i> Back</b-btn>
+      </div>
+
       <div class="leaflet-sidebar-pane" id="spane-search">
           <div class="search-header">
             <input type="search" class="form-control search-main-input" placeholder="Search" @input="searchOnInput" v-model="searchQuery">
             <div class="d-flex justify-content-end">
+              <b-btn size="sm" variant="link" @click="switchPane('spane-search-help')">Help</b-btn>
               <b-dropdown size="sm" variant="link" text="Presets">
                 <b-dd-item v-for="preset in searchPresets" :key="preset.label" @click="searchAddGroup(preset.query, preset.label)">{{preset.label}}</b-dd-item>
               </b-dropdown>
