@@ -8,6 +8,7 @@
       <section>Position: {{obj.data.Translate[0].toFixed(2)}}, {{obj.data.Translate[1].toFixed(2)}}, {{obj.data.Translate[2].toFixed(2)}}</section>
       <section v-if="obj.data.Scale != null">Scale: {{arrayOrNumToStr(obj.data.Scale, 2)}}</section>
       <section v-if="obj.data.Rotate != null">Rotate: {{arrayOrNumToStr(obj.data.Rotate, 5)}}</section>
+      <section v-if="obj.data.UniqueName">Unique name: {{obj.data.UniqueName}}</section>
 
       <p class="mt-2" v-if="obj.name == 'LinkTagAnd' && !links.length && obj.data['!Parameters'].SaveFlag">Sets the <i>{{obj.data['!Parameters'].SaveFlag}}</i> flag.</p>
       <p class="mt-2" v-if="obj.name == 'LinkTagAnd' && links.length && obj.data['!Parameters'].SaveFlag">Activates target links if the <i>{{obj.data['!Parameters'].SaveFlag}}</i> flag is set.</p>
