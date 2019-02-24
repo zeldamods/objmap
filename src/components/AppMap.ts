@@ -515,6 +515,15 @@ export default class AppMap extends mixins(MixinUtil) {
       this.search();
       this.switchPane('spane-search');
     }
+
+    if (this.$route.query.id) {
+      // format: MapType,MapName,HashId
+      const [mapType, mapName, hashId] = this.$route.query.id.toString().split(',');
+      MapMgr.getInstance().getObj(mapType, mapName, parseInt(hashId, 0)).then((obj) => {
+        if (obj)
+          this.$emit('AppMap:open-obj', obj);
+      });
+    }
   }
 
   beforeDestroy() {
