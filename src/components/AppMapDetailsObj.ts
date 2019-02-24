@@ -80,7 +80,7 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj|Map
     this.linksToSelf = [];
     this.linkTagInputs = [];
 
-    this.obj = await MapMgr.getInstance().getObjByObjId(this.minObj.objid);
+    this.obj = (await MapMgr.getInstance().getObjByObjId(this.minObj.objid))!;
     this.genGroup = await MapMgr.getInstance().getObjGenGroup('MainField', this.obj.map_name, this.obj.hash_id);
     for (const obj of this.genGroup) {
       this.genGroupSet.set(obj.hash_id, obj);

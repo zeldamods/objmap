@@ -56,6 +56,8 @@ export class PlacementLink {
 }
 
 function parse(r: Response) {
+  if (r.status == 404)
+    return null;
   return r.json().then(d => Object.freeze(d));
 }
 
@@ -80,10 +82,10 @@ export class MapMgr {
     return this.infoMainField;
   }
 
-  getObjByObjId(objid: number): Promise<ObjectData> {
+  getObjByObjId(objid: number): Promise<ObjectData|null> {
     return fetch(`${RADAR_URL}/obj/${objid}`).then(parse);
   }
-  getObj(mapType: string, mapName: string, hashId: number): Promise<ObjectData> {
+  getObj(mapType: string, mapName: string, hashId: number): Promise<ObjectData|null> {
     return fetch(`${RADAR_URL}/obj/${mapType}/${mapName}/${hashId}`).then(parse);
   }
 
