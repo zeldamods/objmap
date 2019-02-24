@@ -167,11 +167,15 @@ export default class AppMap extends mixins(MixinUtil) {
   updateRoute() {
     this.updatingRoute = true;
     // @ts-ignore
-    this.$router.replace({ name: 'map', params: {
-      x: this.map.center[0],
-      z: this.map.center[1],
-      zoom: this.map.m.getZoom(),
-    }});
+    this.$router.replace({
+      name: 'map',
+      params: {
+        x: this.map.center[0],
+        z: this.map.center[1],
+        zoom: this.map.m.getZoom(),
+      },
+      query: this.$route.query,
+    });
     this.updatingRoute = false;
   }
 
@@ -505,6 +509,12 @@ export default class AppMap extends mixins(MixinUtil) {
     this.initSearch();
     this.initContextMenu();
     this.initEvents();
+
+    if (this.$route.query.q) {
+      this.searchQuery = this.$route.query.q.toString();
+      this.search();
+      this.switchPane('spane-search');
+    }
   }
 
   beforeDestroy() {
