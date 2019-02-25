@@ -45,8 +45,8 @@ _Breath of the Wild_ object map.
     * Launchable Objects
     * Treasure Chests
     * Arrows
-  * TODO Custom presets
-  * TODO Search query syntax documentation
+  * Custom presets
+  * Search query syntax documentation
   * Show all objects in area.
 * Object details
   * Respawn information, no-revival area...
