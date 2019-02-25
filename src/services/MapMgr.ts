@@ -23,6 +23,7 @@ export const enum ObjectDropType {
 
 export interface ObjectMinData {
   objid: number;
+  hash_id: number;
   map_name?: string;
   name: string;
   drop?: [ObjectDropType, string];
@@ -44,7 +45,6 @@ export interface ObjectMinData {
 export interface ObjectData extends ObjectMinData {
   map_type: string;
   map_name: string;
-  hash_id: number;
   data: ResPlacementObj;
 }
 
