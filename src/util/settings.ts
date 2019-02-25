@@ -6,7 +6,7 @@ export class Settings {
   static getInstance() {
     if (!this.instance) {
       const instance = new this();
-      this.instance = Object.seal(new Proxy(instance, instance.makeProxyHandler()));
+      this.instance = new Proxy(instance, instance.makeProxyHandler());
     }
     return this.instance;
   }
