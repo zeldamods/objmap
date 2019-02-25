@@ -59,7 +59,10 @@ export class Settings {
       useActorNames: this.useActorNames,
       useHexForHashIds: this.useHexForHashIds,
     };
-    localStorage.setItem(Settings.KEY, JSON.stringify(data));
+    // Merge with existing data to avoid data loss.
+    const existingDataStr = localStorage.getItem(Settings.KEY);
+    const existingData = existingDataStr ? JSON.parse(existingDataStr) : {};
+    localStorage.setItem(Settings.KEY, JSON.stringify(Object.assign(existingData, data)));
   }
 
   private invokeCallbacks() {
