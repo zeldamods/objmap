@@ -419,7 +419,7 @@ export default class AppMap extends mixins(MixinUtil) {
   }
 
   async searchAddGroup(query: string, label?: string) {
-    if (this.searchGroups.some(g => g.query == query))
+    if (this.searchGroups.some(g => !!g.query && g.query == query))
       return;
 
     const group = new SearchResultGroup(query, label || query);

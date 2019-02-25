@@ -2,7 +2,7 @@ import * as L from 'leaflet';
 import {MapBase} from '@/MapBase';
 import {SearchResultUpdateMode} from '@/MapMarker';
 import * as MapMarkers from '@/MapMarker';
-import {MapMgr} from '@/services/MapMgr';
+import {MapMgr, ObjectMinData} from '@/services/MapMgr';
 import * as ui from '@/util/ui';
 
 export interface SearchPreset {
@@ -97,10 +97,9 @@ export class SearchResultGroup {
   }
 
   remove() {
-    if (this.markerGroup) {
-      this.markerGroup.data.remove();
-      this.markerGroup.data.clearLayers();
-    }
+    this.markerGroup.data.remove();
+    this.markerGroup.data.clearLayers();
+    this.shownMarkers = new ui.Unobservable([]);
   }
 
   update(mode: SearchResultUpdateMode, excludedSets: SearchExcludeSet[]) {
@@ -122,19 +121,26 @@ export class SearchResultGroup {
     }
   }
 
+  setObjects(map: MapBase, objs: ObjectMinData[]) {
+    this.markers = new ui.Unobservable(
+        objs.map(r => new MapMarkers.MapMarkerObj(map, r, this.fillColor, this.strokeColor)));
+    this.markerGroup.data.clearLayers();
+    this.shownMarkers = new ui.Unobservable([]);
+  }
+
   async init(map: MapBase) {
     this.fillColor = ui.shadeColor(ui.genColor(10, SearchResultGroup.COLOR_COUNTER++), -5);
     this.strokeColor = ui.shadeColor(this.fillColor, -20);
-    const results = await MapMgr.getInstance().getObjs('MainField', '', this.query);
-    this.markers = new ui.Unobservable(
-        results.map(r => new MapMarkers.MapMarkerObj(map, r, this.fillColor, this.strokeColor)));
-    this.markerGroup = new ui.Unobservable(new L.LayerGroup());
     this.markerGroup.data.addTo(map.m);
+    if (!this.query)
+      return;
+    const results = await MapMgr.getInstance().getObjs('MainField', '', this.query);
+    this.setObjects(map, results);
   }
 
   private static COLOR_COUNTER = 0;
-  private markerGroup!: ui.Unobservable<L.LayerGroup>;
-  private markers!: ui.Unobservable<MapMarkers.MapMarkerObj[]>;
+  private markerGroup = new ui.Unobservable<L.LayerGroup>(L.layerGroup());
+  private markers = new ui.Unobservable<MapMarkers.MapMarkerObj[]>([]);
   private shownMarkers: ui.Unobservable<boolean[]> = new ui.Unobservable([]);
   private fillColor = '';
   private strokeColor = '';
