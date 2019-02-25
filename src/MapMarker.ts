@@ -265,39 +265,52 @@ export class MapMarkerObj extends MapMarkerCanvasImpl {
       color: strokeColor,
 
       // @ts-ignore
-      contextmenuItems: [{
-        text: 'Show no-revival area',
-        callback: ({ latlng }: ui.LeafletContextMenuCbArg) => {
-          const [x, z] = mb.toXZ(latlng);
-          const col = math.clamp(((x + 5000) / 1000)|0, 0, 9);
-          const row = math.clamp(((z + 4000) / 1000)|0, 0, 7);
+      contextmenuItems: [
+        {
+          text: 'Show no-revival area',
+          callback: ({ latlng }: ui.LeafletContextMenuCbArg) => {
+            const [x, z] = mb.toXZ(latlng);
+            const col = math.clamp(((x + 5000) / 1000)|0, 0, 9);
+            const row = math.clamp(((z + 4000) / 1000)|0, 0, 7);
 
-          let minx = (col-1) * 1000 - 4500;
-          let maxx = (col+1) * 1000 - 4500;
-          minx = math.clamp(minx, -5000, 5000);
-          maxx = math.clamp(maxx, -5000, 5000);
+            let minx = (col-1) * 1000 - 4500;
+            let maxx = (col+1) * 1000 - 4500;
+            minx = math.clamp(minx, -5000, 5000);
+            maxx = math.clamp(maxx, -5000, 5000);
 
-          let minz = (row-1) * 1000 - 3500;
-          let maxz = (row+1) * 1000 - 3500;
-          minz = math.clamp(minz, -4000, 4000);
-          maxz = math.clamp(maxz, -4000, 4000);
+            let minz = (row-1) * 1000 - 3500;
+            let maxz = (row+1) * 1000 - 3500;
+            minz = math.clamp(minz, -4000, 4000);
+            maxz = math.clamp(maxz, -4000, 4000);
 
-          const pt1 = mb.fromXZ([minx, minz]);
-          const pt2 = mb.fromXZ([maxx, maxz]);
-          const rect = L.rectangle(L.latLngBounds(pt1, pt2), {
-            color: "#ff7800",
-            weight: 2,
-            // @ts-ignore
-            contextmenu: true,
-            contextmenuItems: [{
-              text: 'Hide no-revival area',
-              callback: () => { rect.remove(); },
-            }],
-          });
-          rect.addTo(mb.m);
+            const pt1 = mb.fromXZ([minx, minz]);
+            const pt2 = mb.fromXZ([maxx, maxz]);
+            const rect = L.rectangle(L.latLngBounds(pt1, pt2), {
+              color: "#ff7800",
+              weight: 2,
+              // @ts-ignore
+              contextmenu: true,
+              contextmenuItems: [{
+                text: 'Hide no-revival area',
+                callback: () => { rect.remove(); },
+              }],
+            });
+            rect.addTo(mb.m);
+          },
+          index: 0,
         },
-        index: 0,
-      }],
+        {
+          text: 'Show generation group',
+          callback: ({ latlng }: ui.LeafletContextMenuCbArg) => {
+            mb.m.fire('AppMap:show-gen-group', {
+              mapType: 'MainField',
+              mapName: this.obj.map_name,
+              hashId: this.obj.hash_id,
+            });
+          },
+          index: 0,
+        },
+      ],
     });
     this.marker.bringToFront();
     setObjMarkerTooltip(this.title, this.marker, obj);

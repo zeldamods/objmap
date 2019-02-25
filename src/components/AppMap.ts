@@ -36,6 +36,12 @@ import {Settings} from '@/util/settings';
 import * as ui from '@/util/ui';
 import '@/util/leaflet_tile_workaround.js';
 
+interface ObjectIdentifier {
+  mapType: string;
+  mapName: string;
+  hashId: number;
+}
+
 function valueOrDefault<T>(value: T|undefined, defaultValue: T) {
   return value === undefined ? defaultValue : value;
 }
@@ -492,9 +498,22 @@ export default class AppMap extends mixins(MixinUtil) {
       this.tempObjMarker.data.getMarker().addTo(this.map.m);
       this.openMarkerDetails(getMarkerDetailsComponent(this.tempObjMarker.data), this.tempObjMarker.data);
     });
+
     this.map.m.on('click', () => {
       if (this.tempObjMarker)
         this.tempObjMarker.data.getMarker().remove();
+    });
+
+    this.$on('AppMap:show-gen-group', async (id: ObjectIdentifier) => {
+      const group = new SearchResultGroup('', `Generation group for ${id.mapType}/${id.mapName}:${id.hashId}`);
+      await group.init(this.map);
+      const objs = await MapMgr.getInstance().getObjGenGroup(id.mapType, id.mapName, id.hashId);
+      group.setObjects(this.map, objs);
+      group.update(SearchResultUpdateMode.UpdateStyle | SearchResultUpdateMode.UpdateVisibility, this.searchExcludedSets);
+      this.searchGroups.push(group);
+    });
+    this.map.m.on('AppMap:show-gen-group', (args) => {
+      this.$emit('AppMap:show-gen-group', args);
     });
   }
 
