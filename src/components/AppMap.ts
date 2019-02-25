@@ -156,6 +156,8 @@ export default class AppMap extends mixins(MixinUtil) {
 
   private tempObjMarker: ui.Unobservable<MapMarker>|null = null;
 
+  private settings: Settings|null = null;
+
   setViewFromRoute(route: any) {
     const x = parseFloat(route.params.x);
     const z = parseFloat(route.params.z);
@@ -515,6 +517,10 @@ export default class AppMap extends mixins(MixinUtil) {
     this.map.m.on('AppMap:show-gen-group', (args) => {
       this.$emit('AppMap:show-gen-group', args);
     });
+  }
+
+  created() {
+    this.settings = Settings.getInstance();
   }
 
   mounted() {

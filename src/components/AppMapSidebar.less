@@ -10,6 +10,14 @@
   border: 0;
   border-radius: 0;
 
+  .form-control {
+    background-color: rgba(255, 255, 255, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    line-height: 3;
+  }
+  .form-control::placeholder {
+    color: #aaa;
+  }
   hr {
     border-color: rgba(255, 255, 255, 0.2);
   }
@@ -113,15 +121,6 @@
 }
 
 /* Search */
-#spane-search .search-main-input {
-  background-color: rgba(255, 255, 255, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  line-height: 3;
-}
-#spane-search .search-main-input::placeholder {
-  color: #aaa;
-}
-
 .search-groups {
   margin-bottom: 5px;
   font-size: 90%;

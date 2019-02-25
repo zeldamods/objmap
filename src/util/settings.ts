@@ -27,6 +27,8 @@ export class Settings {
   useActorNames!: boolean;
   useHexForHashIds!: boolean;
 
+  customSearchPresets!: Array<[string, string]>;
+
   private constructor() {
     this.load();
     window.addEventListener('beforeunload', (event) => {
@@ -45,6 +47,7 @@ export class Settings {
     this.colorPerActor = parse(data.colorPerActor, Id, true);
     this.useActorNames = parse(data.useActorNames, Id, false);
     this.useHexForHashIds = parse(data.useHexForHashIds, Id, true);
+    this.customSearchPresets = parse(data.customSearchPresets, Id, []);
 
     this.invokeCallbacks();
   }
@@ -58,6 +61,7 @@ export class Settings {
       colorPerActor: this.colorPerActor,
       useActorNames: this.useActorNames,
       useHexForHashIds: this.useHexForHashIds,
+      customSearchPresets: this.customSearchPresets,
     };
     // Merge with existing data to avoid data loss.
     const existingDataStr = localStorage.getItem(Settings.KEY);

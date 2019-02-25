@@ -7,7 +7,7 @@ import {Settings} from '@/util/settings';
 @Component
 export default class AppMapSettings extends Vue {
   colorMode: string = '';
-  s!: Settings;
+  s: Settings|null = null;
 
   created() {
     this.s = Settings.getInstance();

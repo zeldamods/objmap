@@ -79,6 +79,9 @@
                 <template slot="button-content"><span v-html="presetGroup.label"></span></template>
                 <b-dd-item v-for="preset in presetGroup.presets" :key="preset.label" @click="searchAddGroup(preset.query, preset.label)">{{preset.label}}</b-dd-item>
               </b-dropdown>
+              <b-dropdown size="sm" variant="link" text="Custom" v-if="settings && settings.customSearchPresets.length">
+                <b-dd-item v-for="preset in settings.customSearchPresets" :key="preset[0]" @click="searchAddGroup(preset[1], preset[0])">{{preset[0]}}</b-dd-item>
+              </b-dropdown>
             </div>
           </div>
 
