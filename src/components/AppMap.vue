@@ -140,7 +140,7 @@
         <h1 class="leaflet-sidebar-header">Tools</h1>
         <b-button size="sm" variant="secondary" block @click="closeSidebar(); $refs.modalGoto.show()">Go to coordinates...</b-button>
         <hr>
-        <p><b-button size="sm" variant="secondary" block @click="closeSidebar(); showGreatPlateauBarrier()">Show Great Plateau barrier</b-button></p>
+        <p><b-button size="sm" variant="secondary" block @click="closeSidebar(); showGreatPlateauBarrier()" v-b-tooltip.hover title="Right click on the Plateau to hide the barrier.">Show Great Plateau barrier</b-button></p>
         <p>The Great Plateau barrier prevents Link from leaving the Great Plateau before he has acquired the paraglider. For more information, read the <a href="https://zeldamods.org/wiki/The_Great_Plateau_barrier">article</a>.</p>
       </div>
 
