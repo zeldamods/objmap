@@ -69,6 +69,8 @@ _Breath of the Wild_ object map.
 * Polygon/line drawing
   * UI
   * Saving
+  * TODO Import/Export
+  * TODO Colors
 * Measuring
 * TODO Object tracking
   * TODO Track used objects.
@@ -92,3 +94,4 @@ _Breath of the Wild_ object map.
 * The authors of the [Sheikah Complete](https://fontstruct.com/fontstructions/show/1371125/sheikah-complete) and [Calamity Sans](https://www.reddit.com/r/zelda/comments/5txuba/breath_of_the_wild_ui_font/) fonts
 * Yoshi.noir for the UI map marker icons
 * [Korok seed icon](https://www.zeldadungeon.net/breath-of-the-wild-interactive-map/markers/seed.png)
+* MrCheeze for the [list of names](https://github.com/MrCheeze/botw-tools/blob/master/botw_names.json)
