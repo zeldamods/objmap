@@ -287,6 +287,7 @@ export default class AppMap extends mixins(MixinUtil) {
         this.drawLayer.addLayer(e.layer);
       },
     });
+    this.drawOnColorChange();
     Settings.getInstance().registerBeforeSaveCallback(() => {
       Settings.getInstance().drawLayerGeojson = JSON.stringify(this.drawToGeojson());
     });
@@ -359,6 +360,7 @@ export default class AppMap extends mixins(MixinUtil) {
       polyline: {
         shapeOptions: {
           color: this.drawLineColor,
+          opacity: 1.0,
         },
       },
     });
