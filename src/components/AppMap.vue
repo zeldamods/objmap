@@ -120,6 +120,9 @@
         <h1 class="leaflet-sidebar-header">Draw</h1>
         <b-btn size="sm" block variant="primary" @click="toggleDraw()"><i class="fa fa-draw-polygon"></i> Toggle draw controls</b-btn>
         <hr>
+        <h4 class="subsection-heading">Polyline color</h4>
+        <input type="color" v-model="drawLineColor" @change="drawOnColorChange"> <b-btn size="sm" variant="link" @click="drawLineColor = '#3388ff'">Reset to default</b-btn>
+        <hr>
         <h4 class="subsection-heading">Data import/export</h4>
         <p>Drawing data can be imported and exported to JSON in the GeoJSON format.</p>
         <div class="row no-gutters">

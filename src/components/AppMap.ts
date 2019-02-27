@@ -132,6 +132,7 @@ export default class AppMap extends mixins(MixinUtil) {
   private drawControlEnabled = false;
   private drawControl: any;
   private drawLayer!: L.GeoJSON;
+  private drawLineColor = '#3388ff';
 
   private previousGotoMarker: L.Marker|null = null;
   private greatPlateauBarrierShown = false;
@@ -267,7 +268,7 @@ export default class AppMap extends mixins(MixinUtil) {
     this.drawLayer = new L.GeoJSON();
     const savedData = Settings.getInstance().drawLayerGeojson;
     if (savedData)
-      this.drawLayer.addData(JSON.parse(savedData));
+      this.drawFromGeojson(JSON.parse(savedData));
     this.drawLayer.addTo(this.map.m);
     const options = {
       position: 'topleft',
@@ -287,8 +288,35 @@ export default class AppMap extends mixins(MixinUtil) {
       },
     });
     Settings.getInstance().registerBeforeSaveCallback(() => {
-      Settings.getInstance().drawLayerGeojson = JSON.stringify(this.drawLayer.toGeoJSON());
+      Settings.getInstance().drawLayerGeojson = JSON.stringify(this.drawToGeojson());
     });
+  }
+
+  private drawFromGeojson(data: any) {
+    this.drawLayer.clearLayers().addData(data);
+    // XXX: Terrible hack to restore colors to LineStrings.
+    let i = 0;
+    this.drawLayer.eachLayer(layer => {
+      (<L.Path>(layer)).setStyle({
+        color: data.features[i].style.color,
+      });
+      i++;
+    });
+  }
+
+  private drawToGeojson(): GeoJSON.FeatureCollection {
+    const data = <GeoJSON.FeatureCollection>(this.drawLayer.toGeoJSON());
+    // XXX: Terrible hack to add colors to LineStrings.
+    let i = 0;
+    this.drawLayer.eachLayer(layer => {
+      // @ts-ignore
+      data.features[i].style = {
+        // @ts-ignore
+        color: layer.options.color,
+      };
+      ++i;
+    });
+    return data;
   }
 
   toggleDraw() {
@@ -310,7 +338,7 @@ export default class AppMap extends mixins(MixinUtil) {
       return;
     try {
       const data = await (new Response(input.files![0])).json();
-      this.drawLayer.clearLayers().addData(data);
+      this.drawFromGeojson(data);
     } catch (e) {
       alert(e);
     } finally {
@@ -319,11 +347,21 @@ export default class AppMap extends mixins(MixinUtil) {
   }
 
   drawExport() {
-    const blob = new Blob([JSON.stringify(this.drawLayer.toGeoJSON(), undefined, 2)], {type: 'application/json'});
+    const blob = new Blob([JSON.stringify(this.drawToGeojson())], {type: 'application/json'});
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
     a.download = 'markers.json';
     a.click();
+  }
+
+  drawOnColorChange() {
+    this.drawControl.setDrawingOptions({
+      polyline: {
+        shapeOptions: {
+          color: this.drawLineColor,
+        },
+      },
+    });
   }
 
   showGreatPlateauBarrier() {
