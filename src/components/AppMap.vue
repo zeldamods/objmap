@@ -12,7 +12,7 @@
         <li><a href="#spane-search" role="tab"><i class="fa fa-search"></i></a></li>
         <li><a href="#spane-filter" role="tab"><i class="fa fa-filter"></i></a></li>
         <li class="disabled"><a href="#spane-dummy" role="tab"><i class="fa fa-tasks"></i></a></li>
-        <li :class="{active: drawControlEnabled}"><a href="#spane-dummy" role="tab" @click.prevent="toggleDraw()"><i class="fa fa-draw-polygon"></i></a></li>
+        <li><a href="#spane-draw" role="tab"><i class="fa fa-draw-polygon"></i></a></li>
         <li><a href="#spane-tools" role="tab"><i class="fa fa-tools"></i></a></li>
         <li><a href="#spane-settings" role="tab"><i class="fa fa-cog"></i></a></li>
       </ul>
@@ -114,6 +114,23 @@
         <div class="row">
           <AppMapFilterMainButton v-for="(v, type) in markerComponents" :key="type" :type="type" :label="v.filterLabel" :icon="v.filterIcon" @toggle="updateMarkers" />
         </div>
+      </div>
+
+      <div class="leaflet-sidebar-pane" id="spane-draw">
+        <h1 class="leaflet-sidebar-header">Draw</h1>
+        <b-btn size="sm" block variant="primary" @click="toggleDraw()"><i class="fa fa-draw-polygon"></i> Toggle draw controls</b-btn>
+        <hr>
+        <h4 class="subsection-heading">Data import/export</h4>
+        <p>Drawing data can be imported and exported to JSON in the GeoJSON format.</p>
+        <div class="row no-gutters">
+          <div class="col mr-3">
+            <b-btn size="sm" variant="secondary" block @click="drawExport()"><i class="fas fa-file-export"></i> Export</b-btn>
+          </div>
+          <div class="col">
+            <b-btn size="sm" variant="danger" block @click="drawImport()"><i class="fas fa-file-import"></i> Import</b-btn>
+          </div>
+        </div>
+        <input type="file" id="fileinput" accept=".json" hidden @change="drawImportCb">
       </div>
 
       <div class="leaflet-sidebar-pane" id="spane-tools">

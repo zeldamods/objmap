@@ -131,6 +131,7 @@ export default class AppMap extends mixins(MixinUtil) {
   private sidebarPaneScrollPos: Map<string, number> = new Map();
   private drawControlEnabled = false;
   private drawControl: any;
+  private drawLayer!: L.GeoJSON;
 
   private previousGotoMarker: L.Marker|null = null;
   private greatPlateauBarrierShown = false;
@@ -263,11 +264,11 @@ export default class AppMap extends mixins(MixinUtil) {
   }
 
   initDrawTools() {
-    const drawLayer = new L.GeoJSON();
+    this.drawLayer = new L.GeoJSON();
     const savedData = Settings.getInstance().drawLayerGeojson;
     if (savedData)
-      drawLayer.addData(JSON.parse(savedData));
-    drawLayer.addTo(this.map.m);
+      this.drawLayer.addData(JSON.parse(savedData));
+    this.drawLayer.addTo(this.map.m);
     const options = {
       position: 'topleft',
       draw: {
@@ -275,28 +276,54 @@ export default class AppMap extends mixins(MixinUtil) {
         rectangle: { showRadius: false },
       },
       edit: {
-        featureGroup: drawLayer,
+        featureGroup: this.drawLayer,
       },
     };
     // @ts-ignore
     this.drawControl = new L.Control.Draw(options);
     this.map.m.on({
       'draw:created': (e: any) => {
-        drawLayer.addLayer(e.layer);
+        this.drawLayer.addLayer(e.layer);
       },
     });
     Settings.getInstance().registerBeforeSaveCallback(() => {
-      Settings.getInstance().drawLayerGeojson = JSON.stringify(drawLayer.toGeoJSON());
+      Settings.getInstance().drawLayerGeojson = JSON.stringify(this.drawLayer.toGeoJSON());
     });
   }
 
   toggleDraw() {
-    this.sidebar.close();
     if (this.drawControlEnabled)
       this.drawControl.remove();
     else
       this.drawControl.addTo(this.map.m);
     this.drawControlEnabled = !this.drawControlEnabled;
+  }
+
+  drawImport() {
+    const input = <HTMLInputElement>(document.getElementById('fileinput'));
+    input.click();
+  }
+
+  private async drawImportCb() {
+    const input = <HTMLInputElement>(document.getElementById('fileinput'));
+    if (!input.files!.length)
+      return;
+    try {
+      const data = await (new Response(input.files![0])).json();
+      this.drawLayer.clearLayers().addData(data);
+    } catch (e) {
+      alert(e);
+    } finally {
+      input.value = '';
+    }
+  }
+
+  drawExport() {
+    const blob = new Blob([JSON.stringify(this.drawLayer.toGeoJSON(), undefined, 2)], {type: 'application/json'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'markers.json';
+    a.click();
   }
 
   showGreatPlateauBarrier() {
