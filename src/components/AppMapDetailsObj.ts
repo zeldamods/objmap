@@ -214,12 +214,19 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj|Map
   private initAreaMarkers() {
     if (!this.obj)
       return;
+
     if (this.obj.name == 'Area')
       this.addAreaMarker(this.obj);
 
     this.linksToSelf.filter(l => l.otherObj.name == 'Area').forEach((link) => {
       this.addAreaMarker(link.otherObj);
     });
+
+    if (this.obj.name == 'LocationTag') {
+      this.genGroup.filter(o => o.name == 'Area').forEach((o) => {
+        this.addAreaMarker(o);
+      });
+    }
   }
 
   private addAreaMarker(obj: ObjectData) {
