@@ -30,13 +30,12 @@ _Breath of the Wild_ object map.
 * Objects
   * Custom handling for:
     * weapons
-      * TODO show weapon stats from GeneralParamList.
     * enemies
     * RememberTag
     * rafts
     * cooking pots
     * Koroks:
-      * TODO autogenerate information on puzzles if possible?
+      * TODO [low-priority] autogenerate information on puzzles if possible?
       * TODO [low-priority] show colors, leaf shapes using embedded UMii data?
     * treasure chests (show contents)
     * Goddess Statues
@@ -69,8 +68,8 @@ _Breath of the Wild_ object map.
 * Polygon/line drawing
   * UI
   * Saving
-  * TODO Import/Export
-  * TODO Colors
+  * Import/Export
+  * Colors
 * Measuring
 * TODO Object tracking
   * TODO Track used objects.
