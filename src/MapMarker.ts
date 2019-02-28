@@ -321,7 +321,7 @@ export class MapMarkerObj extends MapMarkerCanvasImpl {
       let fillColor = groupFillColor;
       let color = groupStrokeColor;
       if (Settings.getInstance().colorPerActor) {
-        fillColor = ui.genColor(1000, hashString(this.title.split('<br>')[0]) % 1000);
+        fillColor = ui.genColor(1000, hashString(this.title) % 1000);
         color = ui.shadeColor(fillColor, -15);
       }
 
