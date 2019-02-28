@@ -87,8 +87,6 @@ _Breath of the Wild_ object map.
   * TODO any actor with an event flow: same
 * TODO Autogen: link to EventEditor for AutoPlacement event flows.
 
-* TODO Future: Text integration for EventEditor.
-
 ## Credit
 * The authors of the [Sheikah Complete](https://fontstruct.com/fontstructions/show/1371125/sheikah-complete) and [Calamity Sans](https://www.reddit.com/r/zelda/comments/5txuba/breath_of_the_wild_ui_font/) fonts
 * Yoshi.noir for the UI map marker icons
