@@ -2,9 +2,11 @@ import Vue from 'vue';
 import {Prop} from 'vue-property-decorator';
 import Component, {mixins} from 'vue-class-component';
 
+import {rankUpEnemyForHardMode} from '@/level_scaling';
 import MixinUtil from '@/components/MixinUtil';
 import {MsgMgr} from '@/services/MsgMgr';
 import {ObjectData, ObjectMinData, PlacementLink} from '@/services/MapMgr';
+import {Settings} from '@/util/settings';
 
 @Component
 export default class ObjectInfo extends mixins(MixinUtil) {
@@ -35,7 +37,7 @@ export default class ObjectInfo extends mixins(MixinUtil) {
       this.data = this.obj;
   }
 
-  private name() {
+  private name(rankUp: boolean) {
     if (this.dropAsName)
       return this.drop();
 
@@ -45,7 +47,12 @@ export default class ObjectInfo extends mixins(MixinUtil) {
         || MsgMgr.getInstance().getMsgWithFile('StaticMsg/Dungeon', this.data.messageid);
       return `Location: ${locationName}`;
     }
-    return this.getName(objName);
+
+    return this.getName(rankUp ? this.getRankedUpActorNameForObj(this.data) : this.data.name);
+  }
+
+  private isHardMode() {
+    return Settings.getInstance().hardMode;
   }
 
   private drop() {

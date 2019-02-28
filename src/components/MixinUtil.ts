@@ -1,6 +1,8 @@
 import Vue from 'vue';
 import Component from 'vue-class-component';
 
+import {rankUpEnemyForHardMode} from '@/level_scaling';
+import {ObjectMinData} from '@/services/MapMgr';
 import {MsgMgr} from '@/services/MsgMgr';
 import {Settings} from '@/util/settings';
 
@@ -10,6 +12,16 @@ export default class MixinUtil extends Vue {
     if (Settings.getInstance().useActorNames)
       return name;
     return MsgMgr.getInstance().getName(name) || name;
+  }
+
+  getRankedUpActorNameForObj(obj: ObjectMinData) {
+    if (!Settings.getInstance().hardMode || obj.disable_rankup_for_hard_mode)
+      return obj.name;
+    return rankUpEnemyForHardMode(obj.name);
+  }
+
+  isActuallyRankedUp(obj: ObjectMinData) {
+    return this.getRankedUpActorNameForObj(obj) != obj.name;
   }
 
   formatObjId(id: number) {

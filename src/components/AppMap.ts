@@ -609,7 +609,7 @@ export default class AppMap extends mixins(MixinUtil) {
       this.searchExcludedSets.push(this.lastBossExcludeSet);
 
     for (const group of this.searchGroups)
-      group.update(SearchResultUpdateMode.UpdateVisibility | SearchResultUpdateMode.UpdateStyle, this.searchExcludedSets);
+      group.update(SearchResultUpdateMode.UpdateVisibility | SearchResultUpdateMode.UpdateStyle | SearchResultUpdateMode.UpdateTitle, this.searchExcludedSets);
   }
 
   created() {

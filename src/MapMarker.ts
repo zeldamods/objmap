@@ -1,5 +1,6 @@
 import * as L from 'leaflet';
 
+import {rankUpEnemyForHardMode} from '@/level_scaling';
 import {MapBase} from '@/MapBase';
 import * as MapIcons from '@/MapIcon';
 import {MapMgr, ObjectData, ObjectMinData} from '@/services/MapMgr';
@@ -253,11 +254,12 @@ function hashString(s: string) {
 export const enum SearchResultUpdateMode {
   UpdateStyle = 1 << 0,
   UpdateVisibility = 1 << 1,
+  UpdateTitle = 1 << 2,
 }
 
 export class MapMarkerObj extends MapMarkerCanvasImpl {
   constructor(mb: MapBase, public readonly obj: ObjectMinData, fillColor: string, strokeColor: string) {
-    super(mb, getName(obj.name), obj.pos, {
+    super(mb, '', obj.pos, {
       radius: 7,
       weight: 2,
       fillOpacity: 0.7,
@@ -313,10 +315,18 @@ export class MapMarkerObj extends MapMarkerCanvasImpl {
       ],
     });
     this.marker.bringToFront();
-    setObjMarkerTooltip(this.title, this.marker, obj);
+    this.update('', '', SearchResultUpdateMode.UpdateTitle);
   }
 
   update(groupFillColor: string, groupStrokeColor: string, mode: SearchResultUpdateMode) {
+    if (mode & SearchResultUpdateMode.UpdateTitle) {
+      const actor = (Settings.getInstance().hardMode && !this.obj.disable_rankup_for_hard_mode)
+          ? rankUpEnemyForHardMode(this.obj.name)
+          : this.obj.name;
+      this.title = getName(actor);
+      setObjMarkerTooltip(this.title, this.marker, this.obj);
+    }
+
     if (mode & SearchResultUpdateMode.UpdateStyle) {
       let fillColor = groupFillColor;
       let color = groupStrokeColor;

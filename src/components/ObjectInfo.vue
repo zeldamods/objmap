@@ -1,6 +1,6 @@
 <template>
   <div :class="className + (isStatic ? ' static' : '')">
-    <section class="search-result-name">{{name()}}</section>
+    <section class="search-result-name">{{name(true)}}</section>
     <section class="search-result-location">
       <i class="fa fa-map-marker-alt fa-fw"></i>
       {{data.map_name}}
@@ -12,6 +12,10 @@
     <section class="search-result-scale" v-if="data.scale === 0">
       <i class="fas fa-fw fa-ban" style="color:tomato"></i>
       {{data.name.includes('Enemy_Giant') ? 'No enemy scaling' : 'No scaling'}}
+    </section>
+    <section class="search-result-rankup" v-if="isActuallyRankedUp(data)">
+      <i class="fas fa-fw fa-chevron-up"></i>
+      Ranked up from {{name(false)}}
     </section>
     <section class="search-result-rankup" v-if="data.disable_rankup_for_hard_mode">
       <i class="fas fa-fw fa-ban" style="color:tomato"></i>

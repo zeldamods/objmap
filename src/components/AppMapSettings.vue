@@ -1,7 +1,7 @@
 <template>
   <section>
     <b-checkbox switch v-model="s.hardMode">Master Mode</b-checkbox>
-    <p>If enabled, show Master Mode only objects. Note: this does not affect search.</p>
+    <p>If enabled, show Master Mode only objects and automatically rank up enemies. Note: this does not affect search.</p>
     <b-checkbox switch v-model="s.lastBossMode">LastBoss Mode</b-checkbox>
     <p>If enabled, objects that do not spawn after entering the castle sanctum will be hidden.</p>
     <hr>

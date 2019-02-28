@@ -4,7 +4,8 @@
     <ObjectInfo :obj="minObj" :key="minObj.objid" className="obj-main-info" />
 
     <section v-if="obj" class="mt-2">
-      <section>Actor: {{obj.data.UnitConfigName}}</section>
+      <section v-if="isActuallyRankedUp(obj)">Actor: {{getRankedUpActorNameForObj(obj)}} (ranked up)</section>
+      <section v-if="!isActuallyRankedUp(obj)">Actor: {{obj.data.UnitConfigName}}</section>
       <section>Position: {{obj.data.Translate[0].toFixed(2)}}, {{obj.data.Translate[1].toFixed(2)}}, {{obj.data.Translate[2].toFixed(2)}}</section>
       <section v-if="obj.data.Scale != null">Scale: {{arrayOrNumToStr(obj.data.Scale, 2)}}</section>
       <section v-if="obj.data.Rotate != null">Rotate: {{arrayOrNumToStr(obj.data.Rotate, 5)}}</section>
