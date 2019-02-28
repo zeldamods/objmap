@@ -1,6 +1,8 @@
+import * as L from 'leaflet';
 import Vue from 'vue';
 import {Prop} from 'vue-property-decorator';
 import Component from 'vue-class-component';
+import 'leaflet-path-transform';
 
 import {MapMarkerObj, MapMarkerSearchResult} from '@/MapMarker';
 import AppMapDetailsBase from '@/components/AppMapDetailsBase';
@@ -55,6 +57,10 @@ enum MapLinkDefType {
   Invalid = 0x2A,
 }
 
+function numOrArrayToArray(x: number|[number, number, number]|undefined): [number, number, number]|undefined {
+  return typeof x == 'number' ? [x, x, x] : x;
+}
+
 @Component({
   components: {
     ObjectInfo,
@@ -71,6 +77,8 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj|Map
   private linkTagInputs: PlacementLink[] = [];
   private isInvertedLogicTag = false;
 
+  private areaMarkers: L.Path[] = [];
+
   async init() {
     this.minObj = this.marker.data.obj;
     this.obj = null;
@@ -79,6 +87,8 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj|Map
     this.links = [];
     this.linksToSelf = [];
     this.linkTagInputs = [];
+    this.areaMarkers.forEach(m => m.remove());
+    this.areaMarkers = [];
 
     this.obj = (await MapMgr.getInstance().getObjByObjId(this.minObj.objid))!;
     this.genGroup = await MapMgr.getInstance().getObjGenGroup('MainField', this.obj.map_name, this.obj.hash_id);
@@ -90,6 +100,12 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj|Map
     this.initLinksToSelf();
     this.initLinkTagLinks();
     this.isInvertedLogicTag = this.obj.name === 'LinkTagNAnd' || this.obj.name === 'LinkTagNOr';
+
+    this.initAreaMarkers();
+  }
+
+  beforeDestroy() {
+    this.areaMarkers.forEach(m => m.remove());
   }
 
   getLocationSub() {
@@ -193,5 +209,85 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj|Map
       if (type <= 0xe)
         this.linkTagInputs.push(link);
     }
+  }
+
+  private initAreaMarkers() {
+    if (!this.obj)
+      return;
+    if (this.obj.name == 'Area')
+      this.addAreaMarker(this.obj);
+
+    this.linksToSelf.filter(l => l.otherObj.name == 'Area').forEach((link) => {
+      this.addAreaMarker(link.otherObj);
+    });
+  }
+
+  private addAreaMarker(obj: ObjectData) {
+    const mb = this.marker.data.mb;
+    const [x, y, z] = obj.data.Translate;
+    const shape: string = obj.data['!Parameters']!.Shape;
+    const scale = numOrArrayToArray(obj.data.Scale);
+    const rotate = numOrArrayToArray(obj.data.Rotate);
+
+    if (!scale)
+      return;
+
+    let areaMarker: L.Path;
+    // Super rough approximation. This could be improved by actually projecting the 3D shape...
+    // A lot of shapes do not use any rotate feature though,
+    // and for those this naïve approach should suffice.
+    if (shape == 'Sphere') {
+      areaMarker = L.circle(mb.fromXZ([x, z]), { radius: scale[0] }).addTo(mb.m);
+    } else if (shape == 'Cylinder' || shape == 'Capsule') {
+      if (rotate && Math.abs(rotate[0] - 1.57080) <= 0.01) {
+        const southWest = L.latLng(z + scale[2], x - scale[1] - scale[2]);
+        const northEast = L.latLng(z - scale[2], x + scale[1] + scale[2]);
+        areaMarker = L.rectangle(L.latLngBounds(southWest, northEast)).addTo(mb.m);
+      } else {
+        areaMarker = L.circle(mb.fromXZ([x, z]), { radius: scale[0] }).addTo(mb.m);
+      }
+    } else if (shape == 'Box') {
+      const southWest = L.latLng(z + scale[2], x - scale[0]);
+      const northEast = L.latLng(z - scale[2], x + scale[0]);
+      areaMarker = L.rectangle(L.latLngBounds(southWest, northEast), {
+        // @ts-ignore
+        transform: true,
+      }).addTo(mb.m);
+      if (rotate) {
+        // XXX: horrible hack to rotate a rectangle.
+        // @ts-ignore
+        areaMarker.transform._map = areaMarker._map;
+        const center = (<L.Rectangle>(areaMarker)).getCenter();
+        // @ts-ignore
+        areaMarker.transform._transformPoints(areaMarker, -rotate[0], null, center, center);
+      }
+    } else if (shape == 'Hull') {
+      // Deliberately unhandled.
+      return;
+    } else {
+      return;
+    }
+
+    areaMarker.bringToBack();
+    this.areaMarkers.push(areaMarker);
+  }
+
+  isAreaReprPossiblyWrong(): boolean {
+    if (!this.obj || this.obj.name != 'Area')
+      return false;
+
+    const shape: string = this.obj.data['!Parameters']!.Shape;
+
+    if (!this.obj.data.Rotate)
+      return false;
+
+    if (shape == 'Sphere' || shape == 'Hull')
+      return false;
+
+    if (shape == 'Box') {
+      return typeof this.obj.data.Rotate != 'number';
+    }
+
+    return true;
   }
 }

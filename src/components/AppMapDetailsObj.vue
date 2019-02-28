@@ -11,6 +11,8 @@
       <section v-if="obj.data.Rotate != null">Rotate: {{arrayOrNumToStr(obj.data.Rotate, 5)}}</section>
       <section v-if="obj.data.UniqueName">Unique name: {{obj.data.UniqueName}}</section>
 
+      <p v-if="isAreaReprPossiblyWrong()"><i class="fa fa-exclamation-circle"></i> Area representation may be inaccurate because of rotation parameters.</p>
+
       <section class="obj-actor-specific-info">
         <!-- AreaObserverTag -->
         <p class="mt-2" v-if="obj.name == 'ActorObserverTag' && links.length">Sends basic signal if the configured actors are inside the specified Area.</p>

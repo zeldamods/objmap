@@ -14,7 +14,7 @@ import {Settings} from '@/util/settings';
 
 export abstract class MapMarker {
   public title = '';
-  protected mb: MapBase;
+  public readonly mb: MapBase;
 
   constructor(mb: MapBase) {
     this.mb = mb;
