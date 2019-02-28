@@ -150,7 +150,7 @@ export default class AppMap extends mixins(MixinUtil) {
   private searchThrottler!: () => void;
   private searchLastSearchFailed = false;
   private searchResults: ObjectMinData[] = [];
-  private searchResultMarkers: ui.Unobservable<MapMarker>[] = [];
+  private searchResultMarkers: ui.Unobservable<MapMarkers.MapMarkerSearchResult>[] = [];
   private searchGroups: SearchResultGroup[] = [];
   private searchPresets = SEARCH_PRESETS;
   private searchExcludedSets: SearchExcludeSet[] = [];
@@ -614,6 +614,8 @@ export default class AppMap extends mixins(MixinUtil) {
 
     for (const group of this.searchGroups)
       group.update(SearchResultUpdateMode.UpdateVisibility | SearchResultUpdateMode.UpdateStyle | SearchResultUpdateMode.UpdateTitle, this.searchExcludedSets);
+
+    this.searchResultMarkers.forEach(m => m.data.updateTitle());
   }
 
   created() {

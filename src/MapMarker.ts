@@ -315,17 +315,20 @@ export class MapMarkerObj extends MapMarkerCanvasImpl {
       ],
     });
     this.marker.bringToFront();
-    this.update('', '', SearchResultUpdateMode.UpdateTitle);
+    this.updateTitle();
+  }
+
+  updateTitle() {
+    const actor = (Settings.getInstance().hardMode && !this.obj.disable_rankup_for_hard_mode)
+        ? rankUpEnemyForHardMode(this.obj.name)
+        : this.obj.name;
+    this.title = getName(actor);
+    setObjMarkerTooltip(this.title, this.marker, this.obj);
   }
 
   update(groupFillColor: string, groupStrokeColor: string, mode: SearchResultUpdateMode) {
-    if (mode & SearchResultUpdateMode.UpdateTitle) {
-      const actor = (Settings.getInstance().hardMode && !this.obj.disable_rankup_for_hard_mode)
-          ? rankUpEnemyForHardMode(this.obj.name)
-          : this.obj.name;
-      this.title = getName(actor);
-      setObjMarkerTooltip(this.title, this.marker, this.obj);
-    }
+    if (mode & SearchResultUpdateMode.UpdateTitle)
+      this.updateTitle();
 
     if (mode & SearchResultUpdateMode.UpdateStyle) {
       let fillColor = groupFillColor;
