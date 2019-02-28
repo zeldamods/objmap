@@ -90,7 +90,7 @@
               {{group.label}} <a @click="searchRemoveGroup(idx)"><i class="text-danger fa fa-times"></i></a>&nbsp;<a style="font-size: 90%" v-if="group.query" @click="searchViewGroup(idx)"><i class="fa fa-edit"></i></a> ({{group.size()}})
             </div>
             <div class="search-group" v-for="(set, idx) in searchExcludedSets" :key="'searchexclude' + idx">
-              [Hidden] {{set.label}} <a @click="searchRemoveExcludeSet(idx)"><i class="text-danger fa fa-times"></i></a> ({{set.size()}})
+              <div v-if="!set.hidden">[Hidden] {{set.label}} <a @click="searchRemoveExcludeSet(idx)"><i class="text-danger fa fa-times"></i></a> ({{set.size()}})</div>
             </div>
           </section>
 

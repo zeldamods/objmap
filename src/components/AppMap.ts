@@ -156,6 +156,9 @@ export default class AppMap extends mixins(MixinUtil) {
   private searchExcludedSets: SearchExcludeSet[] = [];
   private readonly MAX_SEARCH_RESULT_COUNT = 2000;
 
+  private hardModeExcludeSet!: SearchExcludeSet;
+  private lastBossExcludeSet!: SearchExcludeSet;
+
   private tempObjMarker: ui.Unobservable<MapMarker>|null = null;
 
   private settings: Settings|null = null;
@@ -451,10 +454,6 @@ export default class AppMap extends mixins(MixinUtil) {
   initSearch() {
     this.searchThrottler = debounce(() => this.search(), 200);
 
-    Settings.getInstance().registerCallback(() => {
-      for (const group of this.searchGroups)
-        group.update(SearchResultUpdateMode.UpdateStyle, this.searchExcludedSets);
-    });
     this.map.registerZoomCb(() => {
       for (const group of this.searchGroups)
         group.update(0, this.searchExcludedSets);
@@ -588,6 +587,31 @@ export default class AppMap extends mixins(MixinUtil) {
     });
   }
 
+  initSettings() {
+    this.hardModeExcludeSet = new SearchExcludeSet('hard:1', '', true);
+    this.lastBossExcludeSet = new SearchExcludeSet('lastboss:0', '', true);
+    Promise.all([this.hardModeExcludeSet.init(), this.lastBossExcludeSet.init()]).then(() => {
+      for (const group of this.searchGroups)
+        group.update(SearchResultUpdateMode.UpdateVisibility, this.searchExcludedSets);
+    });
+
+    this.reloadSettings();
+    Settings.getInstance().registerCallback(() => this.reloadSettings());
+  }
+
+  private reloadSettings() {
+    this.searchExcludedSets = this.searchExcludedSets.filter(set => set != this.hardModeExcludeSet);
+    if (!Settings.getInstance().hardMode)
+      this.searchExcludedSets.push(this.hardModeExcludeSet);
+
+    this.searchExcludedSets = this.searchExcludedSets.filter(set => set != this.lastBossExcludeSet);
+    if (Settings.getInstance().lastBossMode)
+      this.searchExcludedSets.push(this.lastBossExcludeSet);
+
+    for (const group of this.searchGroups)
+      group.update(SearchResultUpdateMode.UpdateVisibility | SearchResultUpdateMode.UpdateStyle, this.searchExcludedSets);
+  }
+
   created() {
     this.settings = Settings.getInstance();
   }
@@ -603,6 +627,7 @@ export default class AppMap extends mixins(MixinUtil) {
     this.initSearch();
     this.initContextMenu();
     this.initEvents();
+    this.initSettings();
 
     if (this.$route.query.q) {
       this.searchQuery = this.$route.query.q.toString();

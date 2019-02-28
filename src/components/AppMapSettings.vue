@@ -1,5 +1,11 @@
 <template>
   <section>
+    <b-checkbox switch v-model="s.hardMode">Master Mode</b-checkbox>
+    <p>If enabled, show Master Mode only objects. Note: this does not affect search.</p>
+    <b-checkbox switch v-model="s.lastBossMode">LastBoss Mode</b-checkbox>
+    <p>If enabled, objects that do not spawn after entering the castle sanctum will be hidden.</p>
+    <hr>
+
     <h4 class="subsection-heading">Object Color Mode</h4>
     <b-radio-group class="mb-4" v-model="colorMode" @change="onColorModeChange">
       <b-radio value="per-actor">Color by actor type</b-radio>

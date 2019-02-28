@@ -74,14 +74,14 @@ export const SEARCH_PRESETS: ReadonlyArray<SearchPresetGroup> = Object.freeze([
 ]);
 
 export class SearchExcludeSet {
-  constructor(public query: string, public label: string) {
+  constructor(public query: string, public label: string, public hidden = false) {
   }
 
   size() {
     return this.ids.size;
   }
 
-  ids!: Set<number>;
+  ids: Set<number> = new Set();
 
   async init() {
     this.ids = new Set(await MapMgr.getInstance().getObjids('MainField', '', this.query));

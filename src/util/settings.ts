@@ -27,6 +27,9 @@ export class Settings {
   useActorNames!: boolean;
   useHexForHashIds!: boolean;
 
+  hardMode!: boolean;
+  lastBossMode!: boolean;
+
   customSearchPresets!: Array<[string, string]>;
 
   private constructor() {
@@ -47,6 +50,8 @@ export class Settings {
     this.colorPerActor = parse(data.colorPerActor, Id, true);
     this.useActorNames = parse(data.useActorNames, Id, false);
     this.useHexForHashIds = parse(data.useHexForHashIds, Id, true);
+    this.hardMode = parse(data.hardMode, Id, true);
+    this.lastBossMode = parse(data.lastBossMode, Id, false);
     this.customSearchPresets = parse(data.customSearchPresets, Id, []);
 
     this.invokeCallbacks();
@@ -61,6 +66,8 @@ export class Settings {
       colorPerActor: this.colorPerActor,
       useActorNames: this.useActorNames,
       useHexForHashIds: this.useHexForHashIds,
+      hardMode: this.hardMode,
+      lastBossMode: this.lastBossMode,
       customSearchPresets: this.customSearchPresets,
     };
     // Merge with existing data to avoid data loss.
