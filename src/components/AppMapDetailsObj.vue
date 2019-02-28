@@ -13,6 +13,11 @@
 
       <p v-if="isAreaReprPossiblyWrong()"><i class="fa fa-exclamation-circle"></i> Area representation may be inaccurate because of rotation parameters.</p>
 
+      <section class="mt-2" v-show="areaMarkers.length || staticData.persistentAreaMarkers.length">
+        <b-btn v-show="areaMarkers.length" size="sm" block variant="dark" @click="keepAreaMarkersAlive()">Keep area representation loaded</b-btn>
+        <b-btn v-show="staticData.persistentAreaMarkers.length" size="sm" block variant="dark" @click="forgetPersistentAreaMarkers()">Hide area representation</b-btn>
+      </section>
+
       <section class="obj-actor-specific-info">
         <!-- AreaObserverTag -->
         <p class="mt-2" v-if="obj.name == 'ActorObserverTag' && links.length">Sends basic signal if the configured actors are inside the specified Area.</p>

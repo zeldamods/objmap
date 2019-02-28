@@ -61,6 +61,12 @@ function numOrArrayToArray(x: number|[number, number, number]|undefined): [numbe
   return typeof x == 'number' ? [x, x, x] : x;
 }
 
+class StaticData {
+  persistentAreaMarkers: L.Path[] = [];
+}
+
+const staticData = new StaticData();
+
 @Component({
   components: {
     ObjectInfo,
@@ -78,6 +84,7 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj|Map
   private isInvertedLogicTag = false;
 
   private areaMarkers: L.Path[] = [];
+  private staticData = staticData;
 
   async init() {
     this.minObj = this.marker.data.obj;
@@ -296,5 +303,16 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj|Map
     }
 
     return true;
+  }
+
+  keepAreaMarkersAlive() {
+    this.staticData.persistentAreaMarkers.push(...this.areaMarkers);
+    this.areaMarkers = [];
+  }
+
+  forgetPersistentAreaMarkers() {
+    this.areaMarkers.length = this.areaMarkers.length;
+    this.staticData.persistentAreaMarkers.forEach(m => m.remove());
+    this.staticData.persistentAreaMarkers = [];
   }
 }
