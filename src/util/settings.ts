@@ -51,7 +51,7 @@ export class Settings {
     this.colorPerActor = parse(data.colorPerActor, Id, true);
     this.useActorNames = parse(data.useActorNames, Id, false);
     this.useHexForHashIds = parse(data.useHexForHashIds, Id, true);
-    this.hardMode = parse(data.hardMode, Id, true);
+    this.hardMode = parse(data.hardMode, Id, false);
     this.ohoMode = parse(data.ohoMode, Id, false);
     this.lastBossMode = parse(data.lastBossMode, Id, false);
     this.customSearchPresets = parse(data.customSearchPresets, Id, []);
