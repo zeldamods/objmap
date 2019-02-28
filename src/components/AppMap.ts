@@ -158,6 +158,7 @@ export default class AppMap extends mixins(MixinUtil) {
 
   private hardModeExcludeSet!: SearchExcludeSet;
   private lastBossExcludeSet!: SearchExcludeSet;
+  private ohoExcludeSet!: SearchExcludeSet;
 
   private tempObjMarker: ui.Unobservable<MapMarker>|null = null;
 
@@ -590,7 +591,8 @@ export default class AppMap extends mixins(MixinUtil) {
   initSettings() {
     this.hardModeExcludeSet = new SearchExcludeSet('hard:1', '', true);
     this.lastBossExcludeSet = new SearchExcludeSet('lastboss:0', '', true);
-    Promise.all([this.hardModeExcludeSet.init(), this.lastBossExcludeSet.init()]).then(() => {
+    this.ohoExcludeSet = new SearchExcludeSet('onehit:1', '', true);
+    Promise.all([this.hardModeExcludeSet.init(), this.lastBossExcludeSet.init(), this.ohoExcludeSet.init()]).then(() => {
       for (const group of this.searchGroups)
         group.update(SearchResultUpdateMode.UpdateVisibility, this.searchExcludedSets);
     });
@@ -600,13 +602,15 @@ export default class AppMap extends mixins(MixinUtil) {
   }
 
   private reloadSettings() {
-    this.searchExcludedSets = this.searchExcludedSets.filter(set => set != this.hardModeExcludeSet);
+    this.searchExcludedSets = this.searchExcludedSets.filter(set =>
+      set != this.hardModeExcludeSet && set != this.lastBossExcludeSet && set != this.ohoExcludeSet);
+
     if (!Settings.getInstance().hardMode)
       this.searchExcludedSets.push(this.hardModeExcludeSet);
-
-    this.searchExcludedSets = this.searchExcludedSets.filter(set => set != this.lastBossExcludeSet);
     if (Settings.getInstance().lastBossMode)
       this.searchExcludedSets.push(this.lastBossExcludeSet);
+    if (!Settings.getInstance().ohoMode)
+      this.searchExcludedSets.push(this.ohoExcludeSet);
 
     for (const group of this.searchGroups)
       group.update(SearchResultUpdateMode.UpdateVisibility | SearchResultUpdateMode.UpdateStyle | SearchResultUpdateMode.UpdateTitle, this.searchExcludedSets);

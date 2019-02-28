@@ -63,6 +63,7 @@ _Breath of the Wild_ object map.
 * TODO Dynamic map data
   * TODO Scaling slider (to scale enemies, weapons, etc.)
   * Master Mode (auto rankup, Master Mode only actors)
+  * One-Hit Obliterator challenge mode
   * Final boss placement mode
 * Polygon/line drawing
   * UI

@@ -28,6 +28,7 @@ export class Settings {
   useHexForHashIds!: boolean;
 
   hardMode!: boolean;
+  ohoMode!: boolean;
   lastBossMode!: boolean;
 
   customSearchPresets!: Array<[string, string]>;
@@ -51,6 +52,7 @@ export class Settings {
     this.useActorNames = parse(data.useActorNames, Id, false);
     this.useHexForHashIds = parse(data.useHexForHashIds, Id, true);
     this.hardMode = parse(data.hardMode, Id, true);
+    this.ohoMode = parse(data.ohoMode, Id, false);
     this.lastBossMode = parse(data.lastBossMode, Id, false);
     this.customSearchPresets = parse(data.customSearchPresets, Id, []);
 
@@ -67,6 +69,7 @@ export class Settings {
       useActorNames: this.useActorNames,
       useHexForHashIds: this.useHexForHashIds,
       hardMode: this.hardMode,
+      ohoMode: this.ohoMode,
       lastBossMode: this.lastBossMode,
       customSearchPresets: this.customSearchPresets,
     };

@@ -4,6 +4,7 @@
     <p>If enabled, show Master Mode only objects and automatically rank up enemies. Note: this does not affect search.</p>
     <b-checkbox switch v-model="s.lastBossMode">LastBoss Mode</b-checkbox>
     <p>If enabled, objects that do not spawn after entering the castle sanctum will be hidden.</p>
+    <b-checkbox switch v-model="s.ohoMode">Show One-Hit Obliterator mode actors</b-checkbox>
     <hr>
 
     <h4 class="subsection-heading">Object Color Mode</h4>
