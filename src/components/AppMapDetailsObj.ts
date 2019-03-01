@@ -250,7 +250,10 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj|Map
   private addAreaMarker(obj: ObjectData) {
     const mb = this.marker.data.mb;
     const [x, y, z] = obj.data.Translate;
-    const shape: string = obj.data['!Parameters']!.Shape;
+    const params = obj.data['!Parameters'];
+    if (!params)
+      return;
+    const shape: string = params.Shape;
     const scale = numOrArrayToArray(obj.data.Scale);
     const rotate = numOrArrayToArray(obj.data.Rotate);
 
@@ -301,7 +304,11 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj|Map
     if (!this.obj || !isAreaObject(this.obj))
       return false;
 
-    const shape: string = this.obj.data['!Parameters']!.Shape;
+    const params = this.obj.data['!Parameters'];
+    if (!params)
+      return false;
+
+    const shape: string = params.Shape;
 
     if (!this.obj.data.Rotate)
       return false;
