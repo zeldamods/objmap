@@ -52,8 +52,8 @@ _Breath of the Wild_ object map.
   * Scaling information
   * Instance parameters
   * Generation group and links
-  * TODO Object shape
-  * TODO Object scale
+  * Object shape
+  * Object scale
 * TODO Regions
   * TODO Tower regions
   * TODO Map areas (internal)
