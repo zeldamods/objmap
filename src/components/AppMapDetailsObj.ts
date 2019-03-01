@@ -63,6 +63,7 @@ function numOrArrayToArray(x: number|[number, number, number]|undefined): [numbe
 
 class StaticData {
   persistentAreaMarkers: L.Path[] = [];
+  history: ObjectData[] = [];
 }
 
 const staticData = new StaticData();
@@ -133,8 +134,14 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj|Map
     this.$parent.$emit('AppMap:switch-pane', 'spane-search');
   }
 
-  jumpToObj(obj: ObjectData) {
+  jumpToObj(obj: ObjectData, updateHistory = true) {
+    if (updateHistory && this.obj)
+      this.staticData.history.push(this.obj);
     this.$parent.$emit('AppMap:open-obj', obj);
+  }
+
+  goBack() {
+    this.jumpToObj(this.staticData.history.pop()!, false);
   }
 
   arrayOrNumToStr(d: number[]|number, digits: number) {
