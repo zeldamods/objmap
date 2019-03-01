@@ -258,10 +258,27 @@ export default class AppMap extends mixins(MixinUtil) {
       this.sidebarActivePane = id;
       el.scrollTop = this.sidebarPaneScrollPos.get(this.sidebarActivePane) || 0;
     });
+    this.updateSidebarClass();
   }
 
   closeSidebar() {
     this.sidebar.close();
+  }
+
+  toggleSidebarSide() {
+    Settings.getInstance().left = !Settings.getInstance().left;
+    this.updateSidebarClass();
+  }
+
+  updateSidebarClass() {
+    const el = (document.getElementById('sidebar'))!;
+    if (Settings.getInstance().left) {
+      el.classList.remove('leaflet-sidebar-right');
+      el.classList.add('leaflet-sidebar-left');
+    } else {
+      el.classList.add('leaflet-sidebar-right');
+      el.classList.remove('leaflet-sidebar-left');
+    }
   }
 
   switchPane(pane: string) {

@@ -33,6 +33,8 @@ export class Settings {
 
   customSearchPresets!: Array<[string, string]>;
 
+  left!: boolean;
+
   private constructor() {
     this.load();
     window.addEventListener('beforeunload', (event) => {
@@ -55,6 +57,7 @@ export class Settings {
     this.ohoMode = parse(data.ohoMode, Id, false);
     this.lastBossMode = parse(data.lastBossMode, Id, false);
     this.customSearchPresets = parse(data.customSearchPresets, Id, []);
+    this.left = parse(data.left, Id, true);
 
     this.invokeCallbacks();
   }
@@ -72,6 +75,7 @@ export class Settings {
       ohoMode: this.ohoMode,
       lastBossMode: this.lastBossMode,
       customSearchPresets: this.customSearchPresets,
+      left: this.left,
     };
     // Merge with existing data to avoid data loss.
     const existingDataStr = localStorage.getItem(Settings.KEY);

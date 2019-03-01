@@ -16,6 +16,10 @@
         <li><a href="#spane-tools" role="tab"><i class="fa fa-tools"></i></a></li>
         <li><a href="#spane-settings" role="tab"><i class="fa fa-cog"></i></a></li>
       </ul>
+      <ul role="tablist">
+        <li v-show="settings.left" @click.capture.prevent.stop="toggleSidebarSide()"><a href="#toggle-sidebar-side" v-b-tooltip.hover.right title="Move to the right side"><i class="far fa-caret-square-right"></i></a></li>
+        <li v-show="!settings.left" @click.capture.prevent.stop="toggleSidebarSide()"><a href="#toggle-sidebar-side" v-b-tooltip.hover.left title="Move to the left side"><i class="far fa-caret-square-left"></i></a></li>
+      </ul>
     </div>
     <div class="leaflet-sidebar-content" id="sidebar-content">
 
