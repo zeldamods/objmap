@@ -61,6 +61,10 @@ function numOrArrayToArray(x: number|[number, number, number]|undefined): [numbe
   return typeof x == 'number' ? [x, x, x] : x;
 }
 
+function isAreaObject(obj: ObjectMinData) {
+  return obj.name == 'Area' || obj.name.startsWith('AirWall');
+}
+
 class StaticData {
   persistentAreaMarkers: L.Path[] = [];
   history: ObjectData[] = [];
@@ -229,15 +233,15 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj|Map
     if (!this.obj)
       return;
 
-    if (this.obj.name == 'Area')
+    if (isAreaObject(this.obj))
       this.addAreaMarker(this.obj);
 
-    this.linksToSelf.filter(l => l.otherObj.name == 'Area').forEach((link) => {
+    this.linksToSelf.filter(l => isAreaObject(l.otherObj)).forEach((link) => {
       this.addAreaMarker(link.otherObj);
     });
 
     if (this.obj.name == 'LocationTag') {
-      this.genGroup.filter(o => o.name == 'Area').forEach((o) => {
+      this.genGroup.filter(isAreaObject).forEach((o) => {
         this.addAreaMarker(o);
       });
     }
@@ -294,7 +298,7 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj|Map
   }
 
   isAreaReprPossiblyWrong(): boolean {
-    if (!this.obj || this.obj.name != 'Area')
+    if (!this.obj || !isAreaObject(this.obj))
       return false;
 
     const shape: string = this.obj.data['!Parameters']!.Shape;
