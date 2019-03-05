@@ -126,6 +126,12 @@
           <b-radio value="MapTower">Map tower areas</b-radio>
           <b-radio value="LoadBalancer">Load balancer areas</b-radio>
         </b-radio-group>
+        <b-form-group label="Filter map areas" label-for="mapareafilter">
+          <div class="d-flex mb-1">
+            <input type="search" style="flex: 1" class="form-control form-control-sm mr-2" id="mapareafilter" placeholder="Example: 1,2,3,64" v-model="areaWhitelist">
+            <b-btn size="sm" variant="primary" @click="updateAreaMapVisibility()"><i class="fa fa-filter"></i></b-btn>
+          </div>
+        </b-form-group>
       </div>
 
       <div class="leaflet-sidebar-pane" id="spane-draw">

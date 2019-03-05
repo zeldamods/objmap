@@ -161,7 +161,9 @@ export default class AppMap extends mixins(MixinUtil) {
   private ohoExcludeSet!: SearchExcludeSet;
 
   private areaMapLayer = new ui.Unobservable(L.layerGroup());
+  private areaMapLayersByData: ui.Unobservable<Map<any, L.Layer[]>> = new ui.Unobservable(new Map());
   shownAreaMap = '';
+  areaWhitelist = '';
 
   private tempObjMarker: ui.Unobservable<MapMarker>|null = null;
 
@@ -644,6 +646,7 @@ export default class AppMap extends mixins(MixinUtil) {
 
   async loadAreaMap(name: string) {
     this.areaMapLayer.data.clearLayers();
+    this.areaMapLayersByData.data.clear();
     if (!name)
       return;
 
@@ -660,6 +663,7 @@ export default class AppMap extends mixins(MixinUtil) {
           contextmenu: true,
         });
       });
+      this.areaMapLayersByData.data.set(data, layers);
       for (const layer of layers) {
         layer.bindTooltip('Area ' + data.toString());
         layer.on('mouseover', () => {
@@ -671,9 +675,19 @@ export default class AppMap extends mixins(MixinUtil) {
         layer.on('mouseout', () => {
           layers.forEach(l => l.setStyle({ weight: 2, fillOpacity: 0.2 }));
         });
-        this.areaMapLayer.data.addLayer(layer);
       }
       ++i;
+    }
+    this.updateAreaMapVisibility();
+  }
+
+  updateAreaMapVisibility() {
+    const hasWhitelist = !!this.areaWhitelist;
+    const shown = this.areaWhitelist.trim().split(',').map(s => s.trim());
+    this.areaMapLayer.data.clearLayers();
+    for (const [data, layers] of this.areaMapLayersByData.data.entries()) {
+      if (!hasWhitelist || shown.includes(data))
+        layers.forEach(l => this.areaMapLayer.data.addLayer(l));
     }
   }
 
