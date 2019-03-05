@@ -3,7 +3,7 @@
     <div v-if="staticData.history.length" style="right: 40px" class="leaflet-sidebar-close" @click="goBack()" v-b-tooltip.hover title="Go back to previous object"><i class="fa fa-arrow-left"></i></div>
 
     <h2 class="location-sub" v-if="getLocationSub()">{{getLocationSub()}}</h2>
-    <ObjectInfo :obj="minObj" :key="minObj.objid" className="obj-main-info" />
+    <ObjectInfo :obj="minObj" :key="minObj.objid" className="obj-main-info" withPermalink />
 
     <section v-if="obj" class="mt-2">
       <section v-if="isActuallyRankedUp(obj)">Actor: {{getRankedUpActorNameForObj(obj)}} (ranked up)</section>

@@ -25,6 +25,9 @@ export default class ObjectInfo extends mixins(MixinUtil) {
   @Prop({type: Boolean, default: false})
   private dropAsName!: boolean;
 
+  @Prop({type: Boolean, default: false})
+  private withPermalink!: boolean;
+
   private data!: ObjectData|ObjectMinData;
 
   private created() {
