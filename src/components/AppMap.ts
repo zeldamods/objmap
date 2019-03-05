@@ -165,6 +165,9 @@ export default class AppMap extends mixins(MixinUtil) {
   shownAreaMap = '';
   areaWhitelist = '';
 
+  private mapUnitGrid = new ui.Unobservable(L.layerGroup());
+  showMapUnitGrid = false;
+
   private tempObjMarker: ui.Unobservable<MapMarker>|null = null;
 
   private settings: Settings|null = null;
@@ -695,6 +698,38 @@ export default class AppMap extends mixins(MixinUtil) {
     this.$nextTick(() => this.loadAreaMap(this.shownAreaMap));
   }
 
+  initMapUnitGrid() {
+    for (let i = 0; i < 10; ++i) {
+      for (let j = 0; j < 8; ++j) {
+        const topLeft: Point = [-5000.0 + i*1000.0, -4000.0 + j*1000.0];
+        const bottomRight: Point = [-5000.0 + (i+1)*1000.0, -4000.0 + (j+1)*1000.0];
+        const rect = L.rectangle(L.latLngBounds(this.map.fromXZ(topLeft), this.map.fromXZ(bottomRight)), {
+          fill: true,
+          stroke: true,
+          color: '#009dff',
+          fillOpacity: 0.13,
+          weight: 2,
+          // @ts-ignore
+          contextmenu: true,
+        });
+        rect.bringToBack();
+        rect.bindTooltip(map.pointToMapUnit(topLeft), {
+          permanent: true,
+          direction: 'center',
+        });
+        this.mapUnitGrid.data.addLayer(rect);
+      }
+    }
+  }
+
+  onShowMapUnitGridChanged() {
+    this.$nextTick(() => {
+      this.mapUnitGrid.data.remove();
+      if (this.showMapUnitGrid)
+        this.mapUnitGrid.data.addTo(this.map.m);
+    });
+  }
+
   created() {
     this.settings = Settings.getInstance();
   }
@@ -705,6 +740,7 @@ export default class AppMap extends mixins(MixinUtil) {
     this.initMapRouteIntegration();
     this.initMarkers();
     this.initAreaMap();
+    this.initMapUnitGrid();
     this.initSidebar();
     this.initDrawTools();
     this.initMarkerDetails();
