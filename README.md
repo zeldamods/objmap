@@ -54,6 +54,7 @@ _Breath of the Wild_ object map.
   * Generation group and links
   * Object shape
   * Object scale
+* Routes
 * Regions
   * Tower regions
   * Map areas (internal)
