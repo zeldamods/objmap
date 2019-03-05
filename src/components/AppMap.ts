@@ -160,6 +160,9 @@ export default class AppMap extends mixins(MixinUtil) {
   private lastBossExcludeSet!: SearchExcludeSet;
   private ohoExcludeSet!: SearchExcludeSet;
 
+  private areaMapLayer = new ui.Unobservable(L.layerGroup());
+  shownAreaMap = '';
+
   private tempObjMarker: ui.Unobservable<MapMarker>|null = null;
 
   private settings: Settings|null = null;
@@ -635,6 +638,49 @@ export default class AppMap extends mixins(MixinUtil) {
     this.searchResultMarkers.forEach(m => m.data.updateTitle());
   }
 
+  initAreaMap() {
+    this.areaMapLayer.data.addTo(this.map.m);
+  }
+
+  async loadAreaMap(name: string) {
+    this.areaMapLayer.data.clearLayers();
+    if (!name)
+      return;
+
+    const areas = await MapMgr.getInstance().fetchAreaMap(name);
+    const entries = Object.entries(areas);
+    let i = 0;
+    for (const [data, features] of entries) {
+      const layers: L.GeoJSON[] = features.map((feature) => {
+        return L.geoJSON(feature, {
+          style: function (_) {
+            return {weight: 2, fillOpacity: 0.2, color: ui.genColor(entries.length, i)};
+          },
+          // @ts-ignore
+          contextmenu: true,
+        });
+      });
+      for (const layer of layers) {
+        layer.bindTooltip('Area ' + data.toString());
+        layer.on('mouseover', () => {
+          layers.forEach(l => {
+            l.setStyle({ weight: 4, fillOpacity: 0.3 });
+            l.bringToFront();
+          });
+        });
+        layer.on('mouseout', () => {
+          layers.forEach(l => l.setStyle({ weight: 2, fillOpacity: 0.2 }));
+        });
+        this.areaMapLayer.data.addLayer(layer);
+      }
+      ++i;
+    }
+  }
+
+  onShownAreaMapChanged() {
+    this.$nextTick(() => this.loadAreaMap(this.shownAreaMap));
+  }
+
   created() {
     this.settings = Settings.getInstance();
   }
@@ -644,6 +690,7 @@ export default class AppMap extends mixins(MixinUtil) {
     this.map.registerZoomChangeCb((zoom) => this.zoom = zoom);
     this.initMapRouteIntegration();
     this.initMarkers();
+    this.initAreaMap();
     this.initSidebar();
     this.initDrawTools();
     this.initMarkerDetails();

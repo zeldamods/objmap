@@ -118,6 +118,14 @@
         <div class="row">
           <AppMapFilterMainButton v-for="(v, type) in markerComponents" :key="type" :type="type" :label="v.filterLabel" :icon="v.filterIcon" @toggle="updateMarkers" />
         </div>
+        <hr>
+        <h4 class="subsection-heading">Visible map areas</h4>
+        <b-radio-group stacked class="mb-4" v-model="shownAreaMap" @change="onShownAreaMapChanged">
+          <b-radio value="">None</b-radio>
+          <b-radio value="FieldMapArea">Field map areas</b-radio>
+          <b-radio value="MapTower">Map tower areas</b-radio>
+          <b-radio value="LoadBalancer">Load balancer areas</b-radio>
+        </b-radio-group>
       </div>
 
       <div class="leaflet-sidebar-pane" id="spane-draw">

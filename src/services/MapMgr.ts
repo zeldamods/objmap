@@ -78,6 +78,10 @@ export class MapMgr {
     ]);
   }
 
+  fetchAreaMap(name: string): Promise<{[data: number]: Array<GeoJSON.Polygon|GeoJSON.MultiPolygon>}> {
+    return fetch(`/game_files/ecosystem/${name}.json`).then(parse);
+  }
+
   getInfoMainField() {
     return this.infoMainField;
   }

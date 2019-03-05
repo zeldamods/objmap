@@ -54,9 +54,9 @@ _Breath of the Wild_ object map.
   * Generation group and links
   * Object shape
   * Object scale
-* TODO Regions
-  * TODO Tower regions
-  * TODO Map areas (internal)
+* Regions
+  * Tower regions
+  * Map areas (internal)
 * TODO Region details
   * TODO Climate information
   * TODO Autogen information
