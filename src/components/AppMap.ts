@@ -327,9 +327,9 @@ export default class AppMap extends mixins(MixinUtil) {
     // XXX: Terrible hack to restore colors to LineStrings.
     let i = 0;
     this.drawLayer.eachLayer(layer => {
-      if (!data.features[i].style)
+      if (!data.features[i].style || !(layer instanceof L.Path))
         return;
-      (<L.Path>(layer)).setStyle({
+      layer.setStyle({
         color: data.features[i].style.color,
       });
       i++;
