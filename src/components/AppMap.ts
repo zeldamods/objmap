@@ -293,12 +293,31 @@ export default class AppMap extends mixins(MixinUtil) {
     this.sidebar.open(pane);
   }
 
+  private initGeojsonFeature(layer: L.Layer) {
+    if (!(layer instanceof L.Path))
+      return;
+
+    layer.on('mouseover', () => {
+      layer.setStyle({ weight: 5 });
+    });
+    layer.on('mouseout', () => {
+      layer.setStyle({ weight: 3 });
+    });
+    layer.on('contextmenu', (e) => {
+      // @ts-ignore
+      e.originalEvent.preventDefault();
+    })
+    // @ts-ignore
+    layer.options.contextmenu = true;
+  }
+
   initDrawTools() {
     this.drawLayer = new L.GeoJSON(undefined, {
       style: (feature) => {
         // @ts-ignore
         return feature.style || {};
       },
+      onEachFeature: (feature, layer) => { this.initGeojsonFeature(layer); },
     });
     const savedData = Settings.getInstance().drawLayerGeojson;
     if (savedData)
@@ -319,6 +338,7 @@ export default class AppMap extends mixins(MixinUtil) {
     this.map.m.on({
       'draw:created': (e: any) => {
         this.drawLayer.addLayer(e.layer);
+        this.initGeojsonFeature(e.layer);
       },
     });
     this.drawOnColorChange();
