@@ -303,12 +303,20 @@ export default class AppMap extends mixins(MixinUtil) {
     layer.on('mouseout', () => {
       layer.setStyle({ weight: 3 });
     });
-    layer.on('contextmenu', (e) => {
-      // @ts-ignore
-      e.originalEvent.preventDefault();
-    })
     // @ts-ignore
-    layer.options.contextmenu = true;
+    layer.bindContextMenu({
+      contextmenu: true,
+      contextmenuItems: [{
+        text: 'Change color to current polyline color',
+        index: 0,
+        callback: () => {
+          layer.setStyle({ color: this.drawLineColor });
+        },
+      }, {
+        separator: true,
+        index: 1,
+      }],
+    });
   }
 
   initDrawTools() {
