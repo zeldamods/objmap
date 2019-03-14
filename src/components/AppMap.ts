@@ -18,6 +18,7 @@ import * as MapMarkers from '@/MapMarker';
 import {MapMarker, SearchResultUpdateMode} from '@/MapMarker';
 import {MapMarkerGroup} from '@/MapMarkerGroup';
 import {SearchResultGroup, SearchExcludeSet, SEARCH_PRESETS} from '@/MapSearch';
+import * as save from '@/save';
 
 import MixinUtil from '@/components/MixinUtil';
 import AppMapDetailsDungeon from '@/components/AppMapDetailsDungeon';
@@ -392,8 +393,14 @@ export default class AppMap extends mixins(MixinUtil) {
     if (!input.files!.length)
       return;
     try {
-      const data = await (new Response(input.files![0])).json();
-      this.drawFromGeojson(data);
+      const rawData = await (new Response(input.files![0])).json();
+      const version: number|undefined = rawData.OBJMAP_SV_VERSION;
+      if (!version) {
+        this.drawFromGeojson(rawData);
+      } else {
+        const data = <save.SaveData>(rawData);
+        this.drawFromGeojson(data.drawData);
+      }
     } catch (e) {
       alert(e);
     } finally {
@@ -402,10 +409,14 @@ export default class AppMap extends mixins(MixinUtil) {
   }
 
   drawExport() {
-    const blob = new Blob([JSON.stringify(this.drawToGeojson())], {type: 'application/json'});
+    const data: save.SaveData = {
+      OBJMAP_SV_VERSION: 1,
+      drawData: this.drawToGeojson(),
+    };
+    const blob = new Blob([JSON.stringify(data)], {type: 'application/json'});
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    a.download = 'markers.json';
+    a.download = 'objmap_save.json';
     a.click();
   }
 
