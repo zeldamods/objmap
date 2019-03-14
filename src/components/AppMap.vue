@@ -143,7 +143,7 @@
         <input type="color" v-model="drawLineColor" @change="drawOnColorChange"> <b-btn size="sm" variant="link" @click="drawLineColor = '#3388ff'">Reset to default</b-btn>
         <hr>
         <h4 class="subsection-heading">Data import/export</h4>
-        <p>Drawing data can be imported and exported to JSON in the GeoJSON format.</p>
+        <p>Exported data includes search groups and drawn objects.</p>
         <div class="row no-gutters">
           <div class="col mr-3">
             <b-btn size="sm" variant="secondary" block @click="drawExport()"><i class="fas fa-file-export"></i> Export</b-btn>

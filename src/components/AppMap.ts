@@ -400,6 +400,14 @@ export default class AppMap extends mixins(MixinUtil) {
       } else {
         const data = <save.SaveData>(rawData);
         this.drawFromGeojson(data.drawData);
+        if (version >= 2) {
+          data.searchGroups.forEach(g => {
+            this.searchAddGroup(g.query, g.label);
+          });
+          data.searchExcludeSets.forEach(g => {
+            this.searchAddExcludedSet(g.query, g.label);
+          });
+        }
       }
     } catch (e) {
       alert(e);
@@ -410,8 +418,16 @@ export default class AppMap extends mixins(MixinUtil) {
 
   drawExport() {
     const data: save.SaveData = {
-      OBJMAP_SV_VERSION: 1,
+      OBJMAP_SV_VERSION: 2,
       drawData: this.drawToGeojson(),
+      searchGroups: this.searchGroups.map(g => ({
+        label: g.label,
+        query: g.query,
+      })),
+      searchExcludeSets: this.searchExcludedSets.filter(g => !g.hidden).map(g => ({
+        label: g.label,
+        query: g.query,
+      })),
     };
     const blob = new Blob([JSON.stringify(data)], {type: 'application/json'});
     const a = document.createElement('a');
@@ -543,13 +559,19 @@ export default class AppMap extends mixins(MixinUtil) {
     this.search();
   }
 
-  async searchOnExclude() {
-    const query = this.searchGetQuery();
+  searchOnExclude() {
+    this.searchAddExcludedSet(this.searchGetQuery());
+    this.searchQuery = '';
+    this.search();
+  }
+
+  async searchAddExcludedSet(query: string, label?: string) {
+    if (this.searchExcludedSets.some(g => !!g.query && g.query == query))
+      return;
+
     const set = new SearchExcludeSet(query, query);
     this.searchExcludedSets.push(set);
     await set.init();
-    this.searchQuery = '';
-    this.search();
     for (const group of this.searchGroups)
       group.update(SearchResultUpdateMode.UpdateVisibility, this.searchExcludedSets);
   }
