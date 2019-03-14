@@ -294,7 +294,12 @@ export default class AppMap extends mixins(MixinUtil) {
   }
 
   initDrawTools() {
-    this.drawLayer = new L.GeoJSON();
+    this.drawLayer = new L.GeoJSON(undefined, {
+      style: (feature) => {
+        // @ts-ignore
+        return feature.style || {};
+      },
+    });
     const savedData = Settings.getInstance().drawLayerGeojson;
     if (savedData)
       this.drawFromGeojson(JSON.parse(savedData));
@@ -324,16 +329,6 @@ export default class AppMap extends mixins(MixinUtil) {
 
   private drawFromGeojson(data: any) {
     this.drawLayer.clearLayers().addData(data);
-    // XXX: Terrible hack to restore colors to LineStrings.
-    let i = 0;
-    this.drawLayer.eachLayer(layer => {
-      if (!data.features[i].style || !(layer instanceof L.Path))
-        return;
-      layer.setStyle({
-        color: data.features[i].style.color,
-      });
-      i++;
-    });
   }
 
   private drawToGeojson(): GeoJSON.FeatureCollection {
