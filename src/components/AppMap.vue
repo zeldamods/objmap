@@ -90,8 +90,14 @@
           </div>
 
           <section class="search-groups" v-show="searchGroups.length || searchExcludedSets.length">
-            <div class="search-group" v-for="(group, idx) in searchGroups" :key="'searchgroup' + idx">
-              {{group.label}} <a @click="searchRemoveGroup(idx)"><i class="text-danger fa fa-times"></i></a>&nbsp;<a style="font-size: 90%" v-if="group.query" @click="searchViewGroup(idx)"><i class="fa fa-edit"></i></a> ({{group.size()}})
+            <div class="search-group d-flex align-items-center" v-for="(group, idx) in searchGroups" :key="'searchgroup' + idx">
+              <b-form-checkbox class="ml-2 d-inline-block search-enable-checkbox" v-model="group.enabled" @change="searchToggleGroupEnabledStatus(idx)"></b-form-checkbox>
+              <span class="d-inline-block">
+                <span>{{group.label}}</span>
+                <a class="ml-2" @click="searchRemoveGroup(idx)"><i class="text-danger fa fa-times"></i></a>
+                <a class="ml-2" style="font-size: 90%" v-if="group.query" @click="searchViewGroup(idx)"><i class="fa fa-edit"></i></a>
+                <span class="ml-2">({{group.size()}})</span>
+              </span>
             </div>
             <div class="search-group" v-for="(set, idx) in searchExcludedSets" :key="'searchexclude' + idx">
               <div v-if="!set.hidden">[Hidden] {{set.label}} <a @click="searchRemoveExcludeSet(idx)"><i class="text-danger fa fa-times"></i></a> ({{set.size()}})</div>

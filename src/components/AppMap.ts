@@ -402,7 +402,7 @@ export default class AppMap extends mixins(MixinUtil) {
         this.drawFromGeojson(data.drawData);
         if (version >= 2) {
           data.searchGroups.forEach(g => {
-            this.searchAddGroup(g.query, g.label);
+            this.searchAddGroup(g.query, g.label, g.enabled);
           });
           data.searchExcludeSets.forEach(g => {
             this.searchAddExcludedSet(g.query, g.label);
@@ -418,11 +418,12 @@ export default class AppMap extends mixins(MixinUtil) {
 
   drawExport() {
     const data: save.SaveData = {
-      OBJMAP_SV_VERSION: 2,
+      OBJMAP_SV_VERSION: save.CURRENT_OBJMAP_SV_VERSION,
       drawData: this.drawToGeojson(),
       searchGroups: this.searchGroups.map(g => ({
         label: g.label,
         query: g.query,
+        enabled: g.enabled,
       })),
       searchExcludeSets: this.searchExcludedSets.filter(g => !g.hidden).map(g => ({
         label: g.label,
@@ -576,14 +577,20 @@ export default class AppMap extends mixins(MixinUtil) {
       group.update(SearchResultUpdateMode.UpdateVisibility, this.searchExcludedSets);
   }
 
-  async searchAddGroup(query: string, label?: string) {
+  async searchAddGroup(query: string, label?: string, enabled = true) {
     if (this.searchGroups.some(g => !!g.query && g.query == query))
       return;
 
-    const group = new SearchResultGroup(query, label || query);
+    const group = new SearchResultGroup(query, label || query, enabled);
     await group.init(this.map);
     group.update(SearchResultUpdateMode.UpdateStyle | SearchResultUpdateMode.UpdateVisibility, this.searchExcludedSets);
     this.searchGroups.push(group);
+  }
+
+  searchToggleGroupEnabledStatus(idx: number) {
+    const group = this.searchGroups[idx];
+    group.enabled = !group.enabled;
+    group.update(SearchResultUpdateMode.UpdateVisibility, this.searchExcludedSets);
   }
 
   searchViewGroup(idx: number) {

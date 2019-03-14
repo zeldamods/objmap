@@ -89,7 +89,7 @@ export class SearchExcludeSet {
 }
 
 export class SearchResultGroup {
-  constructor(public query: string, public label: string) {
+  constructor(public query: string, public label: string, public enabled = true) {
   }
 
   size() {
@@ -108,7 +108,7 @@ export class SearchResultGroup {
     };
     for (const [i, marker] of this.markers.data.entries()) {
       const shouldShow = mode & SearchResultUpdateMode.UpdateVisibility
-        ? !isExcluded(marker) : this.shownMarkers.data[i];
+        ? (this.enabled && !isExcluded(marker)) : this.shownMarkers.data[i];
       if (shouldShow != this.shownMarkers.data[i]) {
         if (shouldShow)
           this.markerGroup.data.addLayer(marker.getMarker());
