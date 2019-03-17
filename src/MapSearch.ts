@@ -61,6 +61,26 @@ export const SEARCH_PRESETS: ReadonlyArray<SearchPresetGroup> = Object.freeze([
     ],
   },
   {
+    label: '<i class="fa fa-vial"></i>',
+    presets: [
+      {label: 'Blue Dye Materials', query: makeNameQuery(['Blue nightshade', 'Ice Keese', 'Chillshroom'])+' OR drop: "sapphire"'},
+      {label: 'Red Dye Materials', query: makeNameQuery(['Apple', 'Spicy Pepper', 'Hylian Shroom', 'Sunshroom','Fire Keese','Fire Chuchu'])},
+      {label: 'Yellow Dye Materials', query: makeNameQuery(['Mighty Bananas', 'Zapshroom','Bird Egg','Thunderwing Butterfly','Electric Darner','Energetic Rhino Beetle','Electric Lizalfos','Electric Keese','Electric Chuchu','Hinox'])+' OR drop:"Topaz"'},
+      {label: 'White Dye Materials', query: makeNameQuery(['Hylian Rice','Silent Princess','Fresh Milk','Ice Chuchu','Lynel'])+' OR drop:"Star Fragment" OR drop:"Diamond"'},
+      {label: 'Black Dye Materials', query: makeNameQuery(['Hearty Truffle','Big Hearty Truffle','Lynel'])+' OR drop:"Flint"'},
+      {label: 'Purple Dye Materials', query: makeNameQuery(['Rushroom','Swift Violet','Armoranth','Sunset Firefly','Bokoblin Guts'])},
+      {label: 'Green Dye Materials', query: makeNameQuery(['Hydromelon','Fleet-Lotus Seeds','Stamella Shroom','Hyrule Herb','Cane Sugar','Restless Cricket','Rugged Rhino Beetle','Hot-Footed Frog', 'Molduga'])+' OR '+makeActorQuery(['Enemy_Lizalfos_Middle','Enemy_Lizalfos_Senior','Enemy_Lizalfos_Junior',])},
+      {label: 'Light Blue Dye Materials', query: makeNameQuery(['Silent Shroom','Cool Safflina','Blue Moblin','Black Moblin'])+makeActorQuery(['Enemy_Chuchu_Junior','Enemy_Chuchu_Middle','Enemy_Chuchu_Senior'])},
+      {label: 'Navy Dye Materials', query: 'name:"Bladed Rhino Beetle" OR drop:"Luminous Stone"'},
+      {label: 'Orange Dye Materials', query: makeNameQuery(['Voltfruit', 'Endura Shroom', 'Swift Carrot', 'Fortified Pumpkin', 'Warm Safflina', 'Mighty Thistle', 'Courser Bee Honey'])+' OR drop:"Amber"'},
+      {label: 'Peach Dye Materials', query: makeNameQuery(['Wildberry', 'Big Hearty Radish', 'Hearty Radish', 'Rock Salt'])},
+      {label: 'Crimson Dye Materials', query: makeNameQuery(['Razorshroom', 'Chickaloo Tree Nut', 'Tireless Frog'])},
+      {label: 'Light Yellow Dye Materials', query: makeNameQuery(['Hearty Durian', 'Palm Fruit', 'Endura Carrot', 'Electric Safflina', 'Tabantha Wheat', 'Goat Butter', 'Bokoblin'])+' OR drop:"Opal"'},
+      {label: 'Brown Dye Materials', query: makeNameQuery(['Ironshroom', 'Acorn', 'Hightail Lizard', 'Hinox', 'Stalnox', 'Molduga'])},
+      {label: 'Gray Dye Materials', query: makeNameQuery(['Smotherwing Butterfly', 'Fireproof Lizard', 'Moblin', 'Lizalfos'])+' OR actor:"enemy_bokoblin_*"'},
+    ]
+  },
+  {
     label: '<i class="fa fa-ellipsis-h"></i>',
     presets: [
       {label: 'Memory Locations', query: 'name:"Memory"'},
@@ -70,7 +90,7 @@ export const SEARCH_PRESETS: ReadonlyArray<SearchPresetGroup> = Object.freeze([
       {label: 'BtB Enemies', query: makeActorQuery(['Enemy_Bokoblin', 'Enemy_Lizalfos', 'Enemy_Moriblin', 'Enemy_Giant', 'Enemy_Wizzrobe'])},
       {label: 'Launchable Objects', query: makeActorQuery(LAUNCHABLE_OBJS.split('\n'))},
     ],
-  },
+  }
 ]);
 
 export class SearchExcludeSet {
