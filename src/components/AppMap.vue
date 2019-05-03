@@ -44,6 +44,7 @@
         <p>Available columns:</p>
         <p>
           <code>map</code>: Map name (e.g. MainField/E-4)<br>
+          <code>static</code>: 1 if the object is in a Static map unit, 0 if Dynamic<br>
           <code>actor</code>: Actor name (e.g. Weapon_Sword_001)<br>
           <code>name</code>: User visible name (e.g. Traveler's Sword)<br>
           <code>data</code>: Internal object data<br>
