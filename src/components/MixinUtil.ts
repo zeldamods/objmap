@@ -20,6 +20,10 @@ export default class MixinUtil extends Vue {
     return rankUpEnemyForHardMode(obj.name);
   }
 
+  getMapStaticStringForObj(obj: ObjectMinData) {
+    return obj.map_static ? 'Static' : 'Dynamic';
+  }
+
   isActuallyRankedUp(obj: ObjectMinData) {
     return this.getRankedUpActorNameForObj(obj) != obj.name;
   }

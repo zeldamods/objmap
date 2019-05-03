@@ -3,7 +3,7 @@
     <section class="search-result-name">{{name(true)}}</section>
     <section class="search-result-location">
       <i class="fa fa-map-marker-alt fa-fw"></i>
-      {{data.map_name}}
+      {{data.map_name}} {{getMapStaticStringForObj(data)}}
       (ID <span v-if="withPermalink"><router-link :to="{ query: { id: `MainField,${data.map_name},${data.hash_id}` } }" append>{{formatObjId(data.hash_id)}}</router-link></span>
           <span v-if="!withPermalink">{{formatObjId(data.hash_id)}}</span>)
       <span style="color: #ff3915" v-if="data.hard_mode"> Master Mode</span>

@@ -25,6 +25,7 @@ export interface ObjectMinData {
   objid: number;
   hash_id: number;
   map_name?: string;
+  map_static: boolean;
   name: string;
   drop?: [ObjectDropType, string];
   equip?: string[];
