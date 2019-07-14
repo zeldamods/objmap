@@ -75,7 +75,13 @@ export class MapMgr {
   async init() {
     await Promise.all([
       fetch('/game_files/map_summary/MainField/static.json').then(r => r.json())
-          .then((d) => this.infoMainField = Object.freeze(d)),
+          .then((d) => 
+            {
+              d.markers["DungeonDLC"] = d.markers["Dungeon"].filter((l: any) => parseInt(l.SaveFlag.replace('Location_Dungeon', ''), 10) >= 120);
+              d.markers["Dungeon"] = d.markers["Dungeon"].filter((l: any) => parseInt(l.SaveFlag.replace('Location_Dungeon', ''), 10) < 120);
+              console.log(d);
+              this.infoMainField = Object.freeze(d);
+            }),
     ]);
   }
 
