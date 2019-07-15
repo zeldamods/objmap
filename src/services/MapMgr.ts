@@ -79,7 +79,6 @@ export class MapMgr {
             {
               d.markers["DungeonDLC"] = d.markers["Dungeon"].filter((l: any) => parseInt(l.SaveFlag.replace('Location_Dungeon', ''), 10) >= 120);
               d.markers["Dungeon"] = d.markers["Dungeon"].filter((l: any) => parseInt(l.SaveFlag.replace('Location_Dungeon', ''), 10) < 120);
-              console.log(d);
               this.infoMainField = Object.freeze(d);
             }),
     ]);
