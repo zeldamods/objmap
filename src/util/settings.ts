@@ -48,7 +48,7 @@ export class Settings {
     const data = dataStr ? JSON.parse(dataStr) : {};
 
     this.shownGroups = parse(data.shownGroups, (d) => new Set(d),
-      new Set(['Location', 'Dungeon', 'Place', 'Tower', 'Shop', 'Labo']));
+      new Set(['Location', 'Dungeon', 'DungeonDLC', 'Place', 'Tower', 'Shop', 'Labo']));
     this.drawLayerGeojson = parse(data.drawLayerGeojson, Id, '');
     this.colorPerActor = parse(data.colorPerActor, Id, true);
     this.useActorNames = parse(data.useActorNames, Id, false);
