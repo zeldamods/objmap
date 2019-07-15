@@ -76,6 +76,13 @@ const MARKER_COMPONENTS: {[type: string]: MarkerComponent} = Object.freeze({
     filterIcon: MapIcons.VILLAGE.options.iconUrl,
     filterLabel: 'Places',
    },
+  'DungeonDLC': {
+    cl: MapMarkers.MapMarkerDungeonDLC,
+    detailsComponent: 'AppMapDetailsDungeon',
+    enableUpdates: false,
+    filterIcon: MapIcons.DUNGEON_DLC.options.iconUrl,
+    filterLabel: 'DLC Shrines',
+  },
   'Tower': {
     cl: MapMarkers.MapMarkerTower,
     enableUpdates: false,

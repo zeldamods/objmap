@@ -156,6 +156,12 @@ export class MapMarkerDungeon extends MapMarkerGenericLocationMarker {
   }
 }
 
+export class MapMarkerDungeonDLC extends MapMarkerDungeon {
+  constructor(mb: MapBase, l: any) {
+    super(mb, l);
+  }
+}
+
 export class MapMarkerPlace extends MapMarkerGenericLocationMarker {
   private isVillage: boolean;
 
