@@ -311,7 +311,7 @@ export class MapMarkerObj extends MapMarkerCanvasImpl {
           text: 'Show generation group',
           callback: ({ latlng }: ui.LeafletContextMenuCbArg) => {
             mb.m.fire('AppMap:show-gen-group', {
-              mapType: 'MainField',
+              mapType: this.obj.map_type,
               mapName: this.obj.map_name,
               hashId: this.obj.hash_id,
             });

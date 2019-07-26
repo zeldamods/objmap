@@ -27,6 +27,9 @@ export class Settings {
   useActorNames!: boolean;
   useHexForHashIds!: boolean;
 
+  mapType!: string;
+  mapName!: string;
+
   hardMode!: boolean;
   ohoMode!: boolean;
   lastBossMode!: boolean;
@@ -58,6 +61,8 @@ export class Settings {
     this.lastBossMode = parse(data.lastBossMode, Id, false);
     this.customSearchPresets = parse(data.customSearchPresets, Id, []);
     this.left = parse(data.left, Id, true);
+    this.mapType = parse(data.mapType, Id, 'MainField');
+    this.mapName = parse(data.mapName, Id, '');
 
     this.invokeCallbacks();
   }
@@ -76,6 +81,8 @@ export class Settings {
       lastBossMode: this.lastBossMode,
       customSearchPresets: this.customSearchPresets,
       left: this.left,
+      mapType: this.mapType,
+      mapName: this.mapName,
     };
     // Merge with existing data to avoid data loss.
     const existingDataStr = localStorage.getItem(Settings.KEY);

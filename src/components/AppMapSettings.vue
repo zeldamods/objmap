@@ -7,6 +7,12 @@
     <b-checkbox switch v-model="s.ohoMode">Show One-Hit Obliterator mode actors</b-checkbox>
     <hr>
 
+    <h4 class="subsection-heading">Map</h4>
+    <b-form-select v-model="s.mapType" class="mb-2" size="sm" :options="optionsMapType" @input="resetMapName"></b-form-select>
+    <b-form-select v-model="s.mapName" class="mb-2" size="sm" :options="optionsMapNameForMapType[s.mapType]"></b-form-select>
+    This setting only affects search. Objects will be displayed using the main Hyrule map.
+    <hr>
+
     <h4 class="subsection-heading">Object Color Mode</h4>
     <b-radio-group class="mb-4" v-model="colorMode" @change="onColorModeChange">
       <b-radio value="per-actor">Color by actor type</b-radio>

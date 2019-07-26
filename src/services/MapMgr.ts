@@ -24,6 +24,7 @@ export const enum ObjectDropType {
 export interface ObjectMinData {
   objid: number;
   hash_id: number;
+  map_type: string;
   map_name?: string;
   map_static: boolean;
   name: string;
@@ -44,7 +45,6 @@ export interface ObjectMinData {
 }
 
 export interface ObjectData extends ObjectMinData {
-  map_type: string;
   map_name: string;
   data: ResPlacementObj;
 }
@@ -75,7 +75,7 @@ export class MapMgr {
   async init() {
     await Promise.all([
       fetch('/game_files/map_summary/MainField/static.json').then(r => r.json())
-          .then((d) => 
+          .then((d) =>
             {
               d.markers["DungeonDLC"] = d.markers["Dungeon"].filter((l: any) => parseInt(l.SaveFlag.replace('Location_Dungeon', ''), 10) >= 120);
               d.markers["Dungeon"] = d.markers["Dungeon"].filter((l: any) => parseInt(l.SaveFlag.replace('Location_Dungeon', ''), 10) < 120);

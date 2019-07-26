@@ -625,7 +625,7 @@ export default class AppMap extends mixins(MixinUtil) {
 
     const query = this.searchGetQuery();
     try {
-      this.searchResults = await MapMgr.getInstance().getObjs('MainField', '', query, false, this.MAX_SEARCH_RESULT_COUNT);
+      this.searchResults = await MapMgr.getInstance().getObjs(this.settings!.mapType, this.settings!.mapName, query, false, this.MAX_SEARCH_RESULT_COUNT);
       this.searchLastSearchFailed = false;
     } catch (e) {
       this.searchResults = [];
@@ -643,6 +643,11 @@ export default class AppMap extends mixins(MixinUtil) {
 
   initContextMenu() {
     this.map.m.on(SHOW_ALL_OBJS_FOR_MAP_UNIT_EVENT, (e) => {
+      if (Settings.getInstance().mapType !== 'MainField' && Settings.getInstance().mapType !== 'AocField') {
+        this.searchAddGroup(`map:"${Settings.getInstance().mapType}/${Settings.getInstance().mapName}"`);
+        return;
+      }
+
       // @ts-ignore
       const latlng: L.LatLng = e.latlng;
       const xz = this.map.toXZ(latlng);

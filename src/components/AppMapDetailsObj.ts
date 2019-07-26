@@ -103,7 +103,7 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj|Map
     this.areaMarkers = [];
 
     this.obj = (await MapMgr.getInstance().getObjByObjId(this.minObj.objid))!;
-    this.genGroup = await MapMgr.getInstance().getObjGenGroup('MainField', this.obj.map_name, this.obj.hash_id);
+    this.genGroup = await MapMgr.getInstance().getObjGenGroup(this.obj.map_type, this.obj.map_name, this.obj.hash_id);
     for (const obj of this.genGroup) {
       this.genGroupSet.set(obj.hash_id, obj);
     }
@@ -188,7 +188,7 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj|Map
     case 2:
       return 'Open_{DUNGEON_NAME}';
     case 3:
-      return `MainField_${this.obj.name}_${this.obj.hash_id}`;
+      return `${this.obj.map_type}_${this.obj.name}_${this.obj.hash_id}`;
     default:
       return 'UNEXPECTED_MAKE_SAVE_FLAG';
     }

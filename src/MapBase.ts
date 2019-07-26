@@ -9,6 +9,7 @@ import * as map from '@/util/map';
 import {Point} from '@/util/map';
 import * as ui from '@/util/ui';
 import '@/util/leaflet_tile_workaround.js';
+import { Settings } from './util/settings';
 
 declare module 'leaflet' {
   export type RasterCoords = any;

@@ -3,6 +3,7 @@ import {MapBase} from '@/MapBase';
 import {SearchResultUpdateMode} from '@/MapMarker';
 import * as MapMarkers from '@/MapMarker';
 import {MapMgr, ObjectMinData} from '@/services/MapMgr';
+import {Settings} from '@/util/settings';
 import * as ui from '@/util/ui';
 
 export interface SearchPreset {
@@ -104,7 +105,7 @@ export class SearchExcludeSet {
   ids: Set<number> = new Set();
 
   async init() {
-    this.ids = new Set(await MapMgr.getInstance().getObjids('MainField', '', this.query));
+    this.ids = new Set(await MapMgr.getInstance().getObjids(Settings.getInstance().mapType, Settings.getInstance().mapName, this.query));
   }
 }
 
@@ -154,7 +155,7 @@ export class SearchResultGroup {
     this.markerGroup.data.addTo(map.m);
     if (!this.query)
       return;
-    const results = await MapMgr.getInstance().getObjs('MainField', '', this.query);
+    const results = await MapMgr.getInstance().getObjs(Settings.getInstance().mapType, Settings.getInstance().mapName, this.query);
     this.setObjects(map, results);
   }
 
