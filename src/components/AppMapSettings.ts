@@ -33,7 +33,7 @@ export default class AppMapSettings extends Vue {
     'MainField': [
       { value: '', text: 'All' },
     ],
-    'MainFieldDungeon': ['RemainsWind', 'RemainsWater', 'RemainsElectric', 'RemainsFire'].map(makeMainFieldDungeonEntry),
+    'MainFieldDungeon': ['RemainsWind', 'RemainsWater', 'RemainsElectric', 'RemainsFire', 'FinalTrial'].map(makeMainFieldDungeonEntry),
     'CDungeon': [...Array(136).keys()].map(makeCDungeonEntry),
     'AocField': [
       { value: '', text: 'All' },
