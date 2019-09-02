@@ -170,6 +170,11 @@
         <hr>
         <p><b-button size="sm" variant="secondary" block @click="closeSidebar(); showGreatPlateauBarrier()" v-b-tooltip.hover title="Right click on the Plateau to hide the barrier.">Show Great Plateau barrier</b-button></p>
         <p>The Great Plateau barrier prevents Link from leaving the Great Plateau before he has acquired the paraglider. For more information, read the <a href="https://zeldamods.org/wiki/The_Great_Plateau_barrier">article</a>.</p>
+
+        <hr>
+        <h4 class="subsection-heading">About this map</h4>
+        <p>This object map is an <a href="https://github.com/zeldamods/objmap">open source project</a>. Contributions are welcome.</p>
+        <p>For technical documentation about <i>Breath of the Wild</i> and mechanic breakdowns, refer to the <a href="https://zeldamods.org/">ZeldaMods wiki</a>.</p>
       </div>
 
       <div class="leaflet-sidebar-pane" id="spane-settings">
