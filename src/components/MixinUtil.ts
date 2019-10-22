@@ -20,6 +20,20 @@ export default class MixinUtil extends Vue {
     return rankUpEnemyForHardMode(obj.name);
   }
 
+  getMapNameForObj(obj: ObjectMinData) {
+    if (obj.map_type == 'CDungeon') {
+      const uiName = MsgMgr.getInstance().getMsg(`StaticMsg/Dungeon:${obj.map_name}`);
+      return `${uiName} (${obj.map_name})`;
+    }
+
+    if (obj.map_type == 'MainFieldDungeon') {
+      const uiName = MsgMgr.getInstance().getMsg(`StaticMsg/LocationMarker:${obj.map_name}`);
+      return `${uiName} (${obj.map_name})`;
+    }
+
+    return obj.map_name;
+  }
+
   getMapStaticStringForObj(obj: ObjectMinData) {
     return obj.map_static ? 'Static' : 'Dynamic';
   }
