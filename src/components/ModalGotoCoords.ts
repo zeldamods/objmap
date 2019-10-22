@@ -18,6 +18,8 @@ export default class ModalGotoCoords extends Vue {
   }
 
   private onPaste(evt: ClipboardEvent) {
+    if (!evt.clipboardData)
+      return;
     let X, Z;
     const data = evt.clipboardData.getData('text');
     const array = data.replace('[', '').replace(']', '').replace(' ', '').split(',');

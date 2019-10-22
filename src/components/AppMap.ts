@@ -352,6 +352,7 @@ export default class AppMap extends mixins(MixinUtil) {
     // @ts-ignore
     this.drawControl = new L.Control.Draw(options);
     this.map.m.on({
+      // @ts-ignore
       'draw:created': (e: any) => {
         this.drawLayer.addLayer(e.layer);
         this.initGeojsonFeature(e.layer);
