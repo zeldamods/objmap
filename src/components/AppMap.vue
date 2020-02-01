@@ -110,6 +110,7 @@
           <section class="search-results">
             <p class="text-center mb-3 h5" v-show="searchQuery && !searching && !searchResults.length">No results.</p>
             <p class="text-center" v-show="!searching && searchLastSearchFailed">Could not understand search query.</p>
+            <p class="text-center" v-show="!searching && searchLastSearchFailed">Hint: If your query contains <code>'</code>, try putting the whole query in quotes (e.g. <code>"traveler's shield"</code>)</p>
 
             <div v-show="searchResults.length">
               <p class="text-center mb-1">
