@@ -85,6 +85,7 @@ export const SEARCH_PRESETS: ReadonlyArray<SearchPresetGroup> = Object.freeze([
     label: '<i class="fa fa-ellipsis-h"></i>',
     presets: [
       {label: 'Memory Locations', query: 'name:"Memory"'},
+      {label: 'Zora Stone Monuments', query: 'name:FldObj_RockZoraRelief'},
       {label: 'Goddess Statues', query: 'name:"Goddess Statue"'},
       {label: 'Rafts', query: 'name:Raft'},
       {label: 'Enemies', query: 'actor:^"Enemy_"'},
