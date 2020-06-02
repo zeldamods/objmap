@@ -233,6 +233,8 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj|Map
     if (!this.obj)
       return;
 
+    this.addDungeonElevatorLoadAreaMarker(this.obj);
+
     if (isAreaObject(this.obj))
       this.addAreaMarker(this.obj);
 
@@ -245,6 +247,27 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj|Map
         this.addAreaMarker(o);
       });
     }
+  }
+
+  private addDungeonElevatorLoadAreaMarker(obj: ObjectData) {
+    let radius = 0.0;
+    if (obj.name == 'DgnObj_EntranceElevator_A_01') {
+      radius = 64.0;
+    } else if (obj.name == 'DgnObj_EntranceElevatorSP') {
+      radius = 528.0;
+      if (obj.data['!Parameters']!.EventFlowName == 'Demo603_0') {
+        radius = 1500.0;
+      }
+    }
+
+    if (radius == 0.0)
+      return;
+
+    const mb = this.marker.data.mb;
+    const [x, y, z] = obj.data.Translate;
+    const areaMarker = L.circle(mb.fromXZ([x, z]), { radius }).addTo(mb.m);
+    areaMarker.bringToBack();
+    this.areaMarkers.push(areaMarker);
   }
 
   private addAreaMarker(obj: ObjectData) {
