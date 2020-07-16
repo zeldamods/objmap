@@ -20,7 +20,7 @@
     "leaflet-rastercoords": "^1.0.3",
     "leaflet-sidebar-v2": "^3.2.3",
     "leaflet.markercluster": "^1.4.1",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.19",
     "terser": "^3.17.0",
     "vue": "^2.6.11",
     "vue-class-component": "^7.2.3",
