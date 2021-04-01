@@ -17,6 +17,7 @@
         <li><a href="#spane-settings" role="tab"><i class="fa fa-cog"></i></a></li>
       </ul>
       <ul role="tablist">
+        <li @click.capture.prevent.stop="toggleHylianMode()"><a href="#dummy" v-b-tooltip.hover.right title="Yahaha! You found me!"><i class="fas fa-seedling"></i></a></li>
         <li v-show="settings.left" @click.capture.prevent.stop="toggleSidebarSide()"><a href="#toggle-sidebar-side" v-b-tooltip.hover.right title="Move to the right side"><i class="far fa-caret-square-right"></i></a></li>
         <li v-show="!settings.left" @click.capture.prevent.stop="toggleSidebarSide()"><a href="#toggle-sidebar-side" v-b-tooltip.hover.left title="Move to the left side"><i class="far fa-caret-square-left"></i></a></li>
       </ul>
@@ -288,6 +289,16 @@
 .mapicon-Dungeon {
   .zoom-level-6 &, .zoom-level-7 &, .zoom-level-8 &, .zoom-level-9 &, .zoom-level-10 & {
     filter: drop-shadow(0 0 7px #0088e88c);
+  }
+}
+
+.hylian-mode {
+  #sidebar, .location-title, .leaflet-tooltip, .map-tooltip {
+    font-family: Sheikah !important;
+  }
+
+  .map-location {
+    font-size: 80%;
   }
 }
 </style>

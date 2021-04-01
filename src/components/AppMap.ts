@@ -275,6 +275,7 @@ export default class AppMap extends mixins(MixinUtil) {
       el.scrollTop = this.sidebarPaneScrollPos.get(this.sidebarActivePane) || 0;
     });
     this.updateSidebarClass();
+    this.updateHylianMode();
   }
 
   closeSidebar() {
@@ -286,6 +287,11 @@ export default class AppMap extends mixins(MixinUtil) {
     this.updateSidebarClass();
   }
 
+  toggleHylianMode() {
+    Settings.getInstance().hylianMode = !Settings.getInstance().hylianMode;
+    this.updateHylianMode();
+  }
+
   updateSidebarClass() {
     const el = (document.getElementById('sidebar'))!;
     if (Settings.getInstance().left) {
@@ -294,6 +300,15 @@ export default class AppMap extends mixins(MixinUtil) {
     } else {
       el.classList.add('leaflet-sidebar-right');
       el.classList.remove('leaflet-sidebar-left');
+    }
+  }
+
+  updateHylianMode() {
+    const el = (document.getElementById('app'))!;
+    if (Settings.getInstance().hylianMode) {
+      el.classList.add('hylian-mode');
+    } else {
+      el.classList.remove('hylian-mode');
     }
   }
 

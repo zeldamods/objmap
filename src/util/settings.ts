@@ -37,6 +37,7 @@ export class Settings {
   customSearchPresets!: Array<[string, string]>;
 
   left!: boolean;
+  hylianMode!: boolean;
 
   private constructor() {
     this.load();
@@ -63,6 +64,7 @@ export class Settings {
     this.left = parse(data.left, Id, true);
     this.mapType = parse(data.mapType, Id, 'MainField');
     this.mapName = parse(data.mapName, Id, '');
+    this.hylianMode = parse(data.hylianMode, Id, true);
 
     this.invokeCallbacks();
   }
@@ -83,6 +85,7 @@ export class Settings {
       left: this.left,
       mapType: this.mapType,
       mapName: this.mapName,
+      hylianMode: this.hylianMode,
     };
     // Merge with existing data to avoid data loss.
     const existingDataStr = localStorage.getItem(Settings.KEY);
