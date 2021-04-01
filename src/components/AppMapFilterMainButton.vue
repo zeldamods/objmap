@@ -39,6 +39,8 @@
   .map-filter-icon-Korok {
     height: 20px;
     width: 20px;
+    position: relative;
+    top: 5px;
   }
 
   &.active {

@@ -297,6 +297,18 @@
     font-family: Sheikah !important;
   }
 
+  #sidebar {
+    font-size: 13px;
+  }
+
+  .map-filter-main-button {
+    font-size: 11px;
+  }
+
+  #sidebar .dropdown-menu {
+    font-size: 12px;
+  }
+
   .map-location {
     font-size: 80%;
   }
