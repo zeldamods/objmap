@@ -297,6 +297,14 @@
     font-family: Sheikah !important;
   }
 
+  .location-title {
+    font-size: 20px !important;
+  }
+
+  .obj-main-info {
+    font-size: 85%;
+  }
+
   #sidebar {
     font-size: 13px;
   }
