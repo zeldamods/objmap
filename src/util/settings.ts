@@ -38,6 +38,7 @@ export class Settings {
 
   left!: boolean;
   hylianMode!: boolean;
+  drawControlsShown!: boolean;
 
   private constructor() {
     this.load();
@@ -65,6 +66,7 @@ export class Settings {
     this.mapType = parse(data.mapType, Id, 'MainField');
     this.mapName = parse(data.mapName, Id, '');
     this.hylianMode = false;
+    this.drawControlsShown = parse(data.drawControlsShown, Id, false);
 
     this.invokeCallbacks();
   }
@@ -86,6 +88,7 @@ export class Settings {
       mapType: this.mapType,
       mapName: this.mapName,
       hylianMode: this.hylianMode,
+      drawControlsShown: this.drawControlsShown,
     };
     // Merge with existing data to avoid data loss.
     const existingDataStr = localStorage.getItem(Settings.KEY);

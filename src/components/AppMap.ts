@@ -377,6 +377,7 @@ export default class AppMap extends mixins(MixinUtil) {
     Settings.getInstance().registerBeforeSaveCallback(() => {
       Settings.getInstance().drawLayerGeojson = JSON.stringify(this.drawToGeojson());
     });
+    this.updateDrawControlsVisibility();
   }
 
   private drawFromGeojson(data: any) {
@@ -399,11 +400,15 @@ export default class AppMap extends mixins(MixinUtil) {
   }
 
   toggleDraw() {
-    if (this.drawControlEnabled)
-      this.drawControl.remove();
-    else
+    Settings.getInstance().drawControlsShown = !Settings.getInstance().drawControlsShown;
+    this.updateDrawControlsVisibility();
+  }
+
+  updateDrawControlsVisibility() {
+    if (Settings.getInstance().drawControlsShown)
       this.drawControl.addTo(this.map.m);
-    this.drawControlEnabled = !this.drawControlEnabled;
+    else
+      this.drawControl.remove();
   }
 
   drawImport() {
