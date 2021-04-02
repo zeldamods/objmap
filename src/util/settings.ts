@@ -64,7 +64,7 @@ export class Settings {
     this.left = parse(data.left, Id, true);
     this.mapType = parse(data.mapType, Id, 'MainField');
     this.mapName = parse(data.mapName, Id, '');
-    this.hylianMode = parse(data.hylianMode, Id, true);
+    this.hylianMode = false;
 
     this.invokeCallbacks();
   }
