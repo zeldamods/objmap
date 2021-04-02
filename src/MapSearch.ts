@@ -91,6 +91,7 @@ export const SEARCH_PRESETS: ReadonlyArray<SearchPresetGroup> = Object.freeze([
       {label: 'Enemies', query: 'actor:^"Enemy_"'},
       {label: 'BtB Enemies', query: '(' + makeActorQuery(['Enemy_Bokoblin', 'Enemy_Lizalfos', 'Enemy_Moriblin', 'Enemy_Giant', 'Enemy_Wizzrobe']) + ') NOT actor:bone'},
       {label: 'Launchable Objects', query: makeActorQuery(LAUNCHABLE_OBJS.split('\n'))},
+      {label: 'Shrine Elevators', query: 'actor:"DgnObj_EntranceElevator_A_01"'},
     ],
   }
 ]);
