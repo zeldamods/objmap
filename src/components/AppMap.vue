@@ -1,5 +1,11 @@
 <template>
 <div class="flex-fill" :class="'zoom-level-'+zoom">
+  <div class="banner" v-show="!settings.decompBannerHidden">
+    Help us understand the BotW engine! <a href="https://github.com/zeldaret/botw" target="_blank">Contribute to the decompilation project now</a>
+
+    <button type="button" aria-label="Close" class="close" @click="settings.decompBannerHidden = true">×</button>
+  </div>
+
   <div id="lmap" class="h-100"></div>
 
   <ModalGotoCoords ref="modalGoto" @submitted="gotoOnSubmit"/>
@@ -200,6 +206,25 @@
 <script src="./AppMap.ts"></script>
 <style lang="less" src="./AppMapSidebar.less"></style>
 <style lang="less">
+.banner {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, 0%);
+  z-index: 1000;
+  background-color: #01151fe0;
+  border: 0;
+  padding: 10px 20px;
+  font-family: Roboto, sans-serif;
+  color: white;
+  text-align: center;
+
+  .close {
+    margin-left: 20px;
+    color: white;
+  }
+}
+
 .leaflet-container {
   background: black !important;
   box-shadow: 0 0 50px 10px black;

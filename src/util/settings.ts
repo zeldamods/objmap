@@ -40,6 +40,8 @@ export class Settings {
   hylianMode!: boolean;
   drawControlsShown!: boolean;
 
+  decompBannerHidden!: boolean;
+
   private constructor() {
     this.load();
     window.addEventListener('beforeunload', (event) => {
@@ -67,6 +69,7 @@ export class Settings {
     this.mapName = parse(data.mapName, Id, '');
     this.hylianMode = false;
     this.drawControlsShown = parse(data.drawControlsShown, Id, false);
+    this.decompBannerHidden = parse(data.decompBannerHidden, Id, false);
 
     this.invokeCallbacks();
   }
@@ -89,6 +92,7 @@ export class Settings {
       mapName: this.mapName,
       hylianMode: this.hylianMode,
       drawControlsShown: this.drawControlsShown,
+      decompBannerHidden: this.decompBannerHidden,
     };
     // Merge with existing data to avoid data loss.
     const existingDataStr = localStorage.getItem(Settings.KEY);
