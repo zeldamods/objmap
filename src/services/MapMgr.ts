@@ -42,6 +42,9 @@ export interface ObjectMinData {
   // Only for weapons and enemies.
   scale?: number;
   sharp_weapon_judge_type?: number;
+
+  readonly drop_table?: {[key:string]: any};
+  readonly drop_tables?: {[key:string]: any};
 }
 
 export interface ObjectData extends ObjectMinData {

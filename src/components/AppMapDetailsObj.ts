@@ -352,4 +352,33 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj|Map
     this.staticData.persistentAreaMarkers.forEach(m => m.remove());
     this.staticData.persistentAreaMarkers = [];
   }
+
+  getName(name: string) {
+    return MsgMgr.getInstance().getName(name) || name;
+  }
+  drop_table_format() : string {
+      if(!this.obj) {
+          return "";
+      }
+      if(!this.obj.drop_table) {
+          return "";
+      }
+      let lines = [];
+      let table_names = Object.keys(this.obj.drop_table);
+      for(var i = 0; i < table_names.length; i++) {
+          let table = this.obj.drop_table[table_names[i]];
+          let n = table.n;
+          if(n[0] == n[1]) {
+              lines.push(`<span style="text-decoration: underline;"><b>${table_names[i]}</b> - x${n[0]}</span>`);
+          } else {
+              lines.push(`<b>${table_names[i]}</b> - x${n[0]}-${n[1]}`);
+          }
+          let items = Object.keys(table.pop);
+          for(var j = 0; j < items.length; j++) {
+              lines.push(`  ${table.pop[items[j]].toFixed(0).padStart(4, ' ')}% - ${this.getName(items[j])}`);
+          }
+      }
+      return lines.join("\n");
+  }
+
 }
