@@ -64,9 +64,9 @@
         <pre class="obj-params">{{JSON.stringify(obj.data['!Parameters'], undefined, 2)}}</pre>
       </section>
 
-      <section v-if="obj.drop_table">
+      <section v-if="dropTableExists()">
         <h4 class="subsection-heading">Drop Table</h4>
-        <pre class="obj-params" v-html=" drop_table_format()"></pre>
+        <pre class="obj-params" v-html=" dropTableFormat()"></pre>
       </section>
     </section>
 

@@ -42,9 +42,6 @@ export interface ObjectMinData {
   // Only for weapons and enemies.
   scale?: number;
   sharp_weapon_judge_type?: number;
-
-  readonly drop_table?: {[key:string]: any};
-  readonly drop_tables?: {[key:string]: any};
 }
 
 export interface ObjectData extends ObjectMinData {
@@ -104,6 +101,10 @@ export class MapMgr {
 
   getObjGenGroup(mapType: string, mapName: string, hashId: number): Promise<ObjectData[]> {
     return fetch(`${RADAR_URL}/obj/${mapType}/${mapName}/${hashId}/gen_group`).then(parse);
+  }
+
+  getObjDropTables(unitConfigName: string, tableName: string) {
+    return fetch(`${RADAR_URL}/drop/${unitConfigName}/${tableName}`).then(parse);
   }
 
   getObjs(mapType: string, mapName: string, query: string, withMapNames = false, limit = -1): Promise<ObjectMinData[]> {
