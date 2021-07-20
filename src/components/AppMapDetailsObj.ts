@@ -105,7 +105,7 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj|Map
     this.areaMarkers = [];
 
     this.obj = (await MapMgr.getInstance().getObjByObjId(this.minObj.objid))!;
-    this.dropTables = await MapMgr.getInstance().getObjDropTables(this.obj.data.UnitConfigName, this.getDropTableName());
+    this.dropTables = await MapMgr.getInstance().getObjDropTables(this.getRankedUpActorNameForObj(this.minObj), this.getDropTableName());
     this.genGroup = await MapMgr.getInstance().getObjGenGroup(this.obj.map_type, this.obj.map_name, this.obj.hash_id);
     for (const obj of this.genGroup) {
       this.genGroupSet.set(obj.hash_id, obj);
