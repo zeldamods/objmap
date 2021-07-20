@@ -356,7 +356,7 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj|Map
     this.staticData.persistentAreaMarkers = [];
   }
 
-  getName(name: string) {
+  static getName(name: string) {
     return MsgMgr.getInstance().getName(name) || name;
   }
 
@@ -364,7 +364,7 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj|Map
     return Object.keys(this.dropTables).length > 0;
   }
 
-  dropTableFormat() : string {
+  formatDropTable() : string {
     let lines = [];
     let names = Object.keys(this.dropTables);
     for(var i = 0; i < names.length; i++) {
@@ -382,6 +382,7 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj|Map
     }
     return lines.join("\n");
   }
+
   getDropTableName() {
     if(!this.obj || !this.obj.data || !this.obj.data['!Parameters']) {
       return "";
@@ -396,5 +397,4 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj|Map
     }
     return "Normal";
   }
-
 }

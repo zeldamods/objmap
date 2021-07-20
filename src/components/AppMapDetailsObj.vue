@@ -66,7 +66,7 @@
 
       <section v-if="dropTableExists()">
         <h4 class="subsection-heading">Drop Table</h4>
-        <pre class="obj-params" v-html=" dropTableFormat()"></pre>
+        <pre class="obj-params" v-html="formatDropTable()"></pre>
       </section>
     </section>
 
