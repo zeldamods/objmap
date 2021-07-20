@@ -369,15 +369,15 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj|Map
     let names = Object.keys(this.dropTables);
     for(var i = 0; i < names.length; i++) {
       let table = this.dropTables[ names[i] ];
-      let n = table.n;
-      if(n[0] == n[1]) {
-        lines.push(`<span style="text-decoration: underline;"><b>${names[i]}</b> - x${n[0]}</span>`);
+      let repeatNum = table.repeat_num;
+      if(repeatNum[0] == repeatNum[1]) {
+        lines.push(`<span style="text-decoration: underline;"><b>${names[i]}</b> - x${repeatNum[0]}</span>`);
       } else {
-        lines.push(`<b>${names[i]}</b> - x${n[0]}-${n[1]}`);
+        lines.push(`<span style="text-decoration: underline;"><b>${names[i]}</b> - x${repeatNum[0]}-${repeatNum[1]}</span>`);
       }
-      let items = Object.keys(table.pop);
+      let items = Object.keys(table.items).sort(function(a,b) {return table.items[b]-table.items[a];});
       for(var j = 0; j < items.length; j++) {
-        lines.push(`  ${table.pop[items[j]].toFixed(0).padStart(4, ' ')}% - ${this.getName(items[j])}`);
+        lines.push(`  ${table.items[items[j]].toFixed(1).padStart(4, ' ')}% - ${this.getName(items[j])}`);
       }
     }
     return lines.join("\n");
