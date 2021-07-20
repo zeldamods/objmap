@@ -103,6 +103,10 @@ export class MapMgr {
     return fetch(`${RADAR_URL}/obj/${mapType}/${mapName}/${hashId}/gen_group`).then(parse);
   }
 
+  getObjDropTables(unitConfigName: string, tableName: string) {
+    return fetch(`${RADAR_URL}/drop/${unitConfigName}/${tableName}`).then(parse);
+  }
+
   getObjs(mapType: string, mapName: string, query: string, withMapNames = false, limit = -1): Promise<ObjectMinData[]> {
     let url = new URL(`${RADAR_URL}/objs/${mapType}/${mapName}`);
     url.search = new URLSearchParams({

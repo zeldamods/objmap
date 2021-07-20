@@ -83,6 +83,7 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj|Map
   private genGroup: ObjectData[] = [];
   private genGroupSet: Map<number, ObjectData> = new Map();
 
+  private dropTables: {[key: string]: any} = {};
   private links: PlacementLink[] = [];
   private linksToSelf: PlacementLink[] = [];
   private linkTagInputs: PlacementLink[] = [];
@@ -96,6 +97,7 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj|Map
     this.obj = null;
     this.genGroup = [];
     this.genGroupSet.clear();
+    this.dropTables = {};
     this.links = [];
     this.linksToSelf = [];
     this.linkTagInputs = [];
@@ -103,6 +105,7 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj|Map
     this.areaMarkers = [];
 
     this.obj = (await MapMgr.getInstance().getObjByObjId(this.minObj.objid))!;
+    this.dropTables = await MapMgr.getInstance().getObjDropTables(this.obj.data.UnitConfigName, this.getDropTableName());
     this.genGroup = await MapMgr.getInstance().getObjGenGroup(this.obj.map_type, this.obj.map_name, this.obj.hash_id);
     for (const obj of this.genGroup) {
       this.genGroupSet.set(obj.hash_id, obj);
@@ -351,5 +354,47 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj|Map
     this.areaMarkers.length = this.areaMarkers.length;
     this.staticData.persistentAreaMarkers.forEach(m => m.remove());
     this.staticData.persistentAreaMarkers = [];
+  }
+
+  static getName(name: string) {
+    return MsgMgr.getInstance().getName(name) || name;
+  }
+
+  dropTableExists() {
+    return Object.keys(this.dropTables).length > 0;
+  }
+
+  formatDropTable() : string {
+    let lines = [];
+    let names = Object.keys(this.dropTables);
+    for(var i = 0; i < names.length; i++) {
+      let table = this.dropTables[ names[i] ];
+      let repeatNum = table.repeat_num;
+      if(repeatNum[0] == repeatNum[1]) {
+        lines.push(`<span style="text-decoration: underline;"><b>${names[i]}</b> - x${repeatNum[0]}</span>`);
+      } else {
+        lines.push(`<span style="text-decoration: underline;"><b>${names[i]}</b> - x${repeatNum[0]}-${repeatNum[1]}</span>`);
+      }
+      let items = Object.keys(table.items).sort(function(a,b) {return table.items[b]-table.items[a];});
+      for(var j = 0; j < items.length; j++) {
+        lines.push(`  ${table.items[items[j]].toFixed(1).padStart(4, ' ')}% - ${this.getName(items[j])}`);
+      }
+    }
+    return lines.join("\n");
+  }
+
+  getDropTableName() {
+    if(!this.obj || !this.obj.data || !this.obj.data['!Parameters']) {
+      return "";
+    }
+    const params : {[key:string]: any} = this.obj.data['!Parameters'];
+    let dropTableName = "Normal";
+    let keys = ['ArrowName', 'DropTable'];
+    for(var i = 0; i < keys.length; i++) {
+      if(keys[i] in params) {
+        return params[keys[i]];
+      }
+    }
+    return "Normal";
   }
 }

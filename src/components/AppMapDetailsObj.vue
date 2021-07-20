@@ -63,6 +63,11 @@
         <h4 class="subsection-heading">Parameters</h4>
         <pre class="obj-params">{{JSON.stringify(obj.data['!Parameters'], undefined, 2)}}</pre>
       </section>
+
+      <section v-if="dropTableExists()">
+        <h4 class="subsection-heading">Drop Table</h4>
+        <pre class="obj-params" v-html="formatDropTable()"></pre>
+      </section>
     </section>
 
     <section v-if="isSearchResult()">
