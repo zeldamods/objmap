@@ -180,7 +180,8 @@ export default class AppMap extends mixins(MixinUtil) {
 
   private settings: Settings|null = null;
 
-  private importReplace: boolean = true; // Replace current markers
+  // Replace current markers
+  private importReplace: boolean = true;
 
   setViewFromRoute(route: any) {
     const x = parseFloat(route.params.x);
@@ -383,7 +384,7 @@ export default class AppMap extends mixins(MixinUtil) {
   }
 
   private drawFromGeojson(data: any) {
-    if(this.importReplace == true) {
+    if(this.importReplace) {
       this.drawLayer.clearLayers();
     }
     this.drawLayer.addData(data);
