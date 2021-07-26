@@ -167,7 +167,7 @@
           </div>
           <div class="col">
             <b-btn size="sm" variant="danger" block @click="drawImport()"><i class="fas fa-file-import"></i> Import</b-btn>
-            <b-form-checkbox id="replace_checkbox" v-model="importReplace" name="replace_checkbox" value=true > Replace existing data</b-form-checkbox>
+            <b-form-checkbox v-model="importReplace">Replace existing data</b-form-checkbox>
           </div>
         </div>
         <input type="file" id="fileinput" accept=".json" hidden @change="drawImportCb">

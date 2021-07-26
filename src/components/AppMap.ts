@@ -384,7 +384,7 @@ export default class AppMap extends mixins(MixinUtil) {
   }
 
   private drawFromGeojson(data: any) {
-    if(this.importReplace) {
+    if (this.importReplace) {
       this.drawLayer.clearLayers();
     }
     this.drawLayer.addData(data);
