@@ -120,6 +120,44 @@ function getMarkerDetailsComponent(marker: MapMarker): string {
   return '';
 }
 
+function addGeoJSONFeatureToLayer(layer: any) {
+  if (!layer.feature) {
+    layer.feature = {type: 'Feature'};
+  }
+  if (!layer.feature.properties) {
+    layer.feature.properties = {};
+  }
+  ['title', 'text'].forEach(item => {
+    if (!(item in layer.feature.properties)) {
+      layer.feature.properties[item] = '';
+    }
+  });
+}
+
+function addPopupAndTooltip(layer: L.Marker | L.Polyline) {
+  if (layer && layer.feature) {
+    let popup = new AppMapPopup({ propsData: layer.feature.properties });
+    // Initiate the Element as $el
+    popup.$mount();
+    // Respond to `title` and `text` messages
+    popup.$on('title', (txt: string) => {
+      if (layer && layer.feature) {
+        layer.feature.properties.title = txt;
+        layer.setTooltipContent(txt || 'Unnamed');
+      }
+    });
+    popup.$on('text', (txt: string) => {
+      if (layer && layer.feature) {
+        layer.feature.properties.text = txt;
+      }
+    });
+    // Create Popup and Tooltip
+    layer.bindPopup(popup.$el as HTMLElement, { minWidth: 200 });
+    layer.bindTooltip(layer.feature.properties.title || 'Unnamed');
+  }
+}
+
+
 @Component({
   components: {
     AppMapDetailsDungeon,
@@ -320,35 +358,6 @@ export default class AppMap extends mixins(MixinUtil) {
     this.sidebar.open(pane);
   }
 
-  static addGeoJSONFeatureToLayer(layer: any) {
-    if (!layer.feature) {
-      layer.feature = {type: 'Feature', properties: {title: "", text: ""}};
-    }
-  }
-
-  addPopupAndTooltip(layer: L.Marker | L.Polyline) {
-    if (layer && layer.feature) {
-      let popup = new AppMapPopup( { propsData: layer.feature.properties });
-      // Initiate the Element as $el
-      popup.$mount();
-      // Respond to `title` and `text` messages
-      popup.$on('title', (txt: string) => {
-        if(layer && layer.feature) {
-          layer.feature.properties.title = txt;
-          layer.setTooltipContent(txt || "Unnamed");
-        }
-      });
-      popup.$on('text', (txt: string) => {
-        if(layer && layer.feature) {
-          layer.feature.properties.text = txt;
-        }
-      });
-      // Create Popup and Tooltip
-      layer.bindPopup( popup.$el as HTMLElement, { minWidth: 200 } );
-      layer.bindTooltip(layer.feature.properties.title || "Unnamed");
-    }
-  }
-
   private initGeojsonFeature(layer: L.Layer) {
     if (!(layer instanceof L.Path))
       return;
@@ -402,8 +411,8 @@ export default class AppMap extends mixins(MixinUtil) {
     this.map.m.on({
       // @ts-ignore
       'draw:created': (e: any) => {
-        AppMap.addGeoJSONFeatureToLayer(e.layer);
-        this.addPopupAndTooltip(e.layer);
+        addGeoJSONFeatureToLayer(e.layer);
+        addPopupAndTooltip(e.layer);
         this.drawLayer.addLayer(e.layer);
         this.initGeojsonFeature(e.layer);
       },
@@ -423,11 +432,11 @@ export default class AppMap extends mixins(MixinUtil) {
       // Create Layer
       let layer: any = L.GeoJSON.geometryToLayer(feat);
       // Create Feature.Properties on Layer
-      AppMap.addGeoJSONFeatureToLayer(layer);
+      addGeoJSONFeatureToLayer(layer);
       // Copy Properties from GeoJSON
-      layer.feature.properties.title = feat.properties.title || "";
-      layer.feature.properties.text = feat.properties.text || "";
-      this.addPopupAndTooltip(layer);
+      layer.feature.properties.title = feat.properties.title || '';
+      layer.feature.properties.text = feat.properties.text || '';
+      addPopupAndTooltip(layer);
       this.drawLayer.addLayer(layer);
       this.initGeojsonFeature(layer);
     });
