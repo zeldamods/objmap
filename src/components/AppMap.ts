@@ -36,6 +36,7 @@ import {Point} from '@/util/map';
 import {Settings} from '@/util/settings';
 import * as ui from '@/util/ui';
 import '@/util/leaflet_tile_workaround.js';
+import AppMapPopup from '@/components/AppMapPopup';
 
 interface ObjectIdentifier {
   mapType: string;
@@ -118,6 +119,44 @@ function getMarkerDetailsComponent(marker: MapMarker): string {
   }
   return '';
 }
+
+function addGeoJSONFeatureToLayer(layer: any) {
+  if (!layer.feature) {
+    layer.feature = {type: 'Feature'};
+  }
+  if (!layer.feature.properties) {
+    layer.feature.properties = {};
+  }
+  ['title', 'text'].forEach(item => {
+    if (!(item in layer.feature.properties)) {
+      layer.feature.properties[item] = '';
+    }
+  });
+}
+
+function addPopupAndTooltip(layer: L.Marker | L.Polyline) {
+  if (layer && layer.feature) {
+    let popup = new AppMapPopup({ propsData: layer.feature.properties });
+    // Initiate the Element as $el
+    popup.$mount();
+    // Respond to `title` and `text` messages
+    popup.$on('title', (txt: string) => {
+      if (layer && layer.feature) {
+        layer.feature.properties.title = txt;
+        layer.setTooltipContent(txt || 'Unnamed');
+      }
+    });
+    popup.$on('text', (txt: string) => {
+      if (layer && layer.feature) {
+        layer.feature.properties.text = txt;
+      }
+    });
+    // Create Popup and Tooltip
+    layer.bindPopup(popup.$el as HTMLElement, { minWidth: 200 });
+    layer.bindTooltip(layer.feature.properties.title || 'Unnamed');
+  }
+}
+
 
 @Component({
   components: {
@@ -372,6 +411,8 @@ export default class AppMap extends mixins(MixinUtil) {
     this.map.m.on({
       // @ts-ignore
       'draw:created': (e: any) => {
+        addGeoJSONFeatureToLayer(e.layer);
+        addPopupAndTooltip(e.layer);
         this.drawLayer.addLayer(e.layer);
         this.initGeojsonFeature(e.layer);
       },
@@ -387,7 +428,18 @@ export default class AppMap extends mixins(MixinUtil) {
     if (this.importReplace) {
       this.drawLayer.clearLayers();
     }
-    this.drawLayer.addData(data);
+    data.features.forEach((feat: any) => {
+      // Create Layer
+      let layer: any = L.GeoJSON.geometryToLayer(feat);
+      // Create Feature.Properties on Layer
+      addGeoJSONFeatureToLayer(layer);
+      // Copy Properties from GeoJSON
+      layer.feature.properties.title = feat.properties.title || '';
+      layer.feature.properties.text = feat.properties.text || '';
+      addPopupAndTooltip(layer);
+      this.drawLayer.addLayer(layer);
+      this.initGeojsonFeature(layer);
+    });
   }
 
   private drawToGeojson(): GeoJSON.FeatureCollection {
