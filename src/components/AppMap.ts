@@ -358,8 +358,8 @@ export default class AppMap extends mixins(MixinUtil) {
     this.sidebar.open(pane);
   }
 
-  private initGeojsonFeature(layer: L.Layer) {
-    if (!(layer instanceof L.Path))
+  private initGeojsonFeature(layer: any) {
+    if (!(layer.setStyle))
       return;
 
     layer.on('mouseover', () => {
@@ -368,6 +368,9 @@ export default class AppMap extends mixins(MixinUtil) {
     layer.on('mouseout', () => {
       layer.setStyle({ weight: 3 });
     });
+    if (!layer.bindContextMenu) {
+      return;
+    }
     // @ts-ignore
     layer.bindContextMenu({
       contextmenu: true,
@@ -431,6 +434,10 @@ export default class AppMap extends mixins(MixinUtil) {
     data.features.forEach((feat: any) => {
       // Create Layer
       let layer: any = L.GeoJSON.geometryToLayer(feat);
+      // Only set style for Polylines not Markers
+      if (layer.setStyle) {
+        layer.setStyle({ color: feat.style.color || this.drawLineColor });
+      }
       // Create Feature.Properties on Layer
       addGeoJSONFeatureToLayer(layer);
       // Copy Properties from GeoJSON
