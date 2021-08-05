@@ -436,7 +436,11 @@ export default class AppMap extends mixins(MixinUtil) {
       let layer: any = L.GeoJSON.geometryToLayer(feat);
       // Only set style for Polylines not Markers
       if (layer.setStyle) {
-        layer.setStyle({ color: feat.style.color || this.drawLineColor });
+        let color = this.drawLineColor;
+        if (feat.style && feat.style.color) {
+          color = feat.style.color;
+        }
+        layer.setStyle({ color: color });
       }
       // Create Feature.Properties on Layer
       addGeoJSONFeatureToLayer(layer);
