@@ -733,8 +733,9 @@ export default class AppMap extends mixins(MixinUtil) {
 
   initContextMenu() {
     this.map.m.on(SHOW_ALL_OBJS_FOR_MAP_UNIT_EVENT, (e) => {
-      if (Settings.getInstance().mapType !== 'MainField' && Settings.getInstance().mapType !== 'AocField') {
-        this.searchAddGroup(`map:"${Settings.getInstance().mapType}/${Settings.getInstance().mapName}"`);
+      let mapType = Settings.getInstance().mapType;
+      if (mapType !== 'MainField' && mapType !== 'AocField') {
+        this.searchAddGroup(`map:"${mapType}/${Settings.getInstance().mapName}"`);
         return;
       }
 
@@ -743,7 +744,7 @@ export default class AppMap extends mixins(MixinUtil) {
       const xz = this.map.toXZ(latlng);
       if (!map.isValidPoint(xz))
         return;
-      this.searchAddGroup(`map:"MainField/${map.pointToMapUnit(xz)}"`);
+      this.searchAddGroup(`map:"${mapType}/${map.pointToMapUnit(xz)}"`);
     });
   }
 
