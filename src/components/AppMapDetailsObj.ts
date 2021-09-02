@@ -1,14 +1,14 @@
 import * as L from 'leaflet';
 import Vue from 'vue';
-import {Prop} from 'vue-property-decorator';
+import { Prop } from 'vue-property-decorator';
 import Component from 'vue-class-component';
 import 'leaflet-path-transform';
 
-import {MapMarkerObj, MapMarkerSearchResult} from '@/MapMarker';
+import { MapMarkerObj, MapMarkerSearchResult } from '@/MapMarker';
 import AppMapDetailsBase from '@/components/AppMapDetailsBase';
 import ObjectInfo from '@/components/ObjectInfo';
-import {MapMgr, ObjectData, ObjectMinData, PlacementLink} from '@/services/MapMgr';
-import {MsgMgr} from '@/services/MsgMgr';
+import { MapMgr, ObjectData, ObjectMinData, PlacementLink } from '@/services/MapMgr';
+import { MsgMgr } from '@/services/MsgMgr';
 import * as ui from '@/util/ui';
 
 enum MapLinkDefType {
@@ -57,7 +57,7 @@ enum MapLinkDefType {
   Invalid = 0x2A,
 }
 
-function numOrArrayToArray(x: number|[number, number, number]|undefined): [number, number, number]|undefined {
+function numOrArrayToArray(x: number | [number, number, number] | undefined): [number, number, number] | undefined {
   return typeof x == 'number' ? [x, x, x] : x;
 }
 
@@ -77,13 +77,13 @@ const staticData = new StaticData();
     ObjectInfo,
   },
 })
-export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj|MapMarkerSearchResult> {
-  private minObj: ObjectMinData|null = null;
-  private obj: ObjectData|null = null;
+export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj | MapMarkerSearchResult> {
+  private minObj: ObjectMinData | null = null;
+  private obj: ObjectData | null = null;
   private genGroup: ObjectData[] = [];
   private genGroupSet: Map<number, ObjectData> = new Map();
 
-  private dropTables: {[key: string]: any} = {};
+  private dropTables: { [key: string]: any } = {};
   private links: PlacementLink[] = [];
   private linksToSelf: PlacementLink[] = [];
   private linkTagInputs: PlacementLink[] = [];
@@ -151,7 +151,7 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj|Map
     this.jumpToObj(this.staticData.history.pop()!, false);
   }
 
-  arrayOrNumToStr(d: number[]|number, digits: number) {
+  arrayOrNumToStr(d: number[] | number, digits: number) {
     if (d == null)
       return '';
     if (Array.isArray(d))
@@ -165,18 +165,18 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj|Map
     if (this.obj.data['!Parameters']!.IncrementSave || this.obj.name == 'LinkTagCount')
       return 'Increments';
     switch (this.obj.data['!Parameters']!.SaveFlagOnOffType) {
-    case 0:
-      if (this.obj.name == 'LinkTagAnd' || this.obj.name == 'LinkTagNAnd' || this.obj.name == 'LinkTagXOr')
+      case 0:
+        if (this.obj.name == 'LinkTagAnd' || this.obj.name == 'LinkTagNAnd' || this.obj.name == 'LinkTagXOr')
+          return 'Sets';
+        if (this.obj.name == 'LinkTagOr' || this.obj.name == 'LinkTagNOr')
+          return 'Clears';
+        return '???';
+      case 1:
         return 'Sets';
-      if (this.obj.name == 'LinkTagOr' || this.obj.name == 'LinkTagNOr')
+      case 2:
         return 'Clears';
-      return '???';
-    case 1:
-      return 'Sets';
-    case 2:
-      return 'Clears';
-    default:
-      return '???';
+      default:
+        return '???';
     }
   }
 
@@ -184,16 +184,16 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj|Map
     if (!this.obj)
       return '';
     switch (this.obj.data['!Parameters']!.MakeSaveFlag) {
-    case 0:
-      return this.obj.data['!Parameters']!.SaveFlag || '';
-    case 1:
-      return 'Clear_{CURRENT_MAP_NAME}';
-    case 2:
-      return 'Open_{DUNGEON_NAME}';
-    case 3:
-      return `${this.obj.map_type}_${this.obj.name}_${this.obj.hash_id}`;
-    default:
-      return 'UNEXPECTED_MAKE_SAVE_FLAG';
+      case 0:
+        return this.obj.data['!Parameters']!.SaveFlag || '';
+      case 1:
+        return 'Clear_{CURRENT_MAP_NAME}';
+      case 2:
+        return 'Open_{DUNGEON_NAME}';
+      case 3:
+        return `${this.obj.map_type}_${this.obj.name}_${this.obj.hash_id}`;
+      default:
+        return 'UNEXPECTED_MAKE_SAVE_FLAG';
     }
   }
 
@@ -364,19 +364,19 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj|Map
     return Object.keys(this.dropTables).length > 0;
   }
 
-  formatDropTable() : string {
+  formatDropTable(): string {
     let lines = [];
     let names = Object.keys(this.dropTables);
-    for(var i = 0; i < names.length; i++) {
-      let table = this.dropTables[ names[i] ];
+    for (var i = 0; i < names.length; i++) {
+      let table = this.dropTables[names[i]];
       let repeatNum = table.repeat_num;
-      if(repeatNum[0] == repeatNum[1]) {
+      if (repeatNum[0] == repeatNum[1]) {
         lines.push(`<span style="text-decoration: underline;"><b>${names[i]}</b> - x${repeatNum[0]}</span>`);
       } else {
         lines.push(`<span style="text-decoration: underline;"><b>${names[i]}</b> - x${repeatNum[0]}-${repeatNum[1]}</span>`);
       }
-      let items = Object.keys(table.items).sort(function(a,b) {return table.items[b]-table.items[a];});
-      for(var j = 0; j < items.length; j++) {
+      let items = Object.keys(table.items).sort(function(a, b) { return table.items[b] - table.items[a]; });
+      for (var j = 0; j < items.length; j++) {
         lines.push(`  ${table.items[items[j]].toFixed(1).padStart(4, ' ')}% - ${this.getName(items[j])}`);
       }
     }
@@ -384,14 +384,14 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj|Map
   }
 
   getDropTableName() {
-    if(!this.obj || !this.obj.data || !this.obj.data['!Parameters']) {
+    if (!this.obj || !this.obj.data || !this.obj.data['!Parameters']) {
       return "";
     }
-    const params : {[key:string]: any} = this.obj.data['!Parameters'];
+    const params: { [key: string]: any } = this.obj.data['!Parameters'];
     let dropTableName = "Normal";
     let keys = ['ArrowName', 'DropTable'];
-    for(var i = 0; i < keys.length; i++) {
-      if(keys[i] in params) {
+    for (var i = 0; i < keys.length; i++) {
+      if (keys[i] in params) {
         return params[keys[i]];
       }
     }

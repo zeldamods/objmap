@@ -1,4 +1,4 @@
-type File = {[label: string]: string};
+type File = { [label: string]: string };
 
 export class MsgMgr {
   private static instance: MsgMgr;
@@ -8,7 +8,7 @@ export class MsgMgr {
     return this.instance;
   }
 
-  private names: {[actorName: string]: string} = {};
+  private names: { [actorName: string]: string } = {};
   private files: Map<string, File> = new Map();
 
   async init() {

@@ -1,5 +1,5 @@
 // source: aoc2::rankUpEnemy (0x7100D6F0FC Switch 1.5.0)
-const RANKUP_MAP: {[actorName: string]: string} = Object.freeze({
+const RANKUP_MAP: { [actorName: string]: string } = Object.freeze({
   Enemy_Assassin_Junior: 'Enemy_Assassin_Middle',
   Enemy_Assassin_Middle: 'Enemy_Assassin_Senior',
   Enemy_Assassin_Shooter_Junior: 'Enemy_Assassin_Shooter_Azito_Junior',

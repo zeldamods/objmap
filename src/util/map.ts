@@ -49,14 +49,14 @@ export const MAX_ZOOM = 10;
 
 export function shouldShowLocationMarker(showLevel: ShowLevel, zoom: number) {
   switch (showLevel) {
-  case ShowLevel.Region:
-    return zoom === 2;
-  case ShowLevel.Area:
-    return zoom === 3 || zoom === 4;
-  case ShowLevel.Location:
-    return zoom >= 5;
-  case ShowLevel.SecondaryLocation:
-    return zoom >= 7;
+    case ShowLevel.Region:
+      return zoom === 2;
+    case ShowLevel.Area:
+      return zoom === 3 || zoom === 4;
+    case ShowLevel.Location:
+      return zoom >= 5;
+    case ShowLevel.SecondaryLocation:
+      return zoom >= 7;
   }
 }
 
@@ -73,7 +73,7 @@ export class LocationMarkerBase {
 
 export class LocationMarker extends LocationMarkerBase {
   getId(): string {
-    return `${this.l.Icon}:${this.l.MessageId||''}:${this.l.Translate.X}:${this.l.Translate.Y}:${this.l.Translate.Z}`;
+    return `${this.l.Icon}:${this.l.MessageId || ''}:${this.l.Translate.X}:${this.l.Translate.Y}:${this.l.Translate.Z}`;
   }
   getSaveFlag(): string { return this.l.SaveFlag; }
   getIcon(): string { return this.l.Icon; }

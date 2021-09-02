@@ -15,7 +15,7 @@ export function makeClusterGroup(pad: number = 1, disableCluster = true): L.Mark
   });
   // Override _getExpandedVisibleBounds to reduce the number of rendered markers for better perf.
   // @ts-ignore
-  cg._getExpandedVisibleBounds = function () {
+  cg._getExpandedVisibleBounds = function() {
     // @ts-ignore
     return this._checkBoundsMaxLat(this._map.getBounds().pad(pad));
   };

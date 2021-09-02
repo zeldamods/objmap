@@ -4,9 +4,9 @@ import 'leaflet-rastercoords';
 import 'leaflet-contextmenu';
 import 'leaflet-contextmenu/dist/leaflet.contextmenu.css';
 
-import {CanvasMarker} from '@/util/CanvasMarker';
+import { CanvasMarker } from '@/util/CanvasMarker';
 import * as map from '@/util/map';
-import {Point} from '@/util/map';
+import { Point } from '@/util/map';
 import * as ui from '@/util/ui';
 import '@/util/leaflet_tile_workaround.js';
 import { Settings } from './util/settings';
@@ -33,13 +33,13 @@ export class MapBase {
     return [pos[1], pos[0]];
   }
 
-  setView(pos: Point, zoom=-1) {
+  setView(pos: Point, zoom = -1) {
     this.center = pos;
     this.setZoomProp(zoom == -1 ? this.m.getZoom() : zoom);
     this.m.setView(this.fromXZ(this.center), this.zoom);
   }
 
-  emitMarkerSelectedEvent(marker: any) { this.m.fireEvent(MARKER_SELECTED_EVENT, {marker}); }
+  emitMarkerSelectedEvent(marker: any) { this.m.fireEvent(MARKER_SELECTED_EVENT, { marker }); }
   registerMarkerSelectedCb(cb: (marker: any) => void) { this.m.on(MARKER_SELECTED_EVENT, (e: any) => cb(e.marker)); }
 
   registerZoomChangeCb(cb: (zoom: number) => void) { this.zoomChangeCbs.push(cb); }
@@ -58,7 +58,7 @@ export class MapBase {
     const crs = L.Util.extend({}, L.CRS.Simple);
     // @ts-ignore
     crs.transformation = new L.Transformation(4 / map.TILE_SIZE, map.MAP_SIZE[0] / map.TILE_SIZE,
-                                              4 / map.TILE_SIZE, map.MAP_SIZE[1] / map.TILE_SIZE);
+      4 / map.TILE_SIZE, map.MAP_SIZE[1] / map.TILE_SIZE);
 
     L.Canvas.include({
       _botwDrawCanvasImageMarker(layer: CanvasMarker) {
@@ -71,7 +71,7 @@ export class MapBase {
         const img: HTMLImageElement = (layer.options.icon)!;
         if (layer.options.iconWidth && layer.options.iconHeight) {
           ctx.drawImage(img, p.x - layer.options.iconWidth / 2, p.y - layer.options.iconHeight / 2,
-                        layer.options.iconWidth, layer.options.iconHeight);
+            layer.options.iconWidth, layer.options.iconHeight);
         } else {
           ctx.drawImage(img, p.x - img.width / 2, p.y - img.height / 2);
         }

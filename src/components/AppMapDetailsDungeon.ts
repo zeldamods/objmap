@@ -1,10 +1,10 @@
 import Component from 'vue-class-component';
 
-import {MapMarkerDungeon} from '@/MapMarker';
+import { MapMarkerDungeon } from '@/MapMarker';
 import AppMapDetailsBase from '@/components/AppMapDetailsBase';
 import ObjectInfo from '@/components/ObjectInfo';
-import {MapMgr, ObjectMinData} from '@/services/MapMgr';
-import {MsgMgr} from '@/services/MsgMgr';
+import { MapMgr, ObjectMinData } from '@/services/MapMgr';
+import { MsgMgr } from '@/services/MsgMgr';
 import * as ui from '@/util/ui';
 
 @Component({
