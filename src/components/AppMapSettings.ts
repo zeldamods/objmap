@@ -1,9 +1,9 @@
 import Vue from 'vue';
-import {Prop} from 'vue-property-decorator';
+import { Prop } from 'vue-property-decorator';
 import Component from 'vue-class-component';
 
-import {MsgMgr} from '@/services/MsgMgr';
-import {Settings} from '@/util/settings';
+import { MsgMgr } from '@/services/MsgMgr';
+import { Settings } from '@/util/settings';
 
 function makeMainFieldDungeonEntry(mapName: string) {
   const text = MsgMgr.getInstance().getMsg(`StaticMsg/LocationMarker:${mapName}`);
@@ -20,7 +20,7 @@ function makeCDungeonEntry(n: number) {
 @Component
 export default class AppMapSettings extends Vue {
   colorMode: string = '';
-  s: Settings|null = null;
+  s: Settings | null = null;
 
   optionsMapType = Object.freeze([
     { value: 'MainField', text: 'Hyrule (MainField)' },
@@ -29,7 +29,7 @@ export default class AppMapSettings extends Vue {
     { value: 'AocField', text: 'Trial of the Sword (AocField)' },
   ]);
 
-  optionsMapNameForMapType: {[type: string]: any} = Object.freeze({
+  optionsMapNameForMapType: { [type: string]: any } = Object.freeze({
     'MainField': [
       { value: '', text: 'All' },
     ],

@@ -3,7 +3,7 @@ const RADAR_URL = 'https://radar.zeldamods.org';
 export type Vec3 = [number, number, number];
 
 export interface ResPlacementObj {
-  readonly '!Parameters'?: {[key: string]: any};
+  readonly '!Parameters'?: { [key: string]: any };
   readonly SRTHash: number;
   readonly HashId: number;
   readonly OnlyOne?: boolean;
@@ -51,9 +51,9 @@ export interface ObjectData extends ObjectMinData {
 
 export class PlacementLink {
   constructor(public readonly otherObj: ObjectData,
-              public readonly linkIter: any,
-              public readonly ltype: string,
-  ) {}
+    public readonly linkIter: any,
+    public readonly ltype: string,
+  ) { }
 }
 
 function parse(r: Response) {
@@ -75,16 +75,15 @@ export class MapMgr {
   async init() {
     await Promise.all([
       fetch('/game_files/map_summary/MainField/static.json').then(r => r.json())
-          .then((d) =>
-            {
-              d.markers["DungeonDLC"] = d.markers["Dungeon"].filter((l: any) => parseInt(l.SaveFlag.replace('Location_Dungeon', ''), 10) >= 120);
-              d.markers["Dungeon"] = d.markers["Dungeon"].filter((l: any) => parseInt(l.SaveFlag.replace('Location_Dungeon', ''), 10) < 120);
-              this.infoMainField = Object.freeze(d);
-            }),
+        .then((d) => {
+          d.markers["DungeonDLC"] = d.markers["Dungeon"].filter((l: any) => parseInt(l.SaveFlag.replace('Location_Dungeon', ''), 10) >= 120);
+          d.markers["Dungeon"] = d.markers["Dungeon"].filter((l: any) => parseInt(l.SaveFlag.replace('Location_Dungeon', ''), 10) < 120);
+          this.infoMainField = Object.freeze(d);
+        }),
     ]);
   }
 
-  fetchAreaMap(name: string): Promise<{[data: number]: Array<GeoJSON.Polygon|GeoJSON.MultiPolygon>}> {
+  fetchAreaMap(name: string): Promise<{ [data: number]: Array<GeoJSON.Polygon | GeoJSON.MultiPolygon> }> {
     return fetch(`/game_files/ecosystem/${name}.json`).then(parse);
   }
 
@@ -92,10 +91,10 @@ export class MapMgr {
     return this.infoMainField;
   }
 
-  getObjByObjId(objid: number): Promise<ObjectData|null> {
+  getObjByObjId(objid: number): Promise<ObjectData | null> {
     return fetch(`${RADAR_URL}/obj/${objid}`).then(parse);
   }
-  getObj(mapType: string, mapName: string, hashId: number): Promise<ObjectData|null> {
+  getObj(mapType: string, mapName: string, hashId: number): Promise<ObjectData | null> {
     return fetch(`${RADAR_URL}/obj/${mapType}/${mapName}/${hashId}`).then(parse);
   }
 

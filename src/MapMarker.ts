@@ -1,16 +1,16 @@
 import * as L from 'leaflet';
 
-import {rankUpEnemyForHardMode} from '@/level_scaling';
-import {MapBase} from '@/MapBase';
+import { rankUpEnemyForHardMode } from '@/level_scaling';
+import { MapBase } from '@/MapBase';
 import * as MapIcons from '@/MapIcon';
-import {MapMgr, ObjectData, ObjectMinData} from '@/services/MapMgr';
-import {MsgMgr} from '@/services/MsgMgr';
-import {CanvasMarker, CanvasMarkerOptions} from '@/util/CanvasMarker';
-import {Point} from '@/util/map';
+import { MapMgr, ObjectData, ObjectMinData } from '@/services/MapMgr';
+import { MsgMgr } from '@/services/MsgMgr';
+import { CanvasMarker, CanvasMarkerOptions } from '@/util/CanvasMarker';
+import { Point } from '@/util/map';
 import * as math from '@/util/math';
 import * as map from '@/util/map';
 import * as ui from '@/util/ui';
-import {Settings} from '@/util/settings';
+import { Settings } from '@/util/settings';
 
 export abstract class MapMarker {
   public title = '';
@@ -20,11 +20,11 @@ export abstract class MapMarker {
     this.mb = mb;
   }
 
-  abstract getMarker(): L.Marker|L.CircleMarker;
+  abstract getMarker(): L.Marker | L.CircleMarker;
   shouldBeShown(): boolean { return true; }
 
   protected commonInit(): void {
-    this.getMarker().on({'click': () => this.mb.emitMarkerSelectedEvent(this)});
+    this.getMarker().on({ 'click': () => this.mb.emitMarkerSelectedEvent(this) });
   }
 }
 
@@ -69,7 +69,7 @@ class MapMarkerCanvasImpl extends MapMarker {
 class MapMarkerGenericLocationMarker extends MapMarkerImpl {
   public readonly lm: map.LocationMarker;
 
-  private static ICONS_AND_LABELS: {[type: string]: [L.Icon, string]} = {
+  private static ICONS_AND_LABELS: { [type: string]: [L.Icon, string] } = {
     'Village': [MapIcons.VILLAGE, ''],
     'Hatago': [MapIcons.HATAGO, ''],
     'Castle': [MapIcons.CASTLE, ''],
@@ -125,7 +125,7 @@ export class MapMarkerLocation extends MapMarkerCanvasImpl {
     const visibleMarkerTypeStr = l.PointerType ? 'Place' : markerTypeStr;
     const msg = MsgMgr.getInstance().getMsgWithFile('StaticMsg/LocationMarker', lp.getMessageId());
 
-    super(mb, msg, lp.getXZ(), {stroke: false, fill: false});
+    super(mb, msg, lp.getXZ(), { stroke: false, fill: false });
     this.marker.unbindTooltip();
     this.marker.bindTooltip(msg + `<span class="location-marker-type">${visibleMarkerTypeStr}</span>`, {
       permanent: true,
@@ -250,8 +250,8 @@ function hashString(s: string) {
   var hash = 0, i, chr;
   if (s.length === 0) return hash;
   for (i = 0; i < s.length; i++) {
-    chr   = s.charCodeAt(i);
-    hash  = ((hash << 5) - hash) + chr;
+    chr = s.charCodeAt(i);
+    hash = ((hash << 5) - hash) + chr;
     hash |= 0;
   }
   return hash >>> 0;
@@ -278,16 +278,16 @@ export class MapMarkerObj extends MapMarkerCanvasImpl {
           text: 'Show no-revival area',
           callback: ({ latlng }: ui.LeafletContextMenuCbArg) => {
             const [x, z] = mb.toXZ(latlng);
-            const col = math.clamp(((x + 5000) / 1000)|0, 0, 9);
-            const row = math.clamp(((z + 4000) / 1000)|0, 0, 7);
+            const col = math.clamp(((x + 5000) / 1000) | 0, 0, 9);
+            const row = math.clamp(((z + 4000) / 1000) | 0, 0, 7);
 
-            let minx = (col-1) * 1000 - 4500;
-            let maxx = (col+1) * 1000 - 4500;
+            let minx = (col - 1) * 1000 - 4500;
+            let maxx = (col + 1) * 1000 - 4500;
             minx = math.clamp(minx, -5000, 5000);
             maxx = math.clamp(maxx, -5000, 5000);
 
-            let minz = (row-1) * 1000 - 3500;
-            let maxz = (row+1) * 1000 - 3500;
+            let minz = (row - 1) * 1000 - 3500;
+            let maxz = (row + 1) * 1000 - 3500;
             minz = math.clamp(minz, -4000, 4000);
             maxz = math.clamp(maxz, -4000, 4000);
 
@@ -326,8 +326,8 @@ export class MapMarkerObj extends MapMarkerCanvasImpl {
 
   updateTitle() {
     const actor = (Settings.getInstance().hardMode && !this.obj.disable_rankup_for_hard_mode)
-        ? rankUpEnemyForHardMode(this.obj.name)
-        : this.obj.name;
+      ? rankUpEnemyForHardMode(this.obj.name)
+      : this.obj.name;
     this.title = getName(actor);
     setObjMarkerTooltip(this.title, this.marker, this.obj);
   }

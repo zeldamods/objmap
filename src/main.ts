@@ -11,8 +11,8 @@ import Component from 'vue-class-component'
 import App from './App.vue';
 import router from './router';
 
-import {MapMgr} from '@/services/MapMgr';
-import {MsgMgr} from '@/services/MsgMgr';
+import { MapMgr } from '@/services/MapMgr';
+import { MsgMgr } from '@/services/MsgMgr';
 
 async function main() {
   await initServices();

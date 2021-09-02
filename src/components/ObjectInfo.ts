@@ -1,34 +1,34 @@
 import Vue from 'vue';
-import {Prop} from 'vue-property-decorator';
-import Component, {mixins} from 'vue-class-component';
+import { Prop } from 'vue-property-decorator';
+import Component, { mixins } from 'vue-class-component';
 
-import {rankUpEnemyForHardMode} from '@/level_scaling';
+import { rankUpEnemyForHardMode } from '@/level_scaling';
 import MixinUtil from '@/components/MixinUtil';
-import {MsgMgr} from '@/services/MsgMgr';
-import {ObjectData, ObjectMinData, PlacementLink} from '@/services/MapMgr';
-import {Settings} from '@/util/settings';
+import { MsgMgr } from '@/services/MsgMgr';
+import { ObjectData, ObjectMinData, PlacementLink } from '@/services/MapMgr';
+import { Settings } from '@/util/settings';
 
 @Component
 export default class ObjectInfo extends mixins(MixinUtil) {
   @Prop()
-  private obj!: ObjectData|ObjectMinData|null;
+  private obj!: ObjectData | ObjectMinData | null;
 
   @Prop()
-  private link!: PlacementLink|null;
+  private link!: PlacementLink | null;
 
-  @Prop({type: String, default: 'search-result'})
+  @Prop({ type: String, default: 'search-result' })
   private className!: string;
 
-  @Prop({type: Boolean, default: true})
+  @Prop({ type: Boolean, default: true })
   private isStatic!: boolean;
 
-  @Prop({type: Boolean, default: false})
+  @Prop({ type: Boolean, default: false })
   private dropAsName!: boolean;
 
-  @Prop({type: Boolean, default: false})
+  @Prop({ type: Boolean, default: false })
   private withPermalink!: boolean;
 
-  private data!: ObjectData|ObjectMinData;
+  private data!: ObjectData | ObjectMinData;
 
   private created() {
     if ((!this.obj && !this.link) || (this.obj && this.link))

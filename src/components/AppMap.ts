@@ -10,14 +10,14 @@ import 'leaflet-draw/dist/leaflet.draw.css';
 
 import debounce from 'lodash/debounce';
 import Vue from 'vue';
-import Component, {mixins} from 'vue-class-component';
+import Component, { mixins } from 'vue-class-component';
 
-import {MapBase, SHOW_ALL_OBJS_FOR_MAP_UNIT_EVENT} from '@/MapBase';
+import { MapBase, SHOW_ALL_OBJS_FOR_MAP_UNIT_EVENT } from '@/MapBase';
 import * as MapIcons from '@/MapIcon';
 import * as MapMarkers from '@/MapMarker';
-import {MapMarker, SearchResultUpdateMode} from '@/MapMarker';
-import {MapMarkerGroup} from '@/MapMarkerGroup';
-import {SearchResultGroup, SearchExcludeSet, SEARCH_PRESETS} from '@/MapSearch';
+import { MapMarker, SearchResultUpdateMode } from '@/MapMarker';
+import { MapMarkerGroup } from '@/MapMarkerGroup';
+import { SearchResultGroup, SearchExcludeSet, SEARCH_PRESETS } from '@/MapSearch';
 import * as save from '@/save';
 
 import MixinUtil from '@/components/MixinUtil';
@@ -28,12 +28,12 @@ import AppMapSettings from '@/components/AppMapSettings';
 import ModalGotoCoords from '@/components/ModalGotoCoords';
 import ObjectInfo from '@/components/ObjectInfo';
 
-import {MapMgr, ObjectData, ObjectMinData} from '@/services/MapMgr';
-import {MsgMgr} from '@/services/MsgMgr';
+import { MapMgr, ObjectData, ObjectMinData } from '@/services/MapMgr';
+import { MsgMgr } from '@/services/MsgMgr';
 
 import * as map from '@/util/map';
-import {Point} from '@/util/map';
-import {Settings} from '@/util/settings';
+import { Point } from '@/util/map';
+import { Settings } from '@/util/settings';
 import * as ui from '@/util/ui';
 import '@/util/leaflet_tile_workaround.js';
 import AppMapPopup from '@/components/AppMapPopup';
@@ -44,7 +44,7 @@ interface ObjectIdentifier {
   hashId: number;
 }
 
-function valueOrDefault<T>(value: T|undefined, defaultValue: T) {
+function valueOrDefault<T>(value: T | undefined, defaultValue: T) {
   return value === undefined ? defaultValue : value;
 }
 
@@ -58,7 +58,7 @@ interface MarkerComponent {
   filterLabel: string,
 }
 
-const MARKER_COMPONENTS: {[type: string]: MarkerComponent} = Object.freeze({
+const MARKER_COMPONENTS: { [type: string]: MarkerComponent } = Object.freeze({
   'Location': {
     cl: MapMarkers.MapMarkerLocation,
     preloadPad: 0.6,
@@ -71,12 +71,12 @@ const MARKER_COMPONENTS: {[type: string]: MarkerComponent} = Object.freeze({
     enableUpdates: false,
     filterIcon: MapIcons.DUNGEON.options.iconUrl,
     filterLabel: 'Shrines',
-   },
+  },
   'Place': {
     cl: MapMarkers.MapMarkerPlace,
     filterIcon: MapIcons.VILLAGE.options.iconUrl,
     filterLabel: 'Places',
-   },
+  },
   'DungeonDLC': {
     cl: MapMarkers.MapMarkerDungeonDLC,
     detailsComponent: 'AppMapDetailsDungeon',
@@ -89,24 +89,24 @@ const MARKER_COMPONENTS: {[type: string]: MarkerComponent} = Object.freeze({
     enableUpdates: false,
     filterIcon: MapIcons.TOWER.options.iconUrl,
     filterLabel: 'Towers',
-   },
+  },
   'Shop': {
     cl: MapMarkers.MapMarkerShop,
     filterIcon: MapIcons.SHOP_YOROZU.options.iconUrl,
     filterLabel: 'Shops',
-   },
+  },
   'Labo': {
     cl: MapMarkers.MapMarkerLabo,
     enableUpdates: false,
     filterIcon: MapIcons.LABO.options.iconUrl,
     filterLabel: 'Tech Labs',
-   },
+  },
   'Korok': {
     cl: MapMarkers.MapMarkerKorok,
     enableUpdates: false,
     filterIcon: MapIcons.KOROK.options.iconUrl,
     filterLabel: 'Koroks',
-   },
+  },
 });
 
 function getMarkerDetailsComponent(marker: MapMarker): string {
@@ -122,7 +122,7 @@ function getMarkerDetailsComponent(marker: MapMarker): string {
 
 function addGeoJSONFeatureToLayer(layer: any) {
   if (!layer.feature) {
-    layer.feature = {type: 'Feature'};
+    layer.feature = { type: 'Feature' };
   }
   if (!layer.feature.properties) {
     layer.feature.properties = {};
@@ -181,13 +181,13 @@ export default class AppMap extends mixins(MixinUtil) {
   private drawLayer!: L.GeoJSON;
   private drawLineColor = '#3388ff';
 
-  private previousGotoMarker: L.Marker|null = null;
+  private previousGotoMarker: L.Marker | null = null;
   private greatPlateauBarrierShown = false;
 
   private detailsComponent = '';
-  private detailsMarker: ui.Unobservable<MapMarker>|null = null;
+  private detailsMarker: ui.Unobservable<MapMarker> | null = null;
   private detailsPaneOpened = false;
-  private detailsPinMarker: ui.Unobservable<L.Marker>|null = null;
+  private detailsPinMarker: ui.Unobservable<L.Marker> | null = null;
 
   private markerComponents = MARKER_COMPONENTS;
   private markerGroups: Map<string, MapMarkerGroup> = new Map();
@@ -215,9 +215,9 @@ export default class AppMap extends mixins(MixinUtil) {
   private mapUnitGrid = new ui.Unobservable(L.layerGroup());
   showMapUnitGrid = false;
 
-  private tempObjMarker: ui.Unobservable<MapMarker>|null = null;
+  private tempObjMarker: ui.Unobservable<MapMarker> | null = null;
 
-  private settings: Settings|null = null;
+  private settings: Settings | null = null;
 
   // Replace current markers
   private importReplace: boolean = true;
@@ -491,7 +491,7 @@ export default class AppMap extends mixins(MixinUtil) {
       return;
     try {
       const rawData = await (new Response(input.files![0])).json();
-      const version: number|undefined = rawData.OBJMAP_SV_VERSION;
+      const version: number | undefined = rawData.OBJMAP_SV_VERSION;
       if (!version) {
         this.drawFromGeojson(rawData);
       } else {
@@ -527,7 +527,7 @@ export default class AppMap extends mixins(MixinUtil) {
         query: g.query,
       })),
     };
-    const blob = new Blob([JSON.stringify(data)], {type: 'application/json'});
+    const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
     a.download = 'objmap_save.json';
@@ -592,7 +592,7 @@ export default class AppMap extends mixins(MixinUtil) {
     this.map.registerMarkerSelectedCb((marker: MapMarker) => {
       this.openMarkerDetails(getMarkerDetailsComponent(marker), marker);
     });
-    this.map.m.on({'click': () => this.closeMarkerDetails()});
+    this.map.m.on({ 'click': () => this.closeMarkerDetails() });
   }
 
   openMarkerDetails(component: string, marker: MapMarker, zoom = -1) {
@@ -610,7 +610,7 @@ export default class AppMap extends mixins(MixinUtil) {
       this.map.m.setView(marker.getMarker().getLatLng(), zoom);
   }
 
-  closeMarkerDetails(forOpen=false) {
+  closeMarkerDetails(forOpen = false) {
     if (!this.detailsPaneOpened)
       return;
     this.detailsComponent = '';
@@ -825,8 +825,8 @@ export default class AppMap extends mixins(MixinUtil) {
     for (const [data, features] of entries) {
       const layers: L.GeoJSON[] = features.map((feature) => {
         return L.geoJSON(feature, {
-          style: function (_) {
-            return {weight: 2, fillOpacity: 0.2, color: ui.genColor(entries.length, i)};
+          style: function(_) {
+            return { weight: 2, fillOpacity: 0.2, color: ui.genColor(entries.length, i) };
           },
           // @ts-ignore
           contextmenu: true,
@@ -867,8 +867,8 @@ export default class AppMap extends mixins(MixinUtil) {
   initMapUnitGrid() {
     for (let i = 0; i < 10; ++i) {
       for (let j = 0; j < 8; ++j) {
-        const topLeft: Point = [-5000.0 + i*1000.0, -4000.0 + j*1000.0];
-        const bottomRight: Point = [-5000.0 + (i+1)*1000.0, -4000.0 + (j+1)*1000.0];
+        const topLeft: Point = [-5000.0 + i * 1000.0, -4000.0 + j * 1000.0];
+        const bottomRight: Point = [-5000.0 + (i + 1) * 1000.0, -4000.0 + (j + 1) * 1000.0];
         const rect = L.rectangle(L.latLngBounds(this.map.fromXZ(topLeft), this.map.fromXZ(bottomRight)), {
           fill: true,
           stroke: true,

@@ -1,6 +1,6 @@
 import * as L from 'leaflet';
-import {MapMarker} from '@/MapMarker';
-import {makeClusterGroup} from '@/util/leaflet_cluster';
+import { MapMarker } from '@/MapMarker';
+import { makeClusterGroup } from '@/util/leaflet_cluster';
 
 export class MapMarkerGroup {
   public markerGroup: L.MarkerClusterGroup;

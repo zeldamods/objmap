@@ -1,10 +1,10 @@
 import Vue from 'vue';
 import Component from 'vue-class-component';
 
-import {rankUpEnemyForHardMode} from '@/level_scaling';
-import {ObjectMinData} from '@/services/MapMgr';
-import {MsgMgr} from '@/services/MsgMgr';
-import {Settings} from '@/util/settings';
+import { rankUpEnemyForHardMode } from '@/level_scaling';
+import { ObjectMinData } from '@/services/MapMgr';
+import { MsgMgr } from '@/services/MsgMgr';
+import { Settings } from '@/util/settings';
 
 @Component
 export default class MixinUtil extends Vue {

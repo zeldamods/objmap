@@ -1,16 +1,16 @@
 import Vue from 'vue';
-import {Prop} from 'vue-property-decorator';
+import { Prop } from 'vue-property-decorator';
 import Component from 'vue-class-component';
 
-import {Settings} from '@/util/settings';
+import { Settings } from '@/util/settings';
 
 @Component
 export default class AppMapFilterMainButton extends Vue {
-  @Prop({default: '', type: String})
+  @Prop({ default: '', type: String })
   private icon!: string;
-  @Prop({type: String, required: true})
+  @Prop({ type: String, required: true })
   private label!: string;
-  @Prop({type: String, required: true})
+  @Prop({ type: String, required: true })
   private type!: string;
 
   private active = false;
