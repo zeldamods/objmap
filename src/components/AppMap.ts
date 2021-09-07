@@ -686,7 +686,6 @@ export default class AppMap extends mixins(MixinUtil) {
 
   searchToggleGroupEnabledStatus(idx: number) {
     const group = this.searchGroups[idx];
-    group.enabled = !group.enabled;
     group.update(SearchResultUpdateMode.UpdateVisibility, this.searchExcludedSets);
   }
 
