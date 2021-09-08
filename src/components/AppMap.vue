@@ -63,6 +63,7 @@
           <code>no_rankup</code>: Won't rank up for Master Mode (1 or 0)<br>
           <code>scale</code>: Will scale up (1 or 0)<br>
           <code>bonus</code>: Minimum bonus modifier tier (0, 1, 2 or 3)<br>
+          <code>region</code>: Region name, taken from the tower (e.g. Tabantha, Lanayru, Hateno) <br>
         </p>
         <p>For more information on the last 4 columns, please read <a href="https://zeldamods.org/wiki/Difficulty_scaling">the article on <i>difficulty scaling</i></a>.</p>
 
