@@ -25,8 +25,8 @@
       <i class="fas fa-fw fa-ban" style="color:tomato"></i>
       No rankup in Master Mode
     </section>
-    <section class="search-result-rankup" v-if="data.spawns_with_lotm" title="Spawns only when Lord of the Mountain is present" >
-      <i class="fas fa-fw fa-horse" style="text-shadow: lightblue 0px 0px 5px; color: lightblue; " ></i>
+    <section class="search-result-rankup" v-if="data.spawns_with_lotm" title="Spawns only when Lord of the Mountain is present">
+      <i class="fas fa-fw fa-horse" style="text-shadow: lightblue 0px 0px 5px; color: lightblue;"></i>
       Lord of the Mountain
     </section>
     <section class="search-result-bonus" v-if="data.sharp_weapon_judge_type > 0">
