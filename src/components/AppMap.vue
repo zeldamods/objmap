@@ -64,6 +64,8 @@
           <code>scale</code>: Will scale up (1 or 0)<br>
           <code>bonus</code>: Minimum bonus modifier tier (0, 1, 2 or 3)<br>
           <code>region</code>: Tower region name (e.g. Tabantha, Lanayru, Hateno) <br>
+          <code>fieldarea</code>: Field Map area (0 - 93)<br>
+          <code>lotm</code>: Spawns with Lord of the Mountain (1 or 0)<br>
         </p>
         <p>For more information on the last 4 columns, please read <a href="https://zeldamods.org/wiki/Difficulty_scaling">the article on <i>difficulty scaling</i></a>.</p>
 
