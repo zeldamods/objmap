@@ -31,7 +31,7 @@
     </section>
     <section class="search-result-rankup" v-if="data.field_area == 28">
       <i class="fas fa-fw fa-ban" style="color:tomato"></i>
-      No rankup on Eventide Island
+      No scaling on Eventide Island
     </section>
     <section class="search-result-bonus" v-if="data.sharp_weapon_judge_type > 0">
       <span v-if="data.sharp_weapon_judge_type == 1"><i class="far fa-star fa-fw" style="color: deepskyblue"></i> Minimum modifier tier: Blue (random)</span>
