@@ -131,8 +131,10 @@ class LayerProps {
     this.pathLength = 0;
   }
   lengthAsString(): string {
+    if (this.pathLength <= 0.0) {
+      return "";
+    }
     return `${this.pathLength.toFixed(2)} m`;
-
   }
   tooltip(): string {
     return (this.title || 'Unnamed') + " " + this.lengthAsString();
