@@ -6,6 +6,7 @@ import Component from 'vue-class-component';
   props: {
     title: String,
     text: String,
+    pathLength: Number,
   },
   watch: {
     title: function(new_val: string, old_val: string) {

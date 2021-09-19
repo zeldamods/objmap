@@ -35,6 +35,7 @@ import * as map from '@/util/map';
 import { Point } from '@/util/map';
 import { Settings } from '@/util/settings';
 import * as ui from '@/util/ui';
+import { calcLayerLength } from '@/util/polyline';
 import '@/util/leaflet_tile_workaround.js';
 import AppMapPopup from '@/components/AppMapPopup';
 
@@ -120,18 +121,50 @@ function getMarkerDetailsComponent(marker: MapMarker): string {
   return '';
 }
 
+class LayerProps {
+  title: string;
+  text: string;
+  pathLength: number;
+  constructor() {
+    this.title = "";
+    this.text = "";
+    this.pathLength = 0;
+  }
+  lengthAsString(): string {
+    return `${this.pathLength.toFixed(2)} m`;
+
+  }
+  tooltip(): string {
+    return (this.title || 'Unnamed') + " " + this.lengthAsString();
+  }
+  fromGeoJSON(feat: any) {
+    this.title = feat.properties.title || '';
+    this.text = feat.properties.text || '';
+    this.pathLength = feat.properties.pathLength || 0;
+  }
+}
 function addGeoJSONFeatureToLayer(layer: any) {
   if (!layer.feature) {
     layer.feature = { type: 'Feature' };
   }
   if (!layer.feature.properties) {
-    layer.feature.properties = {};
+    layer.feature.properties = new LayerProps();
   }
-  ['title', 'text'].forEach(item => {
-    if (!(item in layer.feature.properties)) {
-      layer.feature.properties[item] = '';
-    }
-  });
+}
+
+
+
+function layerSetTooltip(layer: L.Marker | L.Polyline) {
+  if (layer.feature) {
+    layer.setTooltipContent(layer.feature.properties.tooltip());
+  }
+}
+
+function layerSetPopup(layer: L.Marker | L.Polyline, popup: AppMapPopup) {
+  layer.bindPopup(popup.$el as HTMLElement, { minWidth: 200 });
+  // @ts-ignore
+  // popup instance is needed later to update the length
+  layer.popup = popup;
 }
 
 function addPopupAndTooltip(layer: L.Marker | L.Polyline) {
@@ -143,7 +176,7 @@ function addPopupAndTooltip(layer: L.Marker | L.Polyline) {
     popup.$on('title', (txt: string) => {
       if (layer && layer.feature) {
         layer.feature.properties.title = txt;
-        layer.setTooltipContent(txt || 'Unnamed');
+        layerSetTooltip(layer);
       }
     });
     popup.$on('text', (txt: string) => {
@@ -152,8 +185,8 @@ function addPopupAndTooltip(layer: L.Marker | L.Polyline) {
       }
     });
     // Create Popup and Tooltip
-    layer.bindPopup(popup.$el as HTMLElement, { minWidth: 200 });
-    layer.bindTooltip(layer.feature.properties.title || 'Unnamed');
+    layerSetPopup(layer, popup);
+    layer.bindTooltip(layer.feature.properties.tooltip());
   }
 }
 
@@ -415,9 +448,16 @@ export default class AppMap extends mixins(MixinUtil) {
       // @ts-ignore
       'draw:created': (e: any) => {
         addGeoJSONFeatureToLayer(e.layer);
+        calcLayerLength(e.layer);
         addPopupAndTooltip(e.layer);
         this.drawLayer.addLayer(e.layer);
         this.initGeojsonFeature(e.layer);
+      },
+      'draw:edited': (e: any) => {
+        e.layers.eachLayer((layer: L.Marker | L.Polyline) => {
+          calcLayerLength(layer);
+          layerSetTooltip(layer);
+        });
       },
     });
     this.drawOnColorChange();
@@ -445,8 +485,8 @@ export default class AppMap extends mixins(MixinUtil) {
       // Create Feature.Properties on Layer
       addGeoJSONFeatureToLayer(layer);
       // Copy Properties from GeoJSON
-      layer.feature.properties.title = feat.properties.title || '';
-      layer.feature.properties.text = feat.properties.text || '';
+      layer.feature.properties.fromGeoJSON(feat);
+      calcLayerLength(layer);
       addPopupAndTooltip(layer);
       this.drawLayer.addLayer(layer);
       this.initGeojsonFeature(layer);
