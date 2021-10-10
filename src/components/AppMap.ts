@@ -250,6 +250,9 @@ export default class AppMap extends mixins(MixinUtil) {
   private mapUnitGrid = new ui.Unobservable(L.layerGroup());
   showMapUnitGrid = false;
 
+  private mapSafeAreas = new ui.Unobservable(L.layerGroup());
+  showSafeAreas = false;
+
   private tempObjMarker: ui.Unobservable<MapMarker> | null = null;
 
   private settings: Settings | null = null;
@@ -879,7 +882,6 @@ export default class AppMap extends mixins(MixinUtil) {
         layer.on('mouseover', () => {
           layers.forEach(l => {
             l.setStyle({ weight: 4, fillOpacity: 0.3 });
-            l.bringToFront();
           });
         });
         layer.on('mouseout', () => {
@@ -903,6 +905,11 @@ export default class AppMap extends mixins(MixinUtil) {
 
   onShownAreaMapChanged() {
     this.$nextTick(() => this.loadAreaMap(this.shownAreaMap));
+  }
+  async initMapSafeAreas() {
+    const areas = await MapMgr.getInstance().fetchAreaMap("AutoSafe");
+    let layers: L.Path[] = ui.areaMapToLayers(areas);
+    layers.forEach(l => this.mapSafeAreas.data.addLayer(l));
   }
 
   initMapUnitGrid() {
@@ -934,6 +941,18 @@ export default class AppMap extends mixins(MixinUtil) {
       this.mapUnitGrid.data.remove();
       if (this.showMapUnitGrid)
         this.mapUnitGrid.data.addTo(this.map.m);
+    });
+  }
+
+  onShowSafeAreas() {
+    this.$nextTick(() => {
+      this.mapSafeAreas.data.remove();
+      if (this.showSafeAreas) {
+        if (this.mapSafeAreas.data.getLayers().length <= 0) {
+          this.initMapSafeAreas();
+        }
+        this.mapSafeAreas.data.addTo(this.map.m);
+      }
     });
   }
 
