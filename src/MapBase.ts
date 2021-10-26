@@ -77,9 +77,7 @@ export class MapBase {
         }
       },
     });
-    const renderer = L.canvas({
-      padding: 0.7,
-    });
+    const renderer = L.canvas();
 
     this.m = new L.Map(element, {
       attributionControl: false,
