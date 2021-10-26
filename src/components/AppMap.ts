@@ -242,15 +242,15 @@ export default class AppMap extends mixins(MixinUtil) {
   private lastBossExcludeSet!: SearchExcludeSet;
   private ohoExcludeSet!: SearchExcludeSet;
 
-  private areaMapLayer = new ui.Unobservable(L.layerGroup([], { pane: 'markerPane' }));
+  private areaMapLayer = new ui.Unobservable(L.layerGroup());
   private areaMapLayersByData: ui.Unobservable<Map<any, L.Layer[]>> = new ui.Unobservable(new Map());
   shownAreaMap = '';
   areaWhitelist = '';
 
-  private mapUnitGrid = new ui.Unobservable(L.layerGroup([], { pane: 'markerPane' }));
+  private mapUnitGrid = new ui.Unobservable(L.layerGroup());
   showMapUnitGrid = false;
 
-  private mapSafeAreas = new ui.Unobservable(L.layerGroup([], { pane: 'markerPane' }));
+  private mapSafeAreas = new ui.Unobservable(L.layerGroup());
   showSafeAreas = false;
 
   private tempObjMarker: ui.Unobservable<MapMarker> | null = null;
@@ -874,7 +874,6 @@ export default class AppMap extends mixins(MixinUtil) {
           },
           // @ts-ignore
           contextmenu: true,
-          pane: 'markerPane',
         });
       });
       this.areaMapLayersByData.data.set(data, layers);
@@ -926,7 +925,6 @@ export default class AppMap extends mixins(MixinUtil) {
           weight: 2,
           // @ts-ignore
           contextmenu: true,
-          pane: 'markerPane',
         });
         rect.bringToBack();
         rect.bindTooltip(map.pointToMapUnit(topLeft), {

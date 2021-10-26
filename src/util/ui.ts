@@ -108,7 +108,7 @@ export function circle(loc: number[], scale: number[], rotate: number[]): L.Circ
   let x0 = loc[0];
   let z0 = loc[2];
   let sx = scale[0];
-  return L.circle(L.latLng(z0, x0), { radius: sx, pane: 'markerPane' });
+  return L.circle(L.latLng(z0, x0), { radius: sx });
 }
 
 export function capsule(loc: number[], scale: number[], rotate: number[]): L.Circle | L.Polygon {
@@ -139,7 +139,7 @@ export function rectangle(loc: number[], scale: number[], rotate: number[]): L.P
     .map(p => yrotate(p, angle))
     .map(p => [x0 + p[0], z0 + p[1]]);
   let latlng = pts.map(p => L.latLng(p[1], p[0]));
-  return L.polygon(latlng, { pane: 'markerPane' });
+  return L.polygon(latlng);
 }
 
 export function toShape(shape: string, loc: number[], scale: number[], rotate: number[]): L.Circle | L.Polygon {

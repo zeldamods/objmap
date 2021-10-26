@@ -56,7 +56,6 @@ class MapMarkerCanvasImpl extends MapMarker {
     this.marker = new CanvasMarker(mb.fromXZ(pos), Object.assign(options, {
       bubblingMouseEvents: false,
       contextmenu: true,
-      pane: 'markerPane',
     }));
     this.marker.bindTooltip(title, { pane: 'front2' });
     super.commonInit();
