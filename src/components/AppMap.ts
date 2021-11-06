@@ -8,8 +8,8 @@ import 'leaflet-sidebar-v2/css/leaflet-sidebar.css';
 import 'leaflet-draw';
 import 'leaflet-draw/dist/leaflet.draw.css';
 
-import VueRouter from 'vue-router'
-const { isNavigationFailure, NavigationFailureType } = VueRouter
+import VueRouter from 'vue-router';
+const { isNavigationFailure, NavigationFailureType } = VueRouter;
 
 import debounce from 'lodash/debounce';
 import Vue from 'vue';
@@ -290,7 +290,7 @@ export default class AppMap extends mixins(MixinUtil) {
       query: this.$route.query,
     }).catch(err => {
       if (!isNavigationFailure(err, NavigationFailureType.duplicated)) {
-        console.log(err);
+        console.error(err);
       }
     });
     this.updatingRoute = false;
