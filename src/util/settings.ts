@@ -47,7 +47,6 @@ export class Settings {
     window.addEventListener('beforeunload', (event) => {
       this.save();
     });
-    console.log('Settings initialised', this);
   }
 
   private load() {
