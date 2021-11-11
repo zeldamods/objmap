@@ -103,8 +103,16 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj | M
     this.linkTagInputs = [];
     this.areaMarkers.forEach(m => m.remove());
     this.areaMarkers = [];
-
-    this.obj = (await MapMgr.getInstance().getObjByObjId(this.minObj.objid))!;
+    if (this.minObj.objid) {
+      this.obj = (await MapMgr.getInstance().getObjByObjId(this.minObj.objid))!;
+    } else {
+      this.obj = (await MapMgr.getInstance().getObj(this.minObj.map_type,
+        // @ts-ignore ( map_name: string? )
+        this.minObj.map_name,
+        this.minObj.hash_id))!;
+      // Set the objid from the fetched data otherwise Vue does not update
+      this.minObj.objid = this.obj.objid;
+    }
     this.dropTables = await MapMgr.getInstance().getObjDropTables(this.getRankedUpActorNameForObj(this.minObj), this.getDropTableName());
     this.genGroup = await MapMgr.getInstance().getObjGenGroup(this.obj.map_type, this.obj.map_name, this.obj.hash_id);
     for (const obj of this.genGroup) {

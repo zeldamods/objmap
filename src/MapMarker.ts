@@ -53,11 +53,18 @@ class MapMarkerCanvasImpl extends MapMarker {
   constructor(mb: MapBase, title: string, pos: Point, options: CanvasMarkerOptions = {}) {
     super(mb);
     this.title = title;
+    let extra: any = {};
+    if (options.showLabel) {
+      extra['permanent'] = true;
+    }
+    if (options.className) {
+      extra['className'] = options.className;
+    }
     this.marker = new CanvasMarker(mb.fromXZ(pos), Object.assign(options, {
       bubblingMouseEvents: false,
       contextmenu: true,
     }));
-    this.marker.bindTooltip(title, { pane: 'front2' });
+    this.marker.bindTooltip(title, { pane: 'front2', ...extra });
     super.commonInit();
   }
 
@@ -209,14 +216,45 @@ const KOROK_ICON = (() => {
 export class MapMarkerKorok extends MapMarkerCanvasImpl {
   public readonly info: any;
 
-  constructor(mb: MapBase, info: any) {
-    super(mb, 'Korok', [info.Translate.X, info.Translate.Z], {
+  constructor(mb: MapBase, info: any, extra: any) {
+    let id = info.id || 'Korok';
+    super(mb, `${id}`, [info.Translate.X, info.Translate.Z], {
       icon: KOROK_ICON,
       iconWidth: 20,
       iconHeight: 20,
+      showLabel: extra.showLabel,
+      className: class_to_color(id),
     });
     this.info = info;
+    // @ts-ignore
+    this.obj = info;
   }
+}
+
+// Convert first letter of Korok ID to CSS classname
+function class_to_color(id: string): string {
+  let classes: any = {
+    'A': 'akkala',
+    'C': 'central',
+    'E': 'eldin',
+    'D': 'duelingpeaks',
+    'F': 'faron',
+    'G': 'gerudo',
+    'H': 'hebra',
+    'K': 'woodland',
+    'L': 'lake',
+    'N': 'hateno',
+    'P': 'plateau',
+    'R': 'ridgeland',
+    'T': 'tabantha',
+    'W': 'wasteland',
+    'X': 'castle',
+    'Z': 'lanayru',
+  };
+  if (id[0] in classes) {
+    return classes[id[0]] + ' korok';
+  }
+  return 'default';
 }
 
 function getName(name: string) {

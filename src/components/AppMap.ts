@@ -107,6 +107,7 @@ const MARKER_COMPONENTS: { [type: string]: MarkerComponent } = Object.freeze({
   },
   'Korok': {
     cl: MapMarkers.MapMarkerKorok,
+    detailsComponent: 'AppMapDetailsObj',
     enableUpdates: false,
     filterIcon: MapIcons.KOROK.options.iconUrl,
     filterLabel: 'Koroks',
@@ -249,6 +250,7 @@ export default class AppMap extends mixins(MixinUtil) {
   private areaMapLayersByData: ui.Unobservable<Map<any, L.Layer[]>> = new ui.Unobservable(new Map());
   shownAreaMap = '';
   areaWhitelist = '';
+  showKorokIDs = false;
 
   private mapUnitGrid = new ui.Unobservable(L.layerGroup());
   showMapUnitGrid = false;
@@ -310,6 +312,26 @@ export default class AppMap extends mixins(MixinUtil) {
     this.updateMarkers();
   }
 
+  // Similar to updateMarkers() but only called
+  //   on toggle of KorokIDs
+  updateKorokIDs() {
+    let type = "Korok";
+    const info = MapMgr.getInstance().getInfoMainField();
+    if (Settings.getInstance().shownGroups.has(type)) {
+      this.markerGroups.get(type)!.destroy();
+      this.markerGroups.delete(type);
+
+      const markers: any[] = info.markers[type];
+      const component = MARKER_COMPONENTS[type];
+      const group = new MapMarkerGroup(
+        markers.map((m: any) => new (component.cl)(this.map, m, { showLabel: this.showKorokIDs })),
+        valueOrDefault(component.preloadPad, 1.0),
+        valueOrDefault(component.enableUpdates, true));
+      this.markerGroups.set(type, group);
+      group.addToMap(this.map.m);
+      group.update();
+    }
+  }
   updateMarkers() {
     const info = MapMgr.getInstance().getInfoMainField();
     for (const type of Object.keys(info.markers)) {
@@ -329,7 +351,7 @@ export default class AppMap extends mixins(MixinUtil) {
       const markers: any[] = info.markers[type];
       const component = MARKER_COMPONENTS[type];
       const group = new MapMarkerGroup(
-        markers.map((m: any) => new (component.cl)(this.map, m)),
+        markers.map((m: any) => new (component.cl)(this.map, m, { showLabel: this.showKorokIDs })),
         valueOrDefault(component.preloadPad, 1.0),
         valueOrDefault(component.enableUpdates, true));
       this.markerGroups.set(type, group);
