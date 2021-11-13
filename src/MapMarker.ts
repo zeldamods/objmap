@@ -223,7 +223,7 @@ export class MapMarkerKorok extends MapMarkerCanvasImpl {
       iconWidth: 20,
       iconHeight: 20,
       showLabel: extra.showLabel,
-      className: class_to_color(id),
+      className: classToColor(id),
     });
     this.info = info;
     // @ts-ignore
@@ -232,7 +232,7 @@ export class MapMarkerKorok extends MapMarkerCanvasImpl {
 }
 
 // Convert first letter of Korok ID to CSS classname
-function class_to_color(id: string): string {
+function classToColor(id: string): string {
   let classes: any = {
     'A': 'akkala',
     'C': 'central',

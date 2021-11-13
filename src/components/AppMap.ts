@@ -332,6 +332,7 @@ export default class AppMap extends mixins(MixinUtil) {
       group.update();
     }
   }
+
   updateMarkers() {
     const info = MapMgr.getInstance().getInfoMainField();
     for (const type of Object.keys(info.markers)) {
