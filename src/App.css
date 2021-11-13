@@ -68,3 +68,77 @@ code {
 .form-control::placeholder {
   color: #7a7a7a;
 }
+
+/* https://stackoverflow.com/a/49852634 */
+.leaflet-tooltip.korok {
+  background-color: #ffffff00;
+  border: 0px solid #ffffff00;
+  box-shadow: 0 1px 3px #ffffff00;
+  color: black;
+}
+.leaflet-tooltip.akkala {
+  text-shadow:    1px 1px #FBFE53 ,  1px -1px #FBFE53 ,
+                 -1px 1px #FBFE53 , -1px -1px #FBFE53 ;
+}
+.leaflet-tooltip.central {
+  text-shadow:    1px 1px #E1FF8E ,  1px -1px #E1FF8E ,
+                 -1px 1px #E1FF8E , -1px -1px #E1FF8E ;
+}
+.leaflet-tooltip.eldin {
+  text-shadow:    1px 1px #F29F5D ,  1px -1px #F29F5D ,
+                 -1px 1px #F29F5D , -1px -1px #F29F5D ;
+}
+.leaflet-tooltip.duelingpeaks {
+  text-shadow:    1px 1px #CB6987 ,  1px -1px #CB6987 ,
+                 -1px 1px #CB6987 , -1px -1px #CB6987 ;
+}
+.leaflet-tooltip.faron {
+  text-shadow:    1px 1px #5FBD52 ,  1px -1px #5FBD52 ,
+                 -1px 1px #5FBD52 , -1px -1px #5FBD52 ;
+}
+.leaflet-tooltip.gerudo {
+  text-shadow:    1px 1px #8ACBE0 ,  1px -1px #8ACBE0 ,
+                 -1px 1px #8ACBE0 , -1px -1px #8ACBE0 ;
+}
+.leaflet-tooltip.hebra {
+  text-shadow:    1px 1px  #7FD0E0,  1px -1px  #7FD0E0,
+                 -1px 1px  #7FD0E0, -1px -1px  #7FD0E0;
+}
+.leaflet-tooltip.woodland {
+  text-shadow:    1px 1px #6ACF3D ,  1px -1px #6ACF3D ,
+                 -1px 1px #6ACF3D , -1px -1px #6ACF3D ;
+}
+.leaflet-tooltip.lake {
+  text-shadow:    1px 1px #7AA2F8 ,  1px -1px #7AA2F8 ,
+                 -1px 1px #7AA2F8 , -1px -1px #7AA2F8 ;
+}
+.leaflet-tooltip.hateno {
+  text-shadow:    1px 1px #E99E37 ,  1px -1px #E99E37 ,
+                 -1px 1px #E99E37 , -1px -1px #E99E37 ;
+}
+.leaflet-tooltip.plateau {
+  text-shadow:    1px 1px #9DCCC3 ,  1px -1px #9DCCC3 ,
+                 -1px 1px #9DCCC3 , -1px -1px #9DCCC3 ;
+}
+.leaflet-tooltip.ridgeland {
+  text-shadow:    1px 1px  #BD6681,  1px -1px  #BD6681,
+                 -1px 1px  #BD6681, -1px -1px  #BD6681;
+}
+.leaflet-tooltip.tabantha {
+  text-shadow:    1px 1px  #5CBC4F,  1px -1px  #5CBC4F,
+                 -1px 1px  #5CBC4F, -1px -1px  #5CBC4F;
+}
+.leaflet-tooltip.wasteland {
+  text-shadow:    1px 1px #F2A33A ,  1px -1px #F2A33A ,
+                 -1px 1px #F2A33A , -1px -1px #F2A33A ;
+}
+.leaflet-tooltip.castle {
+  text-shadow:    1px 1px #B2653F ,  1px -1px #B2653F ,
+                 -1px 1px #B2653F , -1px -1px #B2653F ;
+}
+.leaflet-tooltip.lanayru {
+  text-shadow:    1px 1px #C6B1FF ,  1px -1px #C6B1FF ,
+                 -1px 1px #C6B1FF , -1px -1px #C6B1FF ;
+}
+
+

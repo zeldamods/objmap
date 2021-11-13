@@ -4,6 +4,7 @@ export interface CanvasMarkerOptions extends L.CircleMarkerOptions {
   icon?: HTMLImageElement;
   iconWidth?: number;
   iconHeight?: number;
+  showLabel?: boolean;
 }
 
 export class CanvasMarker extends L.CircleMarker {
