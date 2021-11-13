@@ -40,7 +40,7 @@
     height: 20px;
     width: 20px;
     position: relative;
-    top: 5px;
+    top: 3px;
   }
 
   &.active {
