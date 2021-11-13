@@ -77,7 +77,15 @@ export class MapBase {
         }
       },
     });
-    const renderer = L.canvas();
+
+    let padding = 0.7;
+    if (L.Browser.safari && L.Browser.mobile && L.Browser.retina) {
+      padding = 0.1;
+    }
+    const renderer = L.canvas({
+      // Set a larger padding to avoid markers fading in too late when dragging
+      padding,
+    });
 
     this.m = new L.Map(element, {
       attributionControl: false,
