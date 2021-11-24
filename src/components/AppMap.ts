@@ -248,9 +248,11 @@ export default class AppMap extends mixins(MixinUtil) {
 
   private areaMapLayer = new ui.Unobservable(L.layerGroup());
   private areaMapLayersByData: ui.Unobservable<Map<any, L.Layer[]>> = new ui.Unobservable(new Map());
+  private areaAutoItem = new ui.Unobservable(L.layerGroup());
   shownAreaMap = '';
   areaWhitelist = '';
   showKorokIDs = false;
+  shownAutoItem = '';
 
   private mapUnitGrid = new ui.Unobservable(L.layerGroup());
   showMapUnitGrid = false;
@@ -886,6 +888,20 @@ export default class AppMap extends mixins(MixinUtil) {
   initAreaMap() {
     this.areaMapLayer.data.addTo(this.map.m);
   }
+  initAutoItem() {
+    this.areaAutoItem.data.addTo(this.map.m);
+  }
+
+  async loadAutoItem(name: string) {
+    this.areaAutoItem.data.clearLayers();
+    if (!name)
+      return;
+    const areas = await MapMgr.getInstance().fetchAreaMap(name);
+    let layers: L.Path[] = ui.areaMapToLayers(areas);
+    layers.forEach(l => this.areaAutoItem.data.addLayer(l));
+    this.areaAutoItem.data.setZIndex(1000);
+  }
+
 
   async loadAreaMap(name: string) {
     this.areaMapLayer.data.clearLayers();
@@ -936,6 +952,10 @@ export default class AppMap extends mixins(MixinUtil) {
   onShownAreaMapChanged() {
     this.$nextTick(() => this.loadAreaMap(this.shownAreaMap));
   }
+  onShownAutoItemChanged() {
+    this.$nextTick(() => this.loadAutoItem(this.shownAutoItem));
+  }
+
   async initMapSafeAreas() {
     const areas = await MapMgr.getInstance().fetchAreaMap("AutoSafe");
     let layers: L.Path[] = ui.areaMapToLayers(areas);
@@ -996,6 +1016,7 @@ export default class AppMap extends mixins(MixinUtil) {
     this.initMapRouteIntegration();
     this.initMarkers();
     this.initAreaMap();
+    this.initAutoItem();
     this.initMapUnitGrid();
     this.initSidebar();
     this.initDrawTools();
