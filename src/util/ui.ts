@@ -58,9 +58,19 @@ export function shadeColor(color: string, percent: number) {
   return '#' + (0x1000000 + (R < 255 ? R < 1 ? 0 : R : 255) * 0x10000 + (G < 255 ? G < 1 ? 0 : G : 255) * 0x100 + (B < 255 ? B < 1 ? 0 : B : 255)).toString(16).slice(1);
 }
 
+function areaTooltip(area: any): string {
+  let auto_areas = ['Fish', 'Bird', 'Insect', 'Animal', 'Enemy', 'Material'];
+  if (area.type == "Safe") {
+    return "Safe Area";
+  } else if (auto_areas.includes(area.type)) {
+    let parts = area.items.map((item: any) => `- ${item.real_name}: ${item.num}`).join("<br/>");
+    return [`Auto ${area.type}`, parts, `<small>Field Map Area ${area.field_map_area}</small>`].join("<br/>");
+  }
+  return 'Area';
+}
+
 export function areaMapToLayers(areas: any): L.Path[] {
   const nentries = Object.entries(areas).length;
-  const keys = Object.keys(areas);
   let layers: L.Path[] = Object.values(areas).map((feature: any, i) => {
     let layer: L.Circle | L.Polygon = toShape(feature.shape, feature.loc, feature.scale, feature.rotate);
     let color = feature.color || genColor(nentries, i);
@@ -71,15 +81,15 @@ export function areaMapToLayers(areas: any): L.Path[] {
       // @ts-ignore
       contextmenu: true,
     });
-    layerHover(layer, keys[i]);
+    layerHover(layer, areaTooltip(feature));
     return layer;
   });
   return layers;
 }
 
 
-export function layerHover(layer: L.Path, data: any) {
-  layer.bindTooltip('Area ' + data.toString());
+export function layerHover(layer: L.Path, data: string) {
+  layer.bindTooltip(data);
   layer.on('mouseover', () => {
     layer.setStyle({ weight: 4, fillOpacity: 0.3 });
   });
