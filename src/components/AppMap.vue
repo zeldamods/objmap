@@ -155,6 +155,17 @@
         </b-form-group>
         <b-checkbox switch v-model="showSafeAreas" @change="onShowSafeAreas">Enemy Non-Search Areas (Safe Zones)</b-checkbox>
         <b-checkbox switch v-model="showMapUnitGrid" @change="onShowMapUnitGridChanged">Show map unit grid</b-checkbox>
+        <hr/>
+        <h4 class="subsection-heading">Item Auto Placement</h4>
+        <b-radio-group stacked class="mb-4" v-model="shownAutoItem" @change="onShownAutoItemChanged">
+          <b-radio value="">None</b-radio>
+          <b-radio value="AutoFish">Auto Fish</b-radio>
+          <b-radio value="AutoBird">Auto Bird</b-radio>
+          <b-radio value="AutoInsect">Auto Insect</b-radio>
+          <b-radio value="AutoAnimal">Auto Animal</b-radio>
+          <b-radio value="AutoEnemy">Auto Enemy</b-radio>
+          <b-radio value="AutoMaterial">Auto Material</b-radio>
+        </b-radio-group>
       </div>
 
       <div class="leaflet-sidebar-pane" id="spane-draw">
