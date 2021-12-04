@@ -173,7 +173,7 @@
         <b-btn size="sm" block variant="primary" @click="toggleDraw()"><i class="fa fa-draw-polygon"></i> Toggle draw controls</b-btn>
         <hr>
         <h4 class="subsection-heading">Polyline color</h4>
-        <input type="color" v-model="drawLineColor" @change="drawOnColorChange"> <b-btn size="sm" variant="link" @click="drawLineColor = '#3388ff'">Reset to default</b-btn>
+        <input type="color"  @input="drawOnColorChange" value="#3388ff"> <b-btn size="sm" variant="link" @click="drawLineColor = '#3388ff'">Reset to default</b-btn>
         <hr>
         <h4 class="subsection-heading">Data import/export</h4>
         <p>Exported data includes search groups and drawn objects.</p>

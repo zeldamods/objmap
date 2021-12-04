@@ -219,6 +219,7 @@ export default class AppMap extends mixins(MixinUtil) {
   private drawControl: any;
   private drawLayer!: L.GeoJSON;
   private drawLineColor = '#3388ff';
+  private setLineColorThrottler!: () => void;
 
   private previousGotoMarker: L.Marker | null = null;
   private greatPlateauBarrierShown = false;
@@ -474,6 +475,10 @@ export default class AppMap extends mixins(MixinUtil) {
       draw: {
         circlemarker: false,
         rectangle: { showRadius: false },
+        marker: {
+          icon: ui.svgIcon(this.drawLineColor),
+          repeatMode: false,
+        }
       },
       edit: {
         featureGroup: this.drawLayer,
@@ -481,6 +486,7 @@ export default class AppMap extends mixins(MixinUtil) {
     };
     // @ts-ignore
     this.drawControl = new L.Control.Draw(options);
+    this.setLineColorThrottler = debounce(() => this.setLineColor(), 100);
     this.map.m.on({
       // @ts-ignore
       'draw:created': (e: any) => {
@@ -489,6 +495,9 @@ export default class AppMap extends mixins(MixinUtil) {
         addPopupAndTooltip(e.layer);
         this.drawLayer.addLayer(e.layer);
         this.initGeojsonFeature(e.layer);
+        if (!e.layer.options.color) {
+          e.layer.options.color = this.drawLineColor;
+        }
       },
       'draw:edited': (e: any) => {
         e.layers.eachLayer((layer: L.Marker | L.Polyline) => {
@@ -497,7 +506,7 @@ export default class AppMap extends mixins(MixinUtil) {
         });
       },
     });
-    this.drawOnColorChange();
+    this.drawOnColorChange({});
     Settings.getInstance().registerBeforeSaveCallback(() => {
       Settings.getInstance().drawLayerGeojson = JSON.stringify(this.drawToGeojson());
     });
@@ -518,6 +527,11 @@ export default class AppMap extends mixins(MixinUtil) {
           color = feat.style.color;
         }
         layer.setStyle({ color: color });
+      }
+      if (feat.geometry.type == "Point") {
+        let color = feat.style.color || this.drawLineColor;
+        layer.setIcon(ui.svgIcon(color));
+        layer.options.color = color;
       }
       // Create Feature.Properties on Layer
       addGeoJSONFeatureToLayer(layer);
@@ -611,15 +625,24 @@ export default class AppMap extends mixins(MixinUtil) {
     a.click();
   }
 
-  drawOnColorChange() {
+  setLineColor() {
     this.drawControl.setDrawingOptions({
-      polyline: {
-        shapeOptions: {
-          color: this.drawLineColor,
-          opacity: 1.0,
-        },
-      },
+      polyline: { shapeOptions: { color: this.drawLineColor, opacity: 1.0 } },
+      polygon: { shapeOptions: { color: this.drawLineColor, opacity: 1.0 } },
+      circle: { shapeOptions: { color: this.drawLineColor, opacity: 1.0 } },
+      rectangle: { shapeOptions: { color: this.drawLineColor, opacity: 1.0 } },
+      marker: {
+        icon: ui.svgIcon(this.drawLineColor),
+        repeatMode: false,
+      }
     });
+  }
+
+  drawOnColorChange(ev: any) {
+    if (ev.target) {
+      this.drawLineColor = ev.target.value;
+    }
+    this.setLineColorThrottler();
   }
 
   showGreatPlateauBarrier() {
