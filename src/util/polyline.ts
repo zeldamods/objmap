@@ -1,5 +1,5 @@
 import * as L from 'leaflet';
-
+import * as ui from '@/util/ui';
 
 function pointDist(a: L.LatLng, b: L.LatLng): number {
   let dx = a.lng - b.lng;
@@ -32,8 +32,9 @@ export function calcLayerLength(layer: L.Marker | L.Polyline) {
   if (!layer.feature) {
     return;
   }
-  if (layer instanceof L.Polyline) {
-    layer.feature.properties.pathLength = polyLineLength(layer);
+  layer.feature.properties.pathLength = 0;
+  if (ui.leafletType(layer) == ui.LeafletType.Polyline) {
+    layer.feature.properties.pathLength = polyLineLength(layer as L.Polyline);
   } else {
     layer.feature.properties.length = 0;
   }

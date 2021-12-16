@@ -196,3 +196,35 @@ export function svgIcon(fill: string): L.DivIcon {
   });
   return svgIcon;
 }
+
+export enum LeafletType {
+  Rectangle,
+  Polygon,
+  Polyline,
+  Circle,
+  CircleMarker,
+  Marker,
+  Path,
+  Layer,
+}
+
+// https://leafletjs.com/examples/extending/class-diagram.html
+// https://stackoverflow.com/a/56987060
+export function leafletType(layer: L.Layer): LeafletType {
+  if (layer instanceof L.Rectangle) {
+    return LeafletType.Rectangle;
+  } else if (layer instanceof L.Polygon) {
+    return LeafletType.Polygon;
+  } else if (layer instanceof L.Polyline) {
+    return LeafletType.Polyline;
+  } else if (layer instanceof L.Circle) {
+    return LeafletType.Circle;
+  } else if (layer instanceof L.CircleMarker) {
+    return LeafletType.CircleMarker;
+  } else if (layer instanceof L.Marker) {
+    return LeafletType.Marker;
+  } else if (layer instanceof L.Path) {
+    return LeafletType.Path;
+  }
+  return LeafletType.Layer;
+}
