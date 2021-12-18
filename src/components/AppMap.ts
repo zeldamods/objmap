@@ -513,25 +513,28 @@ export default class AppMap extends mixins(MixinUtil) {
     this.updateDrawControlsVisibility();
   }
 
+  private layerFromGeoJSON(feat: any): L.Layer {
+    let isCircle = feat.geometry.type == "Point" && feat.properties.radius;
+    if (isCircle) {
+      let latlon = L.latLng(feat.geometry.coordinates[1], feat.geometry.coordinates[0]);
+      return new L.Circle(latlon, { radius: feat.properties.radius });
+    }
+    return L.GeoJSON.geometryToLayer(feat);
+  }
+
   private drawFromGeojson(data: any) {
     if (this.importReplace) {
       this.drawLayer.clearLayers();
     }
     data.features.forEach((feat: any) => {
-      // Create Layer
-      let layer: any = L.GeoJSON.geometryToLayer(feat);
+      let layer: any = this.layerFromGeoJSON(feat);
       // Only set style for Polylines not Markers
-      if (layer.setStyle) {
-        let color = this.drawLineColor;
-        if (feat.style && feat.style.color) {
-          color = feat.style.color;
-        }
-        layer.setStyle({ color: color });
-      }
-      if (feat.geometry.type == "Point") {
-        let color = feat.style.color || this.drawLineColor;
-        layer.setIcon(ui.svgIcon(color));
+      let color = feat.style.color || this.drawLineColor;
+      if (ui.leafletType(layer) == ui.LeafletType.Marker) {
         layer.options.color = color;
+        layer.setIcon(ui.svgIcon(color));
+      } else {
+        layer.setStyle({ color: color });
       }
       // Create Feature.Properties on Layer
       addGeoJSONFeatureToLayer(layer);
@@ -554,6 +557,10 @@ export default class AppMap extends mixins(MixinUtil) {
         // @ts-ignore
         color: layer.options.color,
       };
+      if (ui.leafletType(layer) == ui.LeafletType.Circle) {
+        // @ts-ignore
+        data.features[i].properties.radius = (layer as L.Circle).options.radius;
+      }
       ++i;
     });
     return data;
