@@ -10,6 +10,7 @@ import ObjectInfo from '@/components/ObjectInfo';
 import { MapMgr, ObjectData, ObjectMinData, PlacementLink } from '@/services/MapMgr';
 import { MsgMgr } from '@/services/MsgMgr';
 import * as ui from '@/util/ui';
+const KUH_TAKKAR_ELEVATOR = 0x96d181a0;
 
 enum MapLinkDefType {
   BasicSig = 0x0,
@@ -264,6 +265,13 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj | M
     let radius = 0.0;
     if (obj.name == 'DgnObj_EntranceElevator_A_01') {
       radius = 64.0;
+      if (obj.hash_id == KUH_TAKKAR_ELEVATOR) {
+        /* Kuh Takkar, elevator in the same gen group as the ice actor
+           which has an unload radius of 1500m -- so the elevator has
+           a 1500m radius.
+        */
+        radius = 1500.0;
+      }
     } else if (obj.name == 'DgnObj_EntranceElevatorSP') {
       radius = 528.0;
       if (obj.data['!Parameters']!.EventFlowName == 'Demo603_0') {
