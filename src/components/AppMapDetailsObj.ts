@@ -63,7 +63,9 @@ function numOrArrayToArray(x: number | [number, number, number] | undefined): [n
 }
 
 function isAreaObject(obj: ObjectMinData) {
-  return obj.name == 'Area' || obj.name == 'SpotBgmTag' || obj.name.startsWith('AirWall') || obj.name == 'PointWindSetTag';
+  const areaObjectNames = ["Area", "SpotBgmTag", "PointWindSetTag", "AreaCulling_InnerHide",
+    "AreaCulling_InnerOn", "AreaCulling_OuterNPCMementary", "FarModelCullingArea"];
+  return areaObjectNames.includes(obj.name) || obj.name.startsWith('AirWall');
 }
 
 class StaticData {
