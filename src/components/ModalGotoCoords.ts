@@ -38,7 +38,7 @@ export default class ModalGotoCoords extends Vue {
   private onSubmit() {
     const x = parseFloat(this.x);
     const z = parseFloat(this.z);
-    if (isNaN(x) || isNaN(z) || !map.isValidXZ(x, 0, z)) {
+    if (isNaN(x) || isNaN(z) || !map.isValidXYZ(x, 0, z)) {
       alert("Invalid coordinates");
       return;
     }

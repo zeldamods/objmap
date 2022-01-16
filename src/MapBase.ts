@@ -26,17 +26,17 @@ export class MapBase {
   zoom: number = map.DEFAULT_ZOOM;
   private zoomChangeCbs: Array<(zoom: number) => void> = [];
 
-  toXZ(latlng: L.LatLng): Point {
+  toXYZ(latlng: L.LatLng): Point {
     return [latlng.lng, 0, latlng.lat];
   }
-  fromXZ(pos: Point): L.LatLngExpression {
+  fromXYZ(pos: Point): L.LatLngExpression {
     return [pos[2], pos[0]];
   }
 
   setView(pos: Point, zoom = -1) {
     this.center = pos;
     this.setZoomProp(zoom == -1 ? this.m.getZoom() : zoom);
-    this.m.setView(this.fromXZ(this.center), this.zoom);
+    this.m.setView(this.fromXYZ(this.center), this.zoom);
   }
 
   emitMarkerSelectedEvent(marker: any) { this.m.fireEvent(MARKER_SELECTED_EVENT, { marker }); }
@@ -105,7 +105,7 @@ export class MapBase {
         {
           text: 'Copy coordinates',
           callback: ({ latlng }: ui.LeafletContextMenuCbArg) => {
-            const [x, y, z] = this.toXZ(latlng);
+            const [x, y, z] = this.toXYZ(latlng);
             ui.copyToClipboard(`${x},${z}`);
           },
         },
@@ -131,7 +131,7 @@ export class MapBase {
       this.setZoomProp(evt.zoom);
     });
     this.registerMoveEndCb(() => {
-      this.center = this.toXZ(this.m.getCenter());
+      this.center = this.toXYZ(this.m.getCenter());
     });
   }
 

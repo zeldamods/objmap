@@ -304,7 +304,7 @@ export default class AppMap extends mixins(MixinUtil) {
   initMapRouteIntegration() {
     this.setViewFromRoute(this.$route);
     this.map.zoom = this.map.m.getZoom();
-    this.map.center = this.map.toXZ(this.map.m.getCenter());
+    this.map.center = this.map.toXYZ(this.map.m.getCenter());
     this.map.registerMoveEndCb(() => this.updateRoute());
     this.map.registerZoomEndCb(() => this.updateRoute());
     this.updateRoute();
@@ -656,8 +656,8 @@ export default class AppMap extends mixins(MixinUtil) {
     if (!this.greatPlateauBarrierShown) {
       const RESPAWN_POS: Point = [-1021.7286376953125, 0, 1792.6009521484375];
       const respawnPosMarker = new MapMarkers.MapMarkerPlateauRespawnPos(this.map, RESPAWN_POS);
-      const topLeft = this.map.fromXZ([-1600, 0, 1400]);
-      const bottomRight = this.map.fromXZ([-350, 0, 2400]);
+      const topLeft = this.map.fromXYZ([-1600, 0, 1400]);
+      const bottomRight = this.map.fromXYZ([-350, 0, 2400]);
       const rect = L.rectangle(L.latLngBounds(topLeft, bottomRight), {
         fill: false,
         stroke: true,
@@ -681,11 +681,11 @@ export default class AppMap extends mixins(MixinUtil) {
     this.map.setView([-965, 0.0, 1875], 5);
   }
 
-  gotoOnSubmit(xz: Point) {
-    this.map.setView(xz);
+  gotoOnSubmit(xyz: Point) {
+    this.map.setView(xyz);
     if (this.previousGotoMarker)
       this.previousGotoMarker.remove();
-    this.previousGotoMarker = L.marker(this.map.fromXZ(xz), {
+    this.previousGotoMarker = L.marker(this.map.fromXYZ(xyz), {
       // @ts-ignore
       contextmenu: true,
       contextmenuItems: [{
@@ -847,10 +847,10 @@ export default class AppMap extends mixins(MixinUtil) {
 
       // @ts-ignore
       const latlng: L.LatLng = e.latlng;
-      const xz = this.map.toXZ(latlng);
-      if (!map.isValidPoint(xz))
+      const xyz = this.map.toXYZ(latlng);
+      if (!map.isValidPoint(xyz))
         return;
-      this.searchAddGroup(`map:"${mapType}/${map.pointToMapUnit(xz)}"`);
+      this.searchAddGroup(`map:"${mapType}/${map.pointToMapUnit(xyz)}"`);
     });
   }
 
@@ -997,7 +997,7 @@ export default class AppMap extends mixins(MixinUtil) {
       for (let j = 0; j < 8; ++j) {
         const topLeft: Point = [-5000.0 + i * 1000.0, 0.0, -4000.0 + j * 1000.0];
         const bottomRight: Point = [-5000.0 + (i + 1) * 1000.0, 0.0, -4000.0 + (j + 1) * 1000.0];
-        const rect = L.rectangle(L.latLngBounds(this.map.fromXZ(topLeft), this.map.fromXZ(bottomRight)), {
+        const rect = L.rectangle(L.latLngBounds(this.map.fromXYZ(topLeft), this.map.fromXYZ(bottomRight)), {
           fill: true,
           stroke: true,
           color: '#009dff',
