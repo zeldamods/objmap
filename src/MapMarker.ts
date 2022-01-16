@@ -315,7 +315,7 @@ export class MapMarkerObj extends MapMarkerCanvasImpl {
         {
           text: 'Show no-revival area',
           callback: ({ latlng }: ui.LeafletContextMenuCbArg) => {
-            const [x, z] = mb.toXZ(latlng);
+            const [x, y, z] = mb.toXZ(latlng);
             const col = math.clamp(((x + 5000) / 1000) | 0, 0, 9);
             const row = math.clamp(((z + 4000) / 1000) | 0, 0, 7);
 

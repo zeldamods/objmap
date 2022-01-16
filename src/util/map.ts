@@ -13,7 +13,7 @@ export function isValidPoint(p: Point) {
 
 export function pointToMapUnit(p: Point) {
   const col = ((p[0] + 5000) / 1000) >>> 0;
-  const row = ((p[1] + 4000) / 1000) >>> 0;
+  const row = ((p[2] + 4000) / 1000) >>> 0;
   return String.fromCharCode('A'.charCodeAt(0) + col)
     + '-'
     + String.fromCharCode('1'.charCodeAt(0) + row);
