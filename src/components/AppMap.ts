@@ -280,7 +280,7 @@ export default class AppMap extends mixins(MixinUtil) {
     if (isNaN(zoom))
       zoom = 3;
 
-    this.map.setView([x, z], zoom);
+    this.map.setView([x, 0, z], zoom);
   }
   updateRoute() {
     this.updatingRoute = true;
@@ -654,10 +654,10 @@ export default class AppMap extends mixins(MixinUtil) {
 
   showGreatPlateauBarrier() {
     if (!this.greatPlateauBarrierShown) {
-      const RESPAWN_POS: Point = [-1021.7286376953125, 1792.6009521484375];
+      const RESPAWN_POS: Point = [-1021.7286376953125, 0, 1792.6009521484375];
       const respawnPosMarker = new MapMarkers.MapMarkerPlateauRespawnPos(this.map, RESPAWN_POS);
-      const topLeft = this.map.fromXZ([-1600, 1400]);
-      const bottomRight = this.map.fromXZ([-350, 2400]);
+      const topLeft = this.map.fromXZ([-1600, 0, 1400]);
+      const bottomRight = this.map.fromXZ([-350, 0, 2400]);
       const rect = L.rectangle(L.latLngBounds(topLeft, bottomRight), {
         fill: false,
         stroke: true,
@@ -678,7 +678,7 @@ export default class AppMap extends mixins(MixinUtil) {
       respawnPosMarker.getMarker().addTo(this.map.m);
       this.greatPlateauBarrierShown = true;
     }
-    this.map.setView([-965, 1875], 5);
+    this.map.setView([-965, 0.0, 1875], 5);
   }
 
   gotoOnSubmit(xz: Point) {
@@ -995,8 +995,8 @@ export default class AppMap extends mixins(MixinUtil) {
   initMapUnitGrid() {
     for (let i = 0; i < 10; ++i) {
       for (let j = 0; j < 8; ++j) {
-        const topLeft: Point = [-5000.0 + i * 1000.0, -4000.0 + j * 1000.0];
-        const bottomRight: Point = [-5000.0 + (i + 1) * 1000.0, -4000.0 + (j + 1) * 1000.0];
+        const topLeft: Point = [-5000.0 + i * 1000.0, 0.0, -4000.0 + j * 1000.0];
+        const bottomRight: Point = [-5000.0 + (i + 1) * 1000.0, 0.0, -4000.0 + (j + 1) * 1000.0];
         const rect = L.rectangle(L.latLngBounds(this.map.fromXZ(topLeft), this.map.fromXZ(bottomRight)), {
           fill: true,
           stroke: true,

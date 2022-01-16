@@ -218,7 +218,7 @@ export class MapMarkerKorok extends MapMarkerCanvasImpl {
 
   constructor(mb: MapBase, info: any, extra: any) {
     let id = info.id || 'Korok';
-    super(mb, `${id}`, [info.Translate.X, info.Translate.Z], {
+    super(mb, `${id}`, [info.Translate.X, info.Translate.Y, info.Translate.Z], {
       icon: KOROK_ICON,
       iconWidth: 20,
       iconHeight: 20,
@@ -329,8 +329,8 @@ export class MapMarkerObj extends MapMarkerCanvasImpl {
             minz = math.clamp(minz, -4000, 4000);
             maxz = math.clamp(maxz, -4000, 4000);
 
-            const pt1 = mb.fromXZ([minx, minz]);
-            const pt2 = mb.fromXZ([maxx, maxz]);
+            const pt1 = mb.fromXZ([minx, 0, minz]);
+            const pt2 = mb.fromXZ([maxx, 0, maxz]);
             const rect = L.rectangle(L.latLngBounds(pt1, pt2), {
               color: "#ff7800",
               weight: 2,

@@ -38,11 +38,11 @@ export default class ModalGotoCoords extends Vue {
   private onSubmit() {
     const x = parseFloat(this.x);
     const z = parseFloat(this.z);
-    if (isNaN(x) || isNaN(z) || !map.isValidXZ(x, z)) {
+    if (isNaN(x) || isNaN(z) || !map.isValidXZ(x, 0, z)) {
       alert("Invalid coordinates");
       return;
     }
-    this.$emit('submitted', [x, z]);
+    this.$emit('submitted', [x, 0, z]);
     this.x = this.z = "";
     this.hide();
   }

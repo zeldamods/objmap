@@ -22,15 +22,15 @@ export const MARKER_SELECTED_EVENT = 'objmap::markerSelected';
 export class MapBase {
   m!: L.Map;
   private rc!: L.RasterCoords;
-  center: Point = [0, 0];
+  center: Point = [0, 0, 0];
   zoom: number = map.DEFAULT_ZOOM;
   private zoomChangeCbs: Array<(zoom: number) => void> = [];
 
   toXZ(latlng: L.LatLng): Point {
-    return [latlng.lng, latlng.lat];
+    return [latlng.lng, 0, latlng.lat];
   }
   fromXZ(pos: Point): L.LatLngExpression {
-    return [pos[1], pos[0]];
+    return [pos[2], pos[0]];
   }
 
   setView(pos: Point, zoom = -1) {
