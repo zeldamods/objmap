@@ -286,7 +286,7 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj | M
 
     const mb = this.marker.data.mb;
     const [x, y, z] = obj.data.Translate;
-    const areaMarker = L.circle(mb.fromXZ([x, z]), { radius }).addTo(mb.m);
+    const areaMarker = L.circle(mb.fromXYZ([x, 0, z]), { radius }).addTo(mb.m);
     areaMarker.bringToBack();
     this.areaMarkers.push(areaMarker);
   }
@@ -307,14 +307,14 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj | M
     // A lot of shapes do not use any rotate feature though,
     // and for those this naïve approach should suffice.
     if (shape == 'Sphere') {
-      areaMarker = L.circle(mb.fromXZ([x, z]), { radius: scale[0] }).addTo(mb.m);
+      areaMarker = L.circle(mb.fromXYZ([x, 0, z]), { radius: scale[0] }).addTo(mb.m);
     } else if (shape == 'Cylinder' || shape == 'Capsule') {
       if (rotate && Math.abs(rotate[0] - 1.57080) <= 0.01) {
         const southWest = L.latLng(z + scale[2], x - scale[1] - scale[2]);
         const northEast = L.latLng(z - scale[2], x + scale[1] + scale[2]);
         areaMarker = L.rectangle(L.latLngBounds(southWest, northEast)).addTo(mb.m);
       } else {
-        areaMarker = L.circle(mb.fromXZ([x, z]), { radius: scale[0] }).addTo(mb.m);
+        areaMarker = L.circle(mb.fromXYZ([x, 0, z]), { radius: scale[0] }).addTo(mb.m);
       }
     } else if (shape == 'Box') {
       const southWest = L.latLng(z + scale[2], x - scale[0]);

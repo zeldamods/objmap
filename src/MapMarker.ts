@@ -29,10 +29,10 @@ export abstract class MapMarker {
 }
 
 class MapMarkerImpl extends MapMarker {
-  constructor(mb: MapBase, title: string, xz: Point, options: L.MarkerOptions = {}) {
+  constructor(mb: MapBase, title: string, xyz: Point, options: L.MarkerOptions = {}) {
     super(mb);
     this.title = title;
-    this.marker = L.marker(this.mb.fromXZ(xz), Object.assign(options, {
+    this.marker = L.marker(this.mb.fromXYZ(xyz), Object.assign(options, {
       title,
       contextmenu: true,
     }));
@@ -60,7 +60,7 @@ class MapMarkerCanvasImpl extends MapMarker {
     if (options.className) {
       extra['className'] = options.className;
     }
-    this.marker = new CanvasMarker(mb.fromXZ(pos), Object.assign(options, {
+    this.marker = new CanvasMarker(mb.fromXYZ(pos), Object.assign(options, {
       bubblingMouseEvents: false,
       contextmenu: true,
     }));
@@ -96,7 +96,7 @@ class MapMarkerGenericLocationMarker extends MapMarkerImpl {
     const [icon, label] = MapMarkerGenericLocationMarker.ICONS_AND_LABELS[lm.getIcon()];
     const msgId = lm.getMessageId();
     const msg = msgId ? MsgMgr.getInstance().getMsgWithFile('StaticMsg/LocationMarker', msgId) : label;
-    super(mb, msg, lm.getXZ(), {
+    super(mb, msg, lm.getXYZ(), {
       icon,
       zIndexOffset,
     });
@@ -132,7 +132,7 @@ export class MapMarkerLocation extends MapMarkerCanvasImpl {
     const visibleMarkerTypeStr = l.PointerType ? 'Place' : markerTypeStr;
     const msg = MsgMgr.getInstance().getMsgWithFile('StaticMsg/LocationMarker', lp.getMessageId());
 
-    super(mb, msg, lp.getXZ(), { stroke: false, fill: false });
+    super(mb, msg, lp.getXYZ(), { stroke: false, fill: false });
     this.marker.unbindTooltip();
     this.marker.bindTooltip(msg + `<span class="location-marker-type">${visibleMarkerTypeStr}</span>`, {
       permanent: true,
@@ -218,7 +218,7 @@ export class MapMarkerKorok extends MapMarkerCanvasImpl {
 
   constructor(mb: MapBase, info: any, extra: any) {
     let id = info.id || 'Korok';
-    super(mb, `${id}`, [info.Translate.X, info.Translate.Z], {
+    super(mb, `${id}`, [info.Translate.X, info.Translate.Y, info.Translate.Z], {
       icon: KOROK_ICON,
       iconWidth: 20,
       iconHeight: 20,
@@ -315,7 +315,7 @@ export class MapMarkerObj extends MapMarkerCanvasImpl {
         {
           text: 'Show no-revival area',
           callback: ({ latlng }: ui.LeafletContextMenuCbArg) => {
-            const [x, z] = mb.toXZ(latlng);
+            const [x, y, z] = mb.toXYZ(latlng);
             const col = math.clamp(((x + 5000) / 1000) | 0, 0, 9);
             const row = math.clamp(((z + 4000) / 1000) | 0, 0, 7);
 
@@ -329,8 +329,8 @@ export class MapMarkerObj extends MapMarkerCanvasImpl {
             minz = math.clamp(minz, -4000, 4000);
             maxz = math.clamp(maxz, -4000, 4000);
 
-            const pt1 = mb.fromXZ([minx, minz]);
-            const pt2 = mb.fromXZ([maxx, maxz]);
+            const pt1 = mb.fromXYZ([minx, 0, minz]);
+            const pt2 = mb.fromXYZ([maxx, 0, maxz]);
             const rect = L.rectangle(L.latLngBounds(pt1, pt2), {
               color: "#ff7800",
               weight: 2,

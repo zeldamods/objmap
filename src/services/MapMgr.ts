@@ -30,7 +30,7 @@ export interface ObjectMinData {
   name: string;
   drop?: [ObjectDropType, string];
   equip?: string[];
-  pos: [number, number];
+  pos: [number, number, number];
 
   // False if not present.
   hard_mode?: boolean;

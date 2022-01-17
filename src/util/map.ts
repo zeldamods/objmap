@@ -1,19 +1,19 @@
 export const TILE_SIZE = 256;
 export const MAP_SIZE = [24000, 20000];
 
-export type Point = [number, number];
+export type Point = [number, number, number];
 
-export function isValidXZ(x: number, z: number) {
+export function isValidXYZ(x: number, y: number, z: number) {
   return Math.abs(x) <= 6000 && Math.abs(z) <= 5000;
 }
 
 export function isValidPoint(p: Point) {
-  return isValidXZ(p[0], p[1]);
+  return isValidXYZ(p[0], p[1], p[2]);
 }
 
 export function pointToMapUnit(p: Point) {
   const col = ((p[0] + 5000) / 1000) >>> 0;
-  const row = ((p[1] + 4000) / 1000) >>> 0;
+  const row = ((p[2] + 4000) / 1000) >>> 0;
   return String.fromCharCode('A'.charCodeAt(0) + col)
     + '-'
     + String.fromCharCode('1'.charCodeAt(0) + row);
@@ -68,7 +68,7 @@ export class LocationMarkerBase {
   }
 
   getMessageId(): string { return this.l.MessageID; }
-  getXZ(): Point { return [this.l.Translate.X, this.l.Translate.Z]; }
+  getXYZ(): Point { return [this.l.Translate.X, this.l.Translate.Y, this.l.Translate.Z]; }
 }
 
 export class LocationMarker extends LocationMarkerBase {
