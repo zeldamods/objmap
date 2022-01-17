@@ -4,7 +4,7 @@ export const MAP_SIZE = [24000, 20000];
 export type Point = [number, number, number];
 
 export function isValidXYZ(x: number, y: number, z: number) {
-  return Math.abs(x) <= 6000 && Math.abs(z) <= 5000 && Math.abs(y) <= 2000;
+  return Math.abs(x) <= 6000 && Math.abs(z) <= 5000;
 }
 
 export function isValidPoint(p: Point) {
