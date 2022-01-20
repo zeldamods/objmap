@@ -119,6 +119,10 @@ export class SearchResultGroup {
     return this.markers.data ? this.markers.data.length : 0;
   }
 
+  getMarkers() {
+    return this.markers.data;
+  }
+
   remove() {
     this.markerGroup.data.remove();
     this.markerGroup.data.clearLayers();

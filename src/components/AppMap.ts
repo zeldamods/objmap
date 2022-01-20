@@ -254,6 +254,7 @@ export default class AppMap extends mixins(MixinUtil) {
   areaWhitelist = '';
   showKorokIDs = false;
   shownAutoItem = '';
+  staticTooltip = false;
 
   private mapUnitGrid = new ui.Unobservable(L.layerGroup());
   showMapUnitGrid = false;
@@ -789,6 +790,7 @@ export default class AppMap extends mixins(MixinUtil) {
     await group.init(this.map);
     group.update(SearchResultUpdateMode.UpdateStyle | SearchResultUpdateMode.UpdateVisibility, this.searchExcludedSets);
     this.searchGroups.push(group);
+    this.updateTooltips();
   }
 
   searchToggleGroupEnabledStatus(idx: number) {
@@ -834,7 +836,53 @@ export default class AppMap extends mixins(MixinUtil) {
       marker.data.getMarker().addTo(this.map.m);
     }
 
+    this.updateTooltips();
     this.searching = false;
+  }
+
+  enableYTooltip(marker: any) {
+    let m: any = marker.getMarker();
+    if (!('_tooltip' in marker.obj)) {
+      // @ts-ignore
+      let tt = m.getTooltip();
+      marker.obj._tooltip = tt.getContent();
+      marker.obj._tooltip_options = tt.options;
+    }
+    //To update the tooltip with the permanent flag,
+    //   we needed to unbind() then re-bind() the tooltip
+    //   with a different permanent flag value.
+    if (!m.getTooltip().options.permanent) {
+      m.unbindTooltip();
+      m.bindTooltip(`${marker.obj.pos[1]}`, { permanent: true });
+      m.openTooltip();
+    }
+  }
+
+  disableYTooltip(marker: any) {
+    let m: any = marker.getMarker();
+    if (m.getTooltip().options.permanent) {
+      m.getTooltip().options.permanent = false;
+      m.unbindTooltip();
+      m.bindTooltip(marker.obj._tooltip, marker.obj._tooltip_options);
+      m.closeTooltip();
+    }
+  }
+
+  toggleYTooltipOnAllMarkers(on: boolean) {
+    let func = on ? this.enableYTooltip : this.disableYTooltip;
+    this.searchResultMarkers.map(m => m.data).forEach(func);
+    this.searchGroups.forEach(group => {
+      group.getMarkers().forEach(func);
+    });
+  }
+
+  updateTooltips() {
+    this.toggleYTooltipOnAllMarkers(this.staticTooltip);
+  }
+
+  toggleY() {
+    this.staticTooltip = !this.staticTooltip;
+    this.updateTooltips();
   }
 
   initContextMenu() {
@@ -857,6 +905,9 @@ export default class AppMap extends mixins(MixinUtil) {
   initEvents() {
     this.$on('AppMap:switch-pane', (pane: string) => {
       this.switchPane(pane);
+    });
+    this.$on('AppMap:toggle-y-values', () => {
+      this.toggleY();
     });
 
     this.$on('AppMap:open-obj', async (obj: ObjectData) => {
