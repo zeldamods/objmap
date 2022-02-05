@@ -42,6 +42,10 @@ export interface ObjectMinData {
   // Only for weapons and enemies.
   scale?: number;
   sharp_weapon_judge_type?: number;
+
+  // Korok Data
+  korok_id?: string;
+  korok_type?: string;
 }
 
 export interface ObjectData extends ObjectMinData {

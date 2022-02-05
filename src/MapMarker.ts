@@ -218,12 +218,13 @@ export class MapMarkerKorok extends MapMarkerCanvasImpl {
 
   constructor(mb: MapBase, info: any, extra: any) {
     let id = info.id || 'Korok';
+    extra.styleLabel = (extra.styleLabel !== undefined) ? extra.styleLabel : true;
     super(mb, `${id}`, [info.Translate.X, info.Translate.Y, info.Translate.Z], {
       icon: KOROK_ICON,
       iconWidth: 20,
       iconHeight: 20,
       showLabel: extra.showLabel,
-      className: classToColor(id),
+      className: (extra.styleLabel) ? classToColor(id) : "default",
     });
     this.info = info;
     // @ts-ignore

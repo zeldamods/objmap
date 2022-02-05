@@ -139,6 +139,14 @@
           <AppMapFilterMainButton v-for="(v, type) in markerComponents" :key="type" :type="type" :label="v.filterLabel" :icon="v.filterIcon" @toggle="updateMarkers" />
         </div>
         <b-checkbox switch v-model="showKorokIDs" @change="updateKorokIDs">Show Korok IDs</b-checkbox>
+        <b-checkbox v-model="korokTypeOpen"  switch >Korok Types</b-checkbox>
+
+        <b-collapse id="korokTypesList" class="mt-2" v-model="korokTypeOpen">
+          <b-card style="background: rgba(0,0,0,0); overflow-y: scroll; max-height: 300px; border:1px solid #333;">
+            <b-checkbox v-for="(ktype, index) in korokTypes" :key="ktype" ref="koroks" v-model="korokTypeOn[index]" :checked=false switch @input='searchToggleGroup(ktype)'>{{ktype}}</b-checkbox>
+          </b-card>
+        </b-collapse>
+
         <hr>
         <h4 class="subsection-heading">Visible map areas</h4>
         <b-radio-group stacked class="mb-4" v-model="shownAreaMap" @change="onShownAreaMapChanged">
