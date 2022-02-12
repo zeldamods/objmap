@@ -290,7 +290,7 @@ export default class AppMap extends mixins(MixinUtil) {
       name: 'map',
       params: {
         x: this.map.center[0],
-        z: this.map.center[1],
+        z: this.map.center[2],
         zoom: this.map.m.getZoom(),
       },
       query: this.$route.query,
