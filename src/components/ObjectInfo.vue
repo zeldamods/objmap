@@ -11,7 +11,7 @@
       <span v-if="!withPermalink">{{formatObjId(data.hash_id)}}</span>
     </section>
     <section class="search-result-id">
-      <span style="color: #ff3915" v-if="data.hard_mode"><i class="fa fa-shield-alt fa-fw"></i> Master Mode</span>
+      <span style="color: #ff3915" v-if="data.hard_mode"><i class="fa fa-dungeon fa-fw"></i> Master Mode</span>
     </section>
     <section class="search-result-id">
       <span style="color: #ff3915" v-if="data.one_hit_mode"><i class="fa fa-infinity fa-fw"></i> One-Hit Obliterator Object</span>
