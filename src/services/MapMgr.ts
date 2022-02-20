@@ -34,6 +34,7 @@ export interface ObjectMinData {
 
   // False if not present.
   hard_mode?: boolean;
+  one_hit_mode?: boolean;
   disable_rankup_for_hard_mode?: boolean;
 
   // Only for LocationTags.
