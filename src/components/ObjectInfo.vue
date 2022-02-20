@@ -10,10 +10,10 @@
       <span v-if="withPermalink"><router-link :to="{ query: { id: `${data.map_type},${data.map_name},${data.hash_id}` } }" append>{{formatObjId(data.hash_id)}}</router-link></span>
       <span v-if="!withPermalink">{{formatObjId(data.hash_id)}}</span>
     </section>
-    <section class="search-result-id">
+    <section class="search-result-hard-mode">
       <span style="color: #ff3915" v-if="data.hard_mode"><i class="fa fa-dungeon fa-fw"></i> Master Mode</span>
     </section>
-    <section class="search-result-id">
+    <section class="search-result-oho">
       <span style="color: #ff3915" v-if="data.one_hit_mode"><i class="fa fa-infinity fa-fw"></i> One-Hit Obliterator Object</span>
     </section>
     <section class="search-result-drop" v-if="!dropAsName && data.drop"><i class="fa fa-gem fa-fw"></i> {{drop()}}</section>
