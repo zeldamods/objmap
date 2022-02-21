@@ -1,3 +1,5 @@
+import { GAME_FILES } from '@/util/map';
+
 type File = { [label: string]: string };
 
 export class MsgMgr {
@@ -12,7 +14,7 @@ export class MsgMgr {
   private files: Map<string, File> = new Map();
 
   async init() {
-    const PREFIX = '/game_files/text/';
+    const PREFIX = `${GAME_FILES}/text/`;
     const fileList: string[] = await fetch(PREFIX + 'list.json').then(r => r.json());
     const fileLoadPromises = [];
     for (const path of fileList) {
@@ -21,7 +23,7 @@ export class MsgMgr {
         this.files.set(file, Object.freeze(d));
       }));
     }
-    fileLoadPromises.push(fetch('/game_files/names.json').then(r => r.json()).then((d) => {
+    fileLoadPromises.push(fetch(`${GAME_FILES}/names.json`).then(r => r.json()).then((d) => {
       this.names = d;
     }));
     await Promise.all(fileLoadPromises);
