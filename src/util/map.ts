@@ -1,7 +1,7 @@
 export const TILE_SIZE = 256;
 export const MAP_SIZE = [24000, 20000];
 
-export const GAME_FILES = "https://objmap.zeldamods.org/game_files";
+export const GAME_FILES = process.env.VUE_APP_GAME_FILES;
 
 export type Point = [number, number, number];
 
