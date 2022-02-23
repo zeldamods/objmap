@@ -1,3 +1,6 @@
+
+import { GAME_FILES } from '@/util/map';
+
 const RADAR_URL = 'https://radar.zeldamods.org';
 
 export type Vec3 = [number, number, number];
@@ -75,7 +78,7 @@ export class MapMgr {
 
   async init() {
     await Promise.all([
-      fetch('/game_files/map_summary/MainField/static.json').then(r => r.json())
+      fetch(`${GAME_FILES}/map_summary/MainField/static.json`).then(r => r.json())
         .then((d) => {
           d.markers["DungeonDLC"] = d.markers["Dungeon"].filter((l: any) => parseInt(l.SaveFlag.replace('Location_Dungeon', ''), 10) >= 120);
           d.markers["Dungeon"] = d.markers["Dungeon"].filter((l: any) => parseInt(l.SaveFlag.replace('Location_Dungeon', ''), 10) < 120);
@@ -85,7 +88,7 @@ export class MapMgr {
   }
 
   fetchAreaMap(name: string): Promise<{ [data: number]: Array<GeoJSON.Polygon | GeoJSON.MultiPolygon> }> {
-    return fetch(`/game_files/ecosystem/${name}.json`).then(parse);
+    return fetch(`${GAME_FILES}/ecosystem/${name}.json`).then(parse);
   }
 
   getInfoMainField() {
