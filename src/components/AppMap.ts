@@ -296,6 +296,7 @@ export default class AppMap extends mixins(MixinUtil) {
       query: this.$route.query,
     }).catch(err => {
       if (!isNavigationFailure(err, NavigationFailureType.duplicated)) {
+        // eslint-disable-next-line no-console
         console.error(err);
       }
     });
