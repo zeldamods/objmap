@@ -1,7 +1,7 @@
 
 import { GAME_FILES } from '@/util/map';
 
-const RADAR_URL = 'https://radar.zeldamods.org';
+const RADAR_URL = process.env.VUE_APP_RADAR_URL;
 
 export type Vec3 = [number, number, number];
 
