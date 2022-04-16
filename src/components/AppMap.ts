@@ -507,6 +507,12 @@ export default class AppMap extends mixins(MixinUtil) {
           layerSetTooltip(layer);
         });
       },
+      'draw:deleted': (e: any) => {
+        let ans = confirm("Clear all map items?");
+        if (!ans) {
+          e.layers.eachLayer((layer: L.Marker | L.Polyline) => this.drawLayer.addLayer(layer));
+        }
+      },
     });
     this.drawOnColorChange({});
     Settings.getInstance().registerBeforeSaveCallback(() => {
