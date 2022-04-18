@@ -508,9 +508,14 @@ export default class AppMap extends mixins(MixinUtil) {
         });
       },
       'draw:deleted': (e: any) => {
-        let ans = confirm("Clear all map items?");
-        if (!ans) {
-          e.layers.eachLayer((layer: L.Marker | L.Polyline) => this.drawLayer.addLayer(layer));
+        // Only use confirm dialog if editable layer is empty and
+        //   the layers passed are not empty
+        // A 'Save' action should have a possibly non-empty editable layer
+        if (this.drawLayer.getLayers().length == 0 && e.layers.getLayers().length != 0) {
+          let ans = confirm("Clear all map items?");
+          if (!ans) {
+            e.layers.eachLayer((layer: L.Marker | L.Polyline) => this.drawLayer.addLayer(layer));
+          }
         }
       },
     });
