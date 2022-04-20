@@ -85,13 +85,13 @@ export const SEARCH_PRESETS: ReadonlyArray<SearchPresetGroup> = Object.freeze([
     label: '<i class="fa fa-ellipsis-h"></i>',
     presets: [
       {label: 'Memory Locations', query: 'name:"Memory"'},
-      {label: 'Zora Stone Monuments', query: 'name:FldObj_RockZoraRelief'},
       {label: 'Goddess Statues', query: 'name:"Goddess Statue"'},
       {label: 'Rafts', query: 'name:Raft'},
       {label: 'Enemies', query: 'actor:^"Enemy_"'},
       {label: 'BtB Enemies', query: '(' + makeActorQuery(['Enemy_Bokoblin', 'Enemy_Lizalfos', 'Enemy_Moriblin', 'Enemy_Giant', 'Enemy_Wizzrobe']) + ') NOT actor:bone'},
       {label: 'Launchable Objects', query: makeActorQuery(LAUNCHABLE_OBJS.split('\n'))},
       { label: 'Shrine Elevators', query: 'actor:EntranceElev*'},
+      { label: 'Zora Stone Monuments', query: 'actor:FldObj_RockZoraRelief' },
     ],
   }
 ]);
