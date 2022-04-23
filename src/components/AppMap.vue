@@ -155,6 +155,7 @@
         </b-form-group>
         <b-checkbox switch v-model="showSafeAreas" @change="onShowSafeAreas">Enemy Non-Search Areas (Safe Zones)</b-checkbox>
         <b-checkbox switch v-model="showMapUnitGrid" @change="onShowMapUnitGridChanged">Show map unit grid</b-checkbox>
+        <b-checkbox switch v-model="showCastleAreas" @change="onShowCastleAreas">Show Hyrule Castle Interior</b-checkbox>
         <hr/>
         <h4 class="subsection-heading">Item Auto Placement</h4>
         <b-radio-group stacked class="mb-4" v-model="shownAutoItem" @change="onShownAutoItemChanged">

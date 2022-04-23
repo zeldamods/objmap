@@ -262,6 +262,9 @@ export default class AppMap extends mixins(MixinUtil) {
   private mapSafeAreas = new ui.Unobservable(L.layerGroup());
   showSafeAreas = false;
 
+  private mapCastleAreas = new ui.Unobservable(L.layerGroup());
+  showCastleAreas = false;
+
   private tempObjMarker: ui.Unobservable<MapMarker> | null = null;
 
   private settings: Settings | null = null;
@@ -1055,6 +1058,42 @@ export default class AppMap extends mixins(MixinUtil) {
     layers.forEach(l => this.mapSafeAreas.data.addLayer(l));
   }
 
+  async initMapCastleAreas() {
+    const areas = await MapMgr.getInstance().fetchAreaMap("castle");
+    const entries = Object.entries(areas); // get the key later
+    for (const [data, features] of entries) {
+      let height = features.map((feature) => feature.y);
+      let color = height.map((y) => ui.genColor(300, y));
+      const layers: L.GeoJSON[] = features.map((feature, i) => {
+        return L.geoJSON(feature, {
+          style: function(_) {
+            return { weight: 2, fillOpacity: 0.2, color: color[i] };
+          },
+          // @ts-ignore
+          contextmenu: true,
+        });
+      });
+      let i = 0;
+      for (const layer of layers) {
+        layer.bindTooltip(data.toString() + ' @ ' + height[i]);
+        layer.on('mouseover', () => {
+          layers.forEach(l => {
+            l.setStyle({ weight: 4, fillOpacity: 0.3 });
+          });
+        });
+        layer.on('mouseout', () => {
+          layers.forEach(l => l.setStyle({ weight: 2, fillOpacity: 0.2 }));
+        });
+        i++;
+      }
+
+      layers.forEach(l => this.mapCastleAreas.data.addLayer(l));
+    }
+
+    this.mapCastleAreas.data.setZIndex(1000);
+  }
+
+
   initMapUnitGrid() {
     for (let i = 0; i < 10; ++i) {
       for (let j = 0; j < 8; ++j) {
@@ -1084,6 +1123,18 @@ export default class AppMap extends mixins(MixinUtil) {
       this.mapUnitGrid.data.remove();
       if (this.showMapUnitGrid)
         this.mapUnitGrid.data.addTo(this.map.m);
+    });
+  }
+
+  onShowCastleAreas() {
+    this.$nextTick(() => {
+      this.mapCastleAreas.data.remove();
+      if (this.showCastleAreas) {
+        if (this.mapCastleAreas.data.getLayers().length <= 0) {
+          this.initMapCastleAreas();
+        }
+        this.mapCastleAreas.data.addTo(this.map.m);
+      }
     });
   }
 
