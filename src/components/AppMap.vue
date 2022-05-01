@@ -67,7 +67,7 @@
           <code>region</code>: Tower region name (e.g. Tabantha, Lanayru, Hateno) <br>
           <code>fieldarea</code>: Field Map area (0 - 93)<br>
           <code>lotm</code>: Spawns with Lord of the Mountain (1 or 0) <br>
-          <code>location</code>: items possibly in, beneath or above something
+          <code>location</code>: Item possibly in, beneath or above something
 
           <details class="ml-3">
             <summary>Locations</summary>
@@ -82,7 +82,7 @@
               <li>First Gatehouse</li>
               <li>Guards' Chambers</li>
               <li>Guards' Chambers Annex</li>
-              <li>Kings Study</li>
+              <li>King's Study</li>
               <li>Library</li>
               <li>Library Corridor</li>
               <li>Lockup</li>
@@ -100,7 +100,7 @@
             </ul>
           </details>
 
-          <code>korok_type</code>: types of koroks<br>
+          <code>korok_type</code>: Korok puzzle type<br>
           <details class="ml-3">
             <summary>Korok Types</summary>
             <ul class="small">
@@ -127,19 +127,22 @@
               <li>Rock Lift (Boulder)</li>
               <li>Rock Lift (Door)</li>
               <li>Rock Lift (Leaves)</li>
-              <li>Rock Lift (Rock Pile)</li>
-              <ul>
-                <li>Z54 is under Rock Pile</li>
-              </ul>
+              <li>Rock Lift (Rock Pile)
+                <ul>
+                  <li>Z54 is under Rock Pile</li>
+                </ul>
+              </li>
               <li>Rock Lift (Slab)</li>
-              <li>Rock Pattern</li>
-              <ul>
-                <li>C51, L34, and N13 are not Rock Patterns</li>
-              </ul>
-              <li>Roll a Boulder</li>
-              <ul>
-                <li>C51, L34, and N13 are Roll a Boulder</li>
-              </ul>
+              <li>Rock Pattern
+                <ul>
+                  <li>C51, L34, and N13 are not Rock Patterns</li>
+                </ul>
+              </li>
+              <li>Roll a Boulder
+                <ul>
+                  <li>C51, L34, and N13 are Roll a Boulder</li>
+                </ul>
+              </li>
               <li>Shoot the Crest</li>
               <li>Shoot the Targets</li>
               <li>Stationary Balloon</li>
