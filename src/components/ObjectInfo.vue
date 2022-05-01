@@ -18,8 +18,8 @@
     </section>
     <section class="search-result-drop" v-if="!dropAsName && data.drop"><i class="fa fa-gem fa-fw"></i> {{drop()}}</section>
     <section class="search-result-equip" v-if="data.equip"><i class="fa fa-shield-alt fa-fw"></i> {{data.equip.map((x) => getName(x)).join(', ')}}</section>
-    <section class="search-result-rankup" v-if="data.location">
-      <i class="fas fa-location-arrow" aria-hidden="true" style="color: honeydew"></i>
+    <section class="search-result-location" v-if="data.location">
+      <i class="fas fa-fw fa-location-arrow" aria-hidden="true" style="color: honeydew"></i>
       {{data.location}}
     </section>
     <section class="search-result-scale" v-if="data.scale === 0">
