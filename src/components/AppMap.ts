@@ -251,9 +251,6 @@ export default class AppMap extends mixins(MixinUtil) {
   private areaMapLayersByData: ui.Unobservable<Map<any, L.Layer[]>> = new ui.Unobservable(new Map());
   private areaAutoItem = new ui.Unobservable(L.layerGroup());
 
-  showLocations = false;
-  showKorokTypes = false;
-
   shownAreaMap = '';
   areaWhitelist = '';
   showKorokIDs = false;

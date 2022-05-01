@@ -49,7 +49,8 @@
           Syntax: <code>COLUMN<b>:</b>QUERY</code><br>
           Example: <code>^Bokoblin scale:0</code></p>
         <p>Available columns:</p>
-        <p>
+
+        <div>
           <code>map</code>: Map name (e.g. MainField/E-4)<br>
           <code>static</code>: 1 if the object is in a Static map unit, 0 if Dynamic<br>
           <code>actor</code>: Actor name (e.g. Weapon_Sword_001)<br>
@@ -65,101 +66,89 @@
           <code>bonus</code>: Minimum bonus modifier tier (0, 1, 2 or 3)<br>
           <code>region</code>: Tower region name (e.g. Tabantha, Lanayru, Hateno) <br>
           <code>fieldarea</code>: Field Map area (0 - 93)<br>
-          <code>lotm</code>: Spawns with Lord of the Mountain (1 or 0)<br>
-          <code>location</code>: items possibly in, beneath or above something<br>
-          <span class="ml-3">
-            <span @click="showLocations = !showLocations">
-              <i v-if="showLocations" class="fa fa-caret-down" aria-hidden="true"></i>
-              <i v-if="!showLocations" class="fa fa-caret-right" aria-hidden="true"></i>
-              Locations
-            </span>
-            <span v-if="showLocations" class="small">
-              <ul>
-                <li>Castle Tower</li>
-                <li>Corridor</li>
-                <li>Cryonis Gate</li>
-                <li>Dining Hall</li>
-                <li>Docks</li>
-                <li>East Hallway</li>
-                <li>East Passage</li>
-                <li>First Gatehouse</li>
-                <li>Guards' Chambers</li>
-                <li>Guards' Chambers Annex</li>
-                <li>Kings Study</li>
-                <li>Library</li>
-                <li>Library Corridor</li>
-                <li>Lockup</li>
-                <li>Lockup Upper</li>
-                <li>Observation Room</li>
-                <li>Observation Room Balcony</li>
-                <li>Sanctum</li>
-                <li>Second Gatehouse</li>
-                <li>Stairs</li>
-                <li>Watch Tower</li>
-                <li>West Main Corridor</li>
-                <li>West Passage</li>
-                <li>Zelda's Room</li>
-                <li>Zelda's Study</li>
-              </ul>
-            </span>
-          </span>
-          <br/>
+          <code>lotm</code>: Spawns with Lord of the Mountain (1 or 0) <br>
+          <code>location</code>: items possibly in, beneath or above something
+
+          <details class="ml-3">
+            <summary>Locations</summary>
+            <ul class="small">
+              <li>Castle Tower</li>
+              <li>Corridor</li>
+              <li>Cryonis Gate</li>
+              <li>Dining Hall</li>
+              <li>Docks</li>
+              <li>East Hallway</li>
+              <li>East Passage</li>
+              <li>First Gatehouse</li>
+              <li>Guards' Chambers</li>
+              <li>Guards' Chambers Annex</li>
+              <li>Kings Study</li>
+              <li>Library</li>
+              <li>Library Corridor</li>
+              <li>Lockup</li>
+              <li>Lockup Upper</li>
+              <li>Observation Room</li>
+              <li>Observation Room Balcony</li>
+              <li>Sanctum</li>
+              <li>Second Gatehouse</li>
+              <li>Stairs</li>
+              <li>Watch Tower</li>
+              <li>West Main Corridor</li>
+              <li>West Passage</li>
+              <li>Zelda's Room</li>
+              <li>Zelda's Study</li>
+            </ul>
+          </details>
+
           <code>korok_type</code>: types of koroks<br>
-                    <span class="ml-3">
-            <span @click="showKorokTypes = !showKorokTypes">
-              <i v-if="showKorokTypes" class="fa fa-caret-down" aria-hidden="true"></i>
-              <i v-if="!showKorokTypes" class="fa fa-caret-right" aria-hidden="true"></i>
-              Korok Types
-            </span>
-            <span v-if="showKorokTypes" class="small">
+          <details class="ml-3">
+            <summary>Korok Types</summary>
+            <ul class="small">
+              <li>Acorn in a Hole</li>
+              <li>Ball and Chain</li>
+              <li>Burn the Leaves (Goatee)</li>
+              <li>Circle of Rocks</li>
+              <li>Cube Puzzle</li>
+              <li>Dive</li>
+              <li>Flower Order</li>
+              <li>Flower Trail</li>
+              <li>Goal Ring (Race)</li>
+              <li>Hanging Acorn</li>
+              <li>Jump the Fences</li>
+              <li>Light Torch</li>
+              <li>Matching Trees</li>
+              <li>Melt Ice Block</li>
+              <li>Moving Lights</li>
+              <li>Offering Plate</li>
+              <li>Pinwheel Acorns</li>
+              <li>Pinwheel Balloons</li>
+              <li>Remove Luminous Stone</li>
+              <li>Rock Lift</li>
+              <li>Rock Lift (Boulder)</li>
+              <li>Rock Lift (Door)</li>
+              <li>Rock Lift (Leaves)</li>
+              <li>Rock Lift (Rock Pile)</li>
               <ul>
-                <li>Acorn in a Hole</li>
-                <li>Ball and Chain</li>
-                <li>Burn the Leaves (Goatee)</li>
-                <li>Circle of Rocks</li>
-                <li>Cube Puzzle</li>
-                <li>Dive</li>
-                <li>Flower Order</li>
-                <li>Flower Trail</li>
-                <li>Goal Ring (Race)</li>
-                <li>Hanging Acorn</li>
-                <li>Jump the Fences</li>
-                <li>Light Torch</li>
-                <li>Matching Trees</li>
-                <li>Melt Ice Block</li>
-                <li>Moving Lights</li>
-                <li>Offering Plate</li>
-                <li>Pinwheel Acorns</li>
-                <li>Pinwheel Balloons</li>
-                <li>Remove Luminous Stone</li>
-                <li>Rock Lift</li>
-                <li>Rock Lift (Boulder)</li>
-                <li>Rock Lift (Door)</li>
-                <li>Rock Lift (Leaves)</li>
-                <li>Rock Lift (Rock Pile)</li>
-                <ul>
-                  <li>Z54 is under Rock Pile</li>
-                </ul>
-                <li>Rock Lift (Slab)</li>
-                <li>Rock Pattern</li>
-                <ul>
-                  <li>C51, L34, and N13 are not Rock Patterns</li>
-                </ul>
-                <li>Roll a Boulder</li>
-                <ul>
-                  <li>C51, L34, and N13 are Roll a Boulder</li>
-                </ul>
-                <li>Shoot the Crest</li>
-                <li>Shoot the Targets</li>
-                <li>Stationary Balloon</li>
-                <li>Stationary Lights</li>
-                <li>Take Apple from Palm Tree</li>
-                <li>Take the Stick</li>
+                <li>Z54 is under Rock Pile</li>
               </ul>
-            </span>
-          </span>
-          <br/>
-        </p>
+              <li>Rock Lift (Slab)</li>
+              <li>Rock Pattern</li>
+              <ul>
+                <li>C51, L34, and N13 are not Rock Patterns</li>
+              </ul>
+              <li>Roll a Boulder</li>
+              <ul>
+                <li>C51, L34, and N13 are Roll a Boulder</li>
+              </ul>
+              <li>Shoot the Crest</li>
+              <li>Shoot the Targets</li>
+              <li>Stationary Balloon</li>
+              <li>Stationary Lights</li>
+              <li>Take Apple from Palm Tree</li>
+              <li>Take the Stick</li>
+            </ul>
+          </details>
+        </div>
         <p>For more information on columns <code>hard</code>, <code>no_rankup</code>, <code>scale</code> and <code>bonus</code>, please read <a href="https://zeldamods.org/wiki/Difficulty_scaling">the article on <i>difficulty scaling</i></a>.</p>
 
         <h4 class="subsection-heading">Boolean operators</h4>
