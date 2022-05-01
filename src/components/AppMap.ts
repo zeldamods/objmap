@@ -250,6 +250,10 @@ export default class AppMap extends mixins(MixinUtil) {
   private areaMapLayer = new ui.Unobservable(L.layerGroup());
   private areaMapLayersByData: ui.Unobservable<Map<any, L.Layer[]>> = new ui.Unobservable(new Map());
   private areaAutoItem = new ui.Unobservable(L.layerGroup());
+
+  showLocations = false;
+  showKorokTypes = false;
+
   shownAreaMap = '';
   areaWhitelist = '';
   showKorokIDs = false;
@@ -1062,6 +1066,7 @@ export default class AppMap extends mixins(MixinUtil) {
     const areas = await MapMgr.getInstance().fetchAreaMap("castle");
     const entries = Object.entries(areas); // get the key later
     for (const [data, features] of entries) {
+      // @ts-ignore
       let height = features.map((feature) => feature.y);
       let color = height.map((y) => ui.genColor(300, y));
       const layers: L.GeoJSON[] = features.map((feature, i) => {
