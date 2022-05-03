@@ -1060,37 +1060,24 @@ export default class AppMap extends mixins(MixinUtil) {
   }
 
   async initMapCastleAreas() {
-    const areas = await MapMgr.getInstance().fetchAreaMap("castle");
-    const entries = Object.entries(areas); // get the key later
-    for (const [data, features] of entries) {
-      // @ts-ignore
-      let height = features.map((feature) => feature.y);
-      let color = height.map((y) => ui.genColor(300, y));
-      const layers: L.GeoJSON[] = features.map((feature, i) => {
-        return L.geoJSON(feature, {
-          style: function(_) {
-            return { weight: 2, fillOpacity: 0.2, color: color[i] };
-          },
-          // @ts-ignore
-          contextmenu: true,
-        });
-      });
-      let i = 0;
-      for (const layer of layers) {
-        layer.bindTooltip(data.toString() + ' @ ' + height[i]);
-        layer.on('mouseover', () => {
-          layers.forEach(l => {
-            l.setStyle({ weight: 4, fillOpacity: 0.3 });
-          });
-        });
-        layer.on('mouseout', () => {
-          layers.forEach(l => l.setStyle({ weight: 2, fillOpacity: 0.2 }));
-        });
-        i++;
-      }
+    const areas: any = await MapMgr.getInstance().fetchAreaMap("castle");
+    const features = areas.features;
 
-      layers.forEach(l => this.mapCastleAreas.data.addLayer(l));
-    }
+    const layers: L.GeoJSON[] = features.map((feature: any, i: number) => {
+      let color = ui.genColor(300, feature.properties.y);
+      let layer = L.geoJSON(feature, {
+        style: function(_) {
+          return { weight: 2, fillOpacity: 0.2, color: color };
+        },
+        // @ts-ignore
+        contextmenu: true,
+      });
+      layer.bindTooltip(`${feature.properties.name} @ ${feature.properties.y}`);
+      layer.on('mouseover', () => { layer.setStyle({ weight: 4, fillOpacity: 0.3 }); });
+      layer.on('mouseout', () => { layer.setStyle({ weight: 2, fillOpacity: 0.2 }); });
+      return layer;
+    });
+    layers.forEach(l => this.mapCastleAreas.data.addLayer(l));
 
     this.mapCastleAreas.data.setZIndex(1000);
   }
