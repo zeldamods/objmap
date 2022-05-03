@@ -37,6 +37,43 @@ function makeNameQuery(names: string[]): string {
   return names.map(x => `name:"^${x}"`).join(' OR ');
 }
 
+export const KOROK_TYPES =
+  [
+    "Acorn in a Hole",
+    "Ball and Chain",
+    "Burn the Leaves",
+    "Circle of Rocks",
+    "Cube Puzzle",
+    "Dive",
+    "Flower Order",
+    "Flower Trail",
+    "Goal Ring",
+    "Hanging Acorn",
+    "Jump the Fences",
+    "Light Torch",
+    "Matching Trees",
+    "Melt Ice Block",
+    "Moving Lights",
+    "Offering Plate",
+    "Pinwheel Acorns",
+    "Pinwheel Balloons",
+    "Remove Luminous Stone",
+    "Rock Lift",
+    "Rock Lift (Boulder)",
+    "Rock Lift (Door)",
+    "Rock Lift (Leaves)",
+    "Rock Lift (Rock Pile)",
+    "Rock Lift (Slab)",
+    "Rock Pattern",
+    "Roll a Boulder",
+    "Shoot the Crest",
+    "Shoot the Targets",
+    "Stationary Balloon",
+    "Stationary Lights",
+    "Take Apple from Palm Tree",
+    "Take the Stick",
+  ];
+
 export const SEARCH_PRESETS: ReadonlyArray<SearchPresetGroup> = Object.freeze([
   {
     label: '<i class="far fa-gem"></i>',

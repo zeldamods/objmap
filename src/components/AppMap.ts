@@ -20,7 +20,7 @@ import * as MapIcons from '@/MapIcon';
 import * as MapMarkers from '@/MapMarker';
 import { MapMarker, SearchResultUpdateMode } from '@/MapMarker';
 import { MapMarkerGroup } from '@/MapMarkerGroup';
-import { SearchResultGroup, SearchExcludeSet, SEARCH_PRESETS } from '@/MapSearch';
+import { SearchResultGroup, SearchExcludeSet, SEARCH_PRESETS, KOROK_TYPES } from '@/MapSearch';
 import * as save from '@/save';
 
 import MixinUtil from '@/components/MixinUtil';
@@ -240,6 +240,9 @@ export default class AppMap extends mixins(MixinUtil) {
   private searchResultMarkers: ui.Unobservable<MapMarkers.MapMarkerSearchResult>[] = [];
   private searchGroups: SearchResultGroup[] = [];
   private searchPresets = SEARCH_PRESETS;
+  private korokTypes = KOROK_TYPES;
+  private korokTypeOn = KOROK_TYPES.map(t => false);
+  private korokTypeOpen: boolean = false;
   private searchExcludedSets: SearchExcludeSet[] = [];
   private readonly MAX_SEARCH_RESULT_COUNT = 2000;
 
@@ -818,6 +821,42 @@ export default class AppMap extends mixins(MixinUtil) {
     const group = this.searchGroups[idx];
     this.searchQuery = group.query;
     this.search();
+  }
+
+  async addKorokType(name: string, query: string) {
+    let objs = await MapMgr.getInstance().getObjs(this.settings!.mapType,
+      this.settings!.mapName, query);
+    objs.forEach((obj: any) => {
+      obj.Translate = { X: obj.pos[0], Y: obj.pos[1], Z: obj.pos[2] };
+      obj.id = obj.korok_type;
+    });
+    let group = new MapMarkerGroup(
+      objs.map((m: any) =>
+        new MapMarkers.MapMarkerKorok(this.map, m, {
+          showLabel: this.showKorokIDs,
+          styleLabel: false
+        })),
+      1.0, false);
+    this.markerGroups.set(name, group);
+    group.addToMap(this.map.m);
+
+    for (const group of this.markerGroups.values())
+      group.update();
+
+  }
+
+  searchToggleGroup(name: string) {
+    const ROCK_LIFT_QUERY = 'korok_type: "Rock Lift" NOT Leaves NOT Pile NOT Slab NOT Door NOT Boulder';
+    let query = `korok_type: "${name}"`;
+    if (name == "Rock Lift") {
+      query = ROCK_LIFT_QUERY;
+    }
+    if (this.markerGroups.has(name)) {
+      this.markerGroups.get(name)!.destroy();
+      this.markerGroups.delete(name);
+    } else {
+      this.addKorokType(name, query);
+    }
   }
 
   searchRemoveGroup(idx: number) {
