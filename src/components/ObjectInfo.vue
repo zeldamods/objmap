@@ -49,6 +49,10 @@
       <span v-if="data.sharp_weapon_judge_type == 4"><i class="far fa-star fa-fw" style="color: tomato"></i> No modifier</span>
     </section>
     <section class="search-result-link" v-if="link"><i class="fa fa-link fa-fw"></i> Link type: {{link.ltype}}</section>
+    <section class="search-result-yahaha" v-if="data.korok_type">
+      <i class="fas fa-fw fa-leaf" style="color:lightgreen"></i>
+      {{data.korok_id}} - {{ data.korok_type }}
+    </section>
   </div>
 </template>
 <style lang="less">
