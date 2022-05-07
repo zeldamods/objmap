@@ -508,7 +508,7 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj | M
   hideKoroks() {
     let map = this.marker.data.mb;
     this.staticData.persistentKorokMarkers.forEach(m => {
-      m.forEach(marker => marker.remove());
+      m.forEach((marker: any) => marker.remove());
     });
     this.staticData.persistentKorokMarkers = [];
     this.korokMarkers = [];
