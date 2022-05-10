@@ -131,10 +131,15 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj | M
     this.isInvertedLogicTag = this.obj.name === 'LinkTagNAnd' || this.obj.name === 'LinkTagNOr';
 
     this.initAreaMarkers();
+
+    this.korokMarkers.forEach(m => m.remove());
+    this.korokMarkers = [];
+    this.initKorokMarkers();
   }
 
   beforeDestroy() {
     this.areaMarkers.forEach(m => m.remove());
+    this.korokMarkers.forEach(m => m.remove());
   }
 
   getLocationSub() {
@@ -418,43 +423,35 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj | M
     }
     return "Normal";
   }
-  korokType() {
-    //if (!this.obj || !('korok_id' in this.obj)) {
-    //  return "NaK";
-    //}
-    return this.obj && this.obj.korok_type == 'Flower Trail';
-  }
 
   findItemByHash(group: any[], links: any[], name: string): any {
     let hashes = links.map(link => link.DestUnitHashId);
-    let out = group.filter(g => g.data.UnitConfigName == name && hashes.includes(g.hash_id));
-    if (out.length == 1) {
-      return out[0];
-    }
-    return undefined;
+    let out = group.find(g => g.data.UnitConfigName == name && hashes.includes(g.hash_id));
+    return (out) ? out : null;
   }
 
-  nextFlower(group: any[], flower: any): any {
+  getNextFlowerInKorokFlowerTrail(group: any[], flower: any): any {
     let or = this.findItemByHash(group, flower.data.LinksToObj, "LinkTagOr");
     if (!or) {
-      return undefined;
+      return null;
     }
     let lag = this.findItemByHash(group, or.data.LinksToObj, "SwitchTimeLag");
     if (!lag) {
-      return undefined;
+      return null;
     }
     let and = this.findItemByHash(group, lag.data.LinksToObj, "LinkTagAnd");
     if (!and) {
-      return undefined;
+      return null;
     }
-    let p = this.findItemByHash(group, and.data.LinksToObj, "Obj_Plant_Korok_A_01");
-    return p;
+    let plant = this.findItemByHash(group, and.data.LinksToObj, "Obj_Plant_Korok_A_01");
+    return plant;
   }
 
-  isLastFlower(flower: any): boolean {
+  isLastFlowerInKorokFlowerTrail(flower: any): boolean {
     return flower.data['!Parameters'].IsLastKorokFlower;
   }
-  korokIcon(icon: string, style: string, text: string = ""): L.DivIcon {
+
+  getKorokFlowerIcon(icon: string, style: string, text: string = ""): L.DivIcon {
     let html: string = `<div><i class="fa ${icon} korokicon" style="${style}"></i>${text}</div>`;
     return L.divIcon({
       className: '',
@@ -464,30 +461,34 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj | M
     });
   }
 
-  korokDetails() {
+  getFlowersInKorokFlowerTrail(group: any[], flower: any): any[] {
+    let flowers = [flower];
+    while (flower && !this.isLastFlowerInKorokFlowerTrail(flower)) {
+      let f = this.getNextFlowerInKorokFlowerTrail(group, flower);
+      flowers.push(f);
+      flower = f;
+    }
+    return flowers;
+  }
+
+  initKorokMarkers() {
     const use_icon = true;
     let map = this.marker.data.mb;
     if (this.obj && this.obj.korok_type == "Flower Trail") {
       let group = this.genGroup;
       let start = group.filter((g: any) => this.getName(g.name) == "Obj_Plant_Korok_A_01")
         .filter((g: any) => g.data['!Parameters'].IsNoAppearEffect == true);
-      // @ts-ignore
-      let flower: any = start[0];
-      let flowers = [flower];
-      while (flower && !this.isLastFlower(flower)) {
-        let f = this.nextFlower(group, flower);
-        flowers.push(f);
-        flower = f;
-      }
-      let style = 'color: #E2DF41; font-size: 2em; display: inline;'
-      let style_end = 'color: #eeeeee; font-size: 2em;  display: inline;'
+
+      let flowers = this.getFlowersInKorokFlowerTrail(group, start[0]);
+      let style = "color: #E2DF41; font-size: 2em; display: inline;";
+      let style_end = "color: #eeeeee; font-size: 2em;  display: inline;";
       let icon = "fa-leaf";
       flowers.forEach((obj: any, i: number) => {
         let x = obj.data.Translate[0];
         let z = obj.data.Translate[2];
         let s = (i + 1 == flowers.length) ? style_end : style;
         if (use_icon) {
-          let xicon: L.DivIcon = this.korokIcon(icon, s, `<span style="color: #ccc; font-size: 1.2em;">${i + 1}</span>`);
+          let xicon: L.DivIcon = this.getKorokFlowerIcon(icon, s, `<span style="color: #ccc; font-size: 1.2em;">${i + 1}</span>`);
           let m = L.marker([z, x], { icon: xicon }).addTo(map.m);
           this.korokMarkers.push(m);
         } else {
@@ -502,16 +503,18 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj | M
       });
       let line = L.polyline(ll, { color: "#cccccc", weight: 1.5 }).addTo(map.m);
       this.korokMarkers.push(line);
-      this.staticData.persistentKorokMarkers.push(this.korokMarkers);
     }
   }
-  hideKoroks() {
-    let map = this.marker.data.mb;
-    this.staticData.persistentKorokMarkers.forEach(m => {
-      m.forEach((marker: any) => marker.remove());
-    });
-    this.staticData.persistentKorokMarkers = [];
+
+  keepKorokMarkersAlive() {
+    this.staticData.persistentKorokMarkers.push(... this.korokMarkers);
     this.korokMarkers = [];
+  }
+
+  forgetPersistentKorokMarkers() {
+    let map = this.marker.data.mb;
+    this.staticData.persistentKorokMarkers.forEach(m => m.remove());
+    this.staticData.persistentKorokMarkers = [];
   }
 
 }
