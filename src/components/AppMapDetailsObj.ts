@@ -477,9 +477,9 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj | M
     if (this.obj && this.obj.korok_type == "Flower Trail") {
       let group = this.genGroup;
       let start = group.filter((g: any) => this.getName(g.name) == "Obj_Plant_Korok_A_01")
-        .filter((g: any) => g.data['!Parameters'].IsNoAppearEffect == true);
+        .find((g: any) => g.data['!Parameters'].IsNoAppearEffect);
 
-      let flowers = this.getFlowersInKorokFlowerTrail(group, start[0]);
+      let flowers = this.getFlowersInKorokFlowerTrail(group, start);
       let style = "color: #E2DF41; font-size: 2em; display: inline;";
       let style_end = "color: #eeeeee; font-size: 2em;  display: inline;";
       let icon = "fa-leaf";
