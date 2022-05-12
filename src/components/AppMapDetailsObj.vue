@@ -19,6 +19,10 @@
         <b-btn v-show="areaMarkers.length" size="sm" block variant="dark" @click="keepAreaMarkersAlive()">Keep area representation loaded</b-btn>
         <b-btn v-show="staticData.persistentAreaMarkers.length" size="sm" block variant="dark" @click="forgetPersistentAreaMarkers()">Hide area representation</b-btn>
       </section>
+      <section class="mt-2" v-show="minObj.korok_type && (this.korokMarkers.length || staticData.persistentKorokMarkers.length)">
+        <b-btn v-show="this.korokMarkers.length" size="sm" block variant="dark" @click="keepKorokMarkersAlive()">Keep Korok markers loaded</b-btn>
+        <b-btn v-show="staticData.persistentKorokMarkers.length" size="sm" block variant="dark" @click="forgetPersistentKorokMarkers()">Hide Korok markers</b-btn>
+      </section>
 
       <section class="obj-actor-specific-info">
         <!-- AreaObserverTag -->
