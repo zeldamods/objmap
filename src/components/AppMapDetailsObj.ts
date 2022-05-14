@@ -12,6 +12,8 @@ import { MsgMgr } from '@/services/MsgMgr';
 import * as ui from '@/util/ui';
 const KUH_TAKKAR_ELEVATOR_HASH_ID = 0x96d181a0;
 
+import * as svg from '@/util/svg';
+
 enum MapLinkDefType {
   BasicSig = 0x0,
   AxisX = 0x1,
@@ -471,10 +473,48 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj | M
     return flowers;
   }
 
+  getKorokIcon(style: string): L.DivIcon {
+    if (style == "FldObj_KorokStartingBlock_A_01") {
+      return L.divIcon({
+        html: '<div class="stump"><i class="fa fa-leaf big-leaf"></i></div>',
+        className: "",
+        iconSize: [30, 30],
+        iconAnchor: [15, 15],
+      });
+    }
+    if (style == "FldObj_KorokGoal_A_01") {
+      return L.divIcon({
+        html: svg.raceGoal,
+        className: "racegoal",
+        iconSize: [30, 30],
+        iconAnchor: [15, 15],
+      });
+    }
+    return L.divIcon({
+      html: "", className: "", iconSize: [40, 40], iconAnchor: [20, 20],
+    });
+  }
+
+  getKorokMarker(obj: any) {
+    let icon = this.getKorokIcon(obj.data.UnitConfigName);
+    return L.marker([obj.data.Translate[2], obj.data.Translate[0]], { icon: icon });
+  }
+
   initKorokMarkers() {
     const use_icon = true;
     let map = this.marker.data.mb;
-    if (this.obj && this.obj.korok_type == "Flower Trail") {
+    if (this.obj && this.obj.korok_type == "Goal Ring (Race)") {
+      let names = ["FldObj_KorokStartingBlock_A_01", "FldObj_KorokGoal_A_01"];
+      let objs = this.genGroup.filter((obj: any) => names.includes(this.getName(obj.name)));
+      // Start and End Markers
+      let markers = objs.map((obj: any) => this.getKorokMarker(obj).addTo(map.m));
+      this.korokMarkers.push(...markers);
+
+      // Connecting Line
+      let ll = objs.map((obj: any) => [obj.data.Translate[2], obj.data.Translate[0]]);
+      let line = L.polyline(ll, { color: '#cccccc', weight: 1.5 }).addTo(map.m);
+      this.korokMarkers.push(line);
+    } else if (this.obj && this.obj.korok_type == "Flower Trail") {
       let group = this.genGroup;
       let start = group.find((g: any) => this.getName(g.name) == "Obj_Plant_Korok_A_01" &&
         g.data['!Parameters'].IsNoAppearEffect);
