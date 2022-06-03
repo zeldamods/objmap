@@ -16,11 +16,13 @@ export default class AppMapDetailsDungeon extends AppMapDetailsBase<MapMarkerDun
   private id = '';
   private sub = '';
   private tboxObjs: ObjectMinData[] = [];
+  private enemies: ObjectMinData[] = [];
 
   protected init() {
     this.id = this.marker.data.lm.getMessageId();
     this.sub = MsgMgr.getInstance().getMsgWithFile('StaticMsg/Dungeon', this.id + '_sub');
 
     MapMgr.getInstance().getObjs('CDungeon', this.id, 'actor:^"TBox_"').then(d => this.tboxObjs = d);
+    MapMgr.getInstance().getObjs('CDungeon', this.id, 'actor:^"Enemy_"').then(d => this.enemies = d);
   }
 }
