@@ -1005,6 +1005,11 @@ export default class AppMap extends mixins(MixinUtil) {
     this.areaMapLayersByData.data.clear();
     if (!name)
       return;
+    // Order matches that in MapTower.json
+    const mapTowerAreas = ["Hebra", "Tabantha", "Gerudo", "Wasteland",
+      "Woodland", "Central", "Great Plateau", "Dueling Peaks",
+      "Lake", "Eldin", "Akkala", "Lanayru", "Hateno",
+      "Faron", "Ridgeland"];
 
     const areas = await MapMgr.getInstance().fetchAreaMap(name);
     const entries = Object.entries(areas);
@@ -1021,7 +1026,8 @@ export default class AppMap extends mixins(MixinUtil) {
       });
       this.areaMapLayersByData.data.set(data, layers);
       for (const layer of layers) {
-        layer.bindTooltip('Area ' + data.toString());
+        let label = (name == "MapTower") ? mapTowerAreas[parseInt(data)] : 'Area ' + data.toString();
+        layer.bindTooltip(label);
         layer.on('mouseover', () => {
           layers.forEach(l => {
             l.setStyle({ weight: 4, fillOpacity: 0.3 });
