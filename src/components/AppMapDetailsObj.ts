@@ -453,16 +453,6 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj | M
     return flower.data['!Parameters'].IsLastKorokFlower;
   }
 
-  getKorokFlowerIcon(icon: string, style: string, text: string = ""): L.DivIcon {
-    let html: string = `<div><i class="fa ${icon} korokicon" style="${style}"></i>${text}</div>`;
-    return L.divIcon({
-      className: '',
-      html: html,
-      iconSize: [30, 30],
-      iconAnchor: [15, 15],
-    });
-  }
-
   getFlowersInKorokFlowerTrail(group: any[], flower: any): any[] {
     let flowers = [flower];
     while (flower && !this.isLastFlowerInKorokFlowerTrail(flower)) {
@@ -473,30 +463,23 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj | M
     return flowers;
   }
 
-  getKorokIcon(style: string): L.DivIcon {
-    if (style == "FldObj_KorokStartingBlock_A_01") {
-      return L.divIcon({
-        html: '<div class="stump"><i class="fa fa-leaf big-leaf"></i></div>',
-        className: "",
-        iconSize: [30, 30],
-        iconAnchor: [15, 15],
-      });
-    }
-    if (style == "FldObj_KorokGoal_A_01") {
-      return L.divIcon({
-        html: svg.raceGoal,
-        className: "racegoal",
-        iconSize: [30, 30],
-        iconAnchor: [15, 15],
-      });
+  getKorokIcon(obj_name: string, style: string = "", text: string = ""): L.DivIcon {
+    let html = "";
+    let className = "";
+    if (obj_name == "FldObj_KorokStartingBlock_A_01") {
+      html = '<div class="stump"><i class="fa fa-leaf big-leaf"></i></div>';
+    } else if (obj_name == "FldObj_KorokGoal_A_01") {
+      html = svg.raceGoal;
+    } else if (obj_name == "Obj_Plant_Korok_A_01") {
+      html = `<div><i class="fa fa-leaf korokicon" style="${style}"></i>${text}</div>`;
     }
     return L.divIcon({
-      html: "", className: "", iconSize: [40, 40], iconAnchor: [20, 20],
+      html: html, className: className, iconSize: [30, 30], iconAnchor: [15, 15],
     });
   }
 
-  getKorokMarker(obj: any) {
-    let icon = this.getKorokIcon(obj.data.UnitConfigName);
+  getKorokMarkerWithIcon(obj: any, style: string = "", text: string = "") {
+    let icon = this.getKorokIcon(obj.data.UnitConfigName, style, text);
     return L.marker([obj.data.Translate[2], obj.data.Translate[0]], { icon: icon });
   }
 
@@ -507,7 +490,7 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj | M
       let names = ["FldObj_KorokStartingBlock_A_01", "FldObj_KorokGoal_A_01"];
       let objs = this.genGroup.filter((obj: any) => names.includes(this.getName(obj.name)));
       // Start and End Markers
-      let markers = objs.map((obj: any) => this.getKorokMarker(obj).addTo(map.m));
+      let markers = objs.map((obj: any) => this.getKorokMarkerWithIcon(obj).addTo(map.m));
       this.korokMarkers.push(...markers);
 
       // Connecting Line
@@ -522,17 +505,13 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj | M
       let flowers = this.getFlowersInKorokFlowerTrail(group, start);
       let style = "color: #E2DF41; font-size: 2em; display: inline;";
       let style_end = "color: #eeeeee; font-size: 2em;  display: inline;";
-      let icon = "fa-leaf";
       flowers.forEach((obj: any, i: number) => {
-        let x = obj.data.Translate[0];
-        let z = obj.data.Translate[2];
         let s = (i + 1 == flowers.length) ? style_end : style;
         if (use_icon) {
-          let xicon: L.DivIcon = this.getKorokFlowerIcon(icon, s, `<span style="color: #ccc; font-size: 1.2em;">${i + 1}</span>`);
-          let m = L.marker([z, x], { icon: xicon }).addTo(map.m);
+          let m = this.getKorokMarkerWithIcon(obj, s, `<span style="color: #ccc; font-size: 1.2em;">${i + 1}</span>`).addTo(map.m);
           this.korokMarkers.push(m);
         } else {
-          let m = L.marker([z, x]).addTo(map.m);
+          let m = L.marker([obj.data.Translate[2], obj.data.Translate[0]]).addTo(map.m);
           this.korokMarkers.push(m);
         }
       });

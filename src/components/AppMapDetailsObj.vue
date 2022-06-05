@@ -134,9 +134,6 @@
   transform: translate(-60%, -50%) rotate(-45deg) ;
   position: absolute;
 }
-.racegoal {
-    border: 0px solid lime;
-}
 
 </style>
 <script src="./AppMapDetailsObj.ts"></script>
