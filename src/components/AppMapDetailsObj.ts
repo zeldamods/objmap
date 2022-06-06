@@ -14,6 +14,9 @@ const KUH_TAKKAR_ELEVATOR_HASH_ID = 0x96d181a0;
 
 import * as svg from '@/util/svg';
 
+const rock_target = ["Obj_LiftRockWhite_Korok_A_01", "Obj_LiftRockGerudo_Korok_A_01", "Obj_LiftRockEldin_Korok_A_01"];
+const rock_source = ["Obj_LiftRockWhite_A_01", "Obj_LiftRockGerudo_A_01", "Obj_LiftRockEldin_A_01"];
+
 enum MapLinkDefType {
   BasicSig = 0x0,
   AxisX = 0x1,
@@ -472,6 +475,10 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj | M
       html = svg.raceGoal;
     } else if (obj_name == "Obj_Plant_Korok_A_01") {
       html = `<div><i class="fa fa-leaf korokicon" style="${style}"></i>${text}</div>`;
+    } else if (rock_target.includes(obj_name)) {
+      html = '<i class="fa fa-bullseye" style="font-size: 1.6em; color: rgba(255,255,255,0.6);"></i>';
+    } else if (rock_source.includes(obj_name)) {
+      html = '<i class="fa fa-cloud" style="font-size: 1.6em; color: #bbb; text-shadow: black 0px 0px 3px; "></i>';
     }
     return L.divIcon({
       html: html, className: className, iconSize: [30, 30], iconAnchor: [15, 15],
@@ -497,6 +504,11 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj | M
       let ll = objs.map((obj: any) => [obj.data.Translate[2], obj.data.Translate[0]]);
       let line = L.polyline(ll, { color: '#cccccc', weight: 1.5 }).addTo(map.m);
       this.korokMarkers.push(line);
+    } else if (this.obj && this.obj.korok_type == "Rock Pattern") {
+      const rocks = [...rock_target, ...rock_source];
+      let objs = this.genGroup.filter((obj: any) => rocks.includes(this.getName(obj.name)))
+      let markers = objs.map((obj: any) => this.getKorokMarkerWithIcon(obj).addTo(map.m));
+      this.korokMarkers.push(...markers);
     } else if (this.obj && this.obj.korok_type == "Flower Trail") {
       let group = this.genGroup;
       let start = group.find((g: any) => this.getName(g.name) == "Obj_Plant_Korok_A_01" &&
