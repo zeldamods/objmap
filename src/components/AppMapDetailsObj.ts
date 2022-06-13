@@ -10,9 +10,11 @@ import ObjectInfo from '@/components/ObjectInfo';
 import { MapMgr, ObjectData, ObjectMinData, PlacementLink } from '@/services/MapMgr';
 import { MsgMgr } from '@/services/MsgMgr';
 import * as ui from '@/util/ui';
-const KUH_TAKKAR_ELEVATOR_HASH_ID = 0x96d181a0;
 
+import * as curves from '@/util/curves';
 import * as svg from '@/util/svg';
+
+const KUH_TAKKAR_ELEVATOR_HASH_ID = 0x96d181a0;
 
 const rock_target = ["Obj_LiftRockWhite_Korok_A_01", "Obj_LiftRockGerudo_Korok_A_01", "Obj_LiftRockEldin_Korok_A_01"];
 const rock_source = ["Obj_LiftRockWhite_A_01", "Obj_LiftRockGerudo_A_01", "Obj_LiftRockEldin_A_01"];
@@ -102,6 +104,7 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj | M
   private staticData = staticData;
 
   private korokMarkers: any[] = [];
+  private rails: { [key: string]: any }[] = [];
 
   async init() {
     this.minObj = this.marker.data.obj;
@@ -114,6 +117,7 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj | M
     this.linkTagInputs = [];
     this.areaMarkers.forEach(m => m.remove());
     this.areaMarkers = [];
+    this.rails = [];
     if (this.minObj.objid) {
       this.obj = (await MapMgr.getInstance().getObjByObjId(this.minObj.objid))!;
     } else {
@@ -128,6 +132,10 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj | M
     this.genGroup = await MapMgr.getInstance().getObjGenGroup(this.obj.map_type, this.obj.map_name, this.obj.hash_id);
     for (const obj of this.genGroup) {
       this.genGroupSet.set(obj.hash_id, obj);
+    }
+
+    if (this.obj.data.LinksToRail) {
+      this.rails = await MapMgr.getInstance().getObjRails(this.obj.hash_id);
     }
 
     this.initLinks();
@@ -504,6 +512,12 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj | M
       let ll = objs.map((obj: any) => [obj.data.Translate[2], obj.data.Translate[0]]);
       let line = L.polyline(ll, { color: '#cccccc', weight: 1.5 }).addTo(map.m);
       this.korokMarkers.push(line);
+    } else if (this.obj && this.obj.korok_type == "Moving Lights") {
+      this.rails.forEach((rail: any) => {
+        let pts = curves.rail_path(rail).map((pt: any) => [pt[2], pt[0]]);
+        let line = L.polyline(pts, { color: "#cccccc", weight: 2.0 }).addTo(map.m);
+        this.korokMarkers.push(line);
+      });
     } else if (this.obj && this.obj.korok_type == "Rock Pattern") {
       const rocks = [...rock_target, ...rock_source];
       let objs = this.genGroup.filter((obj: any) => rocks.includes(this.getName(obj.name)))

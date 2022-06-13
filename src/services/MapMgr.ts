@@ -113,6 +113,10 @@ export class MapMgr {
     return fetch(`${RADAR_URL}/drop/${unitConfigName}/${tableName}`).then(parse);
   }
 
+  getObjRails(hashId: number): Promise<any> {
+    return fetch(`${RADAR_URL}/rail/${hashId}`).then(parse);
+  }
+
   getObjs(mapType: string, mapName: string, query: string, withMapNames = false, limit = -1): Promise<ObjectMinData[]> {
     let url = new URL(`${RADAR_URL}/objs/${mapType}/${mapName}`);
     url.search = new URLSearchParams({
