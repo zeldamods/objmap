@@ -201,11 +201,6 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj | M
     this.railMarkers = this.rails.map((rail: any) => {
       let pts = curves.railPath(rail); //[x,y,z] y is UpDown
 
-      // Simplify Line
-      //let tmp = pts.map((p: any) => { return { x: p[0], y: p[2], z: p[1] }; });
-      //tmp = simplify(tmp, 0.33, true);
-      //pts = tmp.map((p: any) => [p.x, p.z, p.y]);
-
       // Draw polyline [x,z,y] but z is North-South and y is Up-Down
       pts = pts.map((pt: any) => [pt[2], pt[0], pt[1]]);
       return hotline(pts, opts).addTo(map.m);
