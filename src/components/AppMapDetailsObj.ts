@@ -499,9 +499,11 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj | M
   }
 
   initKorokMarkers() {
+    if (!this.obj)
+      return;
     const use_icon = true;
     let map = this.marker.data.mb;
-    if (this.obj && this.obj.korok_type == "Goal Ring (Race)") {
+    if (this.obj.korok_type == "Goal Ring (Race)") {
       let names = ["FldObj_KorokStartingBlock_A_01", "FldObj_KorokGoal_A_01"];
       let objs = this.genGroup.filter((obj: any) => names.includes(this.getName(obj.name)));
       // Start and End Markers
@@ -512,18 +514,18 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj | M
       let ll = objs.map((obj: any) => [obj.data.Translate[2], obj.data.Translate[0]]);
       let line = L.polyline(ll, { color: '#cccccc', weight: 1.5 }).addTo(map.m);
       this.korokMarkers.push(line);
-    } else if (this.obj && this.obj.korok_type == "Moving Lights") {
+    } else if (this.obj.korok_type == "Moving Lights") {
       this.rails.forEach((rail: any) => {
-        let pts = curves.rail_path(rail).map((pt: any) => [pt[2], pt[0]]);
+        let pts = curves.railPath(rail).map((pt: any) => [pt[2], pt[0]]);
         let line = L.polyline(pts, { color: "#cccccc", weight: 2.0 }).addTo(map.m);
         this.korokMarkers.push(line);
       });
-    } else if (this.obj && this.obj.korok_type == "Rock Pattern") {
+    } else if (this.obj.korok_type == "Rock Pattern") {
       const rocks = [...rock_target, ...rock_source];
       let objs = this.genGroup.filter((obj: any) => rocks.includes(this.getName(obj.name)))
       let markers = objs.map((obj: any) => this.getKorokMarkerWithIcon(obj).addTo(map.m));
       this.korokMarkers.push(...markers);
-    } else if (this.obj && this.obj.korok_type == "Flower Trail") {
+    } else if (this.obj.korok_type == "Flower Trail") {
       let group = this.genGroup;
       let start = group.find((g: any) => this.getName(g.name) == "Obj_Plant_Korok_A_01" &&
         g.data['!Parameters'].IsNoAppearEffect);

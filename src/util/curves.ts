@@ -1,28 +1,18 @@
 
-// Factorial
-function fact(n: number): number {
-  let x = 1;
-  for (let i = 2; i <= n; i++) {
-    x *= i;
-  }
-  return x;
-}
-
-// Binomial Coefficients
-function bincoeff(n: number, k: number): number {
-  if (k == 0) {
-    return 1;
-  }
-  return fact(n) / (fact(k) * (fact(n - k)));
-}
-
 function range(n: number): number[] {
   return [...Array(n)].map((item: any, index: number) => index);
 }
 
-// calculate bezier coefficients: binomial coefficients
-function bezier_coeff(n: number): number[] {
-  return range(n + 1).map((i: number) => bincoeff(n, i));
+// Calculate Bezier coefficients: A row of Pascal's Triangle
+function bezierCoeff(n: number): number[] {
+  let row = Array(n + 1).fill(0);
+  row[0] = 1;
+  for (let i = 0; i <= n; i++) {
+    for (let j = i; j > 0; j--) {
+      row[j] += row[j - 1];
+    }
+  }
+  return row;
 }
 
 // dot-product
@@ -35,7 +25,7 @@ function dot(a: number[], b: number[]): number {
 }
 
 // Point addition
-function pt_add(a: number[], b: number[]): number[] {
+function ptAdd(a: number[], b: number[]): number[] {
   return [a[0] + b[0], a[1] + b[1], a[2] + b[2]]
 }
 
@@ -54,7 +44,7 @@ function bezier(pts: any) {
   if (n == 2) {
     return pts;
   }
-  const coeff = bezier_coeff(n - 1);
+  const coeff = bezierCoeff(n - 1);
 
   let t0 = 0;
   let dt = 1.0 / (steps - 1);
@@ -73,7 +63,7 @@ function bezier(pts: any) {
 }
 
 // Linear Rail path without any Control Points
-function rail_path_linear(rail: any): any {
+function railPathLinear(rail: any): any {
   let pts = rail.RailPoints.map((pt: any) => pt.Translate);
   if (rail['IsClosed']) {
     pts.push(pts[0])
@@ -101,7 +91,7 @@ function rail_path_linear(rail: any): any {
 //  If the curve is closed, the the first point as a last point
 //  If the curve is open, do not use the last point as a curve starting point
 //
-function rail_path_bezier(rail: any): any {
+function railPathBezier(rail: any): any {
   let out = [];
   let n = rail.RailPoints.length;
   if (!rail['IsClosed']) {
@@ -117,10 +107,10 @@ function rail_path_bezier(rail: any): any {
     let p1 = rail.RailPoints[j].Translate;
     let bez = [p0];
     if (rail.RailPoints[i].ControlPoints) {
-      bez.push(pt_add(p0, rail.RailPoints[i].ControlPoints[1]));
+      bez.push(ptAdd(p0, rail.RailPoints[i].ControlPoints[1]));
     }
     if (rail.RailPoints[j].ControlPoints) {
-      bez.push(pt_add(p1, rail.RailPoints[j].ControlPoints[0]));
+      bez.push(ptAdd(p1, rail.RailPoints[j].ControlPoints[0]));
     }
     bez.push(p1);
     out.push(...bezier(bez))
@@ -128,9 +118,11 @@ function rail_path_bezier(rail: any): any {
   return out;
 }
 
-export function rail_path(rail: any): any {
+export function railPath(rail: any): any {
   if (rail.RailType == "Linear") {
-    return rail_path_linear(rail);
+    return railPathLinear(rail);
+  } else if (rail.RailType == "Bezier") {
+    return railPathBezier(rail);
   }
-  return rail_path_bezier(rail);
+  return null;
 }
