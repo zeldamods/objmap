@@ -34,7 +34,7 @@ function makeActorQuery(actors: string[]): string {
 }
 
 function makeNameQuery(names: string[]): string {
-  return names.map(x => `name:"^${x}"`).join(' OR ');
+  return names.map(x => `name:^"${x}"`).join(' OR ');
 }
 
 export const SEARCH_PRESETS: ReadonlyArray<SearchPresetGroup> = Object.freeze([
