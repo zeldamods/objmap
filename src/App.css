@@ -142,3 +142,65 @@ code {
 }
 
 
+.colorscale-label {
+    position: absolute;
+    display: inline;
+    color: white;
+    transform: translateX(-50%);
+}
+.colorscale-labelbox {
+    width: 100%;
+    min-height: 1.3em;
+    flex: 0 1 100%;
+}
+.colorscale {
+    position: relative;
+    display: flex;
+    flex-flow: column nowrap;
+    align-items: flex-start;
+    align-content: flex-start;
+}
+.colorscale-bar {
+    height: 10px;
+    min-height: 10px;
+    width: calc(200px - 1em);
+    left: 0;
+    display: block;
+    flex: 0 1 100%;
+}
+.colorscale-title {
+    flex: 0 1 100%;
+    width: 100%;
+    text-align: center;
+    color: white;
+    margin-bottom: 1px;
+}
+
+.colorscale:hover {
+    border: 0px solid fuchsia;
+}
+
+.colorscale-picker-title {
+    color: white;
+    text-align: center;
+}
+
+.colorscale-picker {
+    position: absolute;
+    left: 90%;
+    top: 0px;
+    display: none;
+    background: rgba(255,255,255,0.3);
+    padding: 2px;
+    border: 1px solid #333;
+    border-radius: 3px;
+    transform: translateY(-80%);
+}
+
+.colorscale:hover .colorscale-picker {
+    display: block;
+}
+
+.colorscale-picker-sample:hover {
+    outline: 1px solid white;
+}

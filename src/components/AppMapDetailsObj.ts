@@ -14,7 +14,18 @@ import * as ui from '@/util/ui';
 import * as curves from '@/util/curves';
 import * as svg from '@/util/svg';
 
+import { ColorScale } from '@/util/colorscale';
+require('leaflet-hotline')
+
 const KUH_TAKKAR_ELEVATOR_HASH_ID = 0x96d181a0;
+const DRAGON_HASH_IDS = [
+  0x4fb21727, // Farosh
+  0xc119deb6, // Farosh Far
+  0x54d56291, // Dinraal
+  0xfc79f706, // Dinraal Far
+  0xe61a0932, // Naydra
+  0x86b9a466, // Naydra Far
+];
 
 const rock_target = ["Obj_LiftRockWhite_Korok_A_01", "Obj_LiftRockGerudo_Korok_A_01", "Obj_LiftRockEldin_Korok_A_01"];
 const rock_source = ["Obj_LiftRockWhite_A_01", "Obj_LiftRockGerudo_A_01", "Obj_LiftRockEldin_A_01"];
@@ -79,6 +90,9 @@ class StaticData {
   persistentAreaMarkers: L.Path[] = [];
   history: ObjectData[] = [];
   persistentKorokMarkers: any[] = [];
+  colorScale: ColorScale | null = null;
+  persistentRailMarkers: { [key: string]: any }[] = [];
+  persistentRailLimits: { [key: string]: any } = {};
 }
 
 const staticData = new StaticData();
@@ -105,6 +119,8 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj | M
 
   private korokMarkers: any[] = [];
   private rails: { [key: string]: any }[] = [];
+  private railMarkers: any[] = [];
+  private railLimits: { [key: string]: any } = {};
 
   async init() {
     this.minObj = this.marker.data.obj;
@@ -118,6 +134,8 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj | M
     this.areaMarkers.forEach(m => m.remove());
     this.areaMarkers = [];
     this.rails = [];
+    this.railMarkers.forEach(m => m.remove());
+    this.railMarkers = [];
     if (this.minObj.objid) {
       this.obj = (await MapMgr.getInstance().getObjByObjId(this.minObj.objid))!;
     } else {
@@ -134,7 +152,7 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj | M
       this.genGroupSet.set(obj.hash_id, obj);
     }
 
-    if (this.obj.data.LinksToRail) {
+    if (this.obj.data.LinksToRail || DRAGON_HASH_IDS.includes(this.obj.hash_id)) {
       this.rails = await MapMgr.getInstance().getObjRails(this.obj.hash_id);
     }
 
@@ -145,14 +163,109 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj | M
 
     this.initAreaMarkers();
 
+    this.marker.data.mb.m.on('ColorScale:change', async (args: any) => {
+      this.updateColorlineStyle({ palette: args.palette });
+    });
+
     this.korokMarkers.forEach(m => m.remove());
     this.korokMarkers = [];
     this.initKorokMarkers();
+    this.initRails();
+  }
+
+  initRails() {
+    if (!this.obj)
+      return;
+
+    if (this.obj.korok_type && this.obj.korok_type == "Moving Lights")
+      return;
+
+    let palette = (this.staticData.colorScale) ? this.staticData.colorScale.palette() : {
+      0: 'pink', 1: 'white'
+    };
+    let opts = {
+      min: 0, max: 800,
+      palette: palette,
+      weight: 4,
+      outlineWidth: 0,
+      palettes: {
+        sunset: {
+          0.0000: '#f3e79b', 0.1666: '#fac484', 0.3333: '#f8a07e', 0.5000: '#eb7f86',
+          0.6666: '#ce6693', 0.8333: '#a059a0', 1.0000: '#5c53a5'
+        }
+      },
+      name: "sunset",
+      pane: 'tilePane',
+    };
+
+    let map = this.marker.data.mb;
+    this.railLimits = {};
+    this.railMarkers = this.rails.map((rail: any) => {
+      let pts = curves.railPath(rail); //[x,y,z] y is UpDown
+      let yvals = pts.map((pt: any) => pt[1]);
+      if (this.railLimits.min === undefined) { this.railLimits.min = yvals[0]; }
+      if (this.railLimits.max === undefined) { this.railLimits.max = yvals[0]; }
+      this.railLimits.min = Math.min(this.railLimits.min, ...yvals);
+      this.railLimits.max = Math.max(this.railLimits.max, ...yvals);
+      // Draw polyline [x,z,y] but z is North-South and y is Up-Down
+      pts = pts.map((pt: any) => [pt[2], pt[0], pt[1]]);
+      // @ts-ignore
+      return L.hotline(pts, opts).addTo(map.m);
+    });
+    if (this.railMarkers.length) {
+      if (!this.staticData.colorScale) {
+        this.staticData.colorScale = new ColorScale(opts, { position: 'bottomleft' }).addTo(map.m);
+        this.updateColorlineStyle({ palette: this.staticData.colorScale.palette() });
+      }
+      this.updateColorScale();
+    }
+  }
+
+  updateColorlineStyle(style: any) {
+    this.staticData.persistentRailMarkers.forEach((line: any) => {
+      line.setStyle(style).redraw();
+    });
+    this.railMarkers.forEach((line: any) => {
+      line.setStyle(style).redraw();
+    });
+  }
+
+  getColorlineLimits(): any | null {
+    let prl = this.staticData.persistentRailLimits;
+    // Min/Max, filter out undefined
+    //   if all are undefined, return infinity/-infinity
+    let amin = Math.min(...[prl.min, this.railLimits.min].filter(isFinite));
+    let amax = Math.max(...[prl.max, this.railLimits.max].filter(isFinite));
+    if (!isFinite(amin) || !isFinite(amax)) {
+      return null;
+    }
+    return { min: amin, max: amax };
+  }
+
+  setColorlineLimits(limits: any) {
+    this.updateColorlineStyle(limits);
+    if (this.staticData.colorScale) {
+      this.staticData.colorScale.minmax(limits.min, limits.max);
+    }
+  }
+
+  updateColorScale() {
+    let limits = this.getColorlineLimits();
+    if (limits) {
+      this.setColorlineLimits(limits);
+    }
   }
 
   beforeDestroy() {
     this.areaMarkers.forEach(m => m.remove());
     this.korokMarkers.forEach(m => m.remove());
+    this.railMarkers.forEach(m => m.remove());
+    // Rails
+    this.railLimits = {};
+    this.updateColorScale();
+    if (!this.staticData.persistentRailMarkers.length) {
+      this.forgetColorScale();
+    }
   }
 
   getLocationSub() {
@@ -395,6 +508,14 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj | M
     this.staticData.persistentAreaMarkers = [];
   }
 
+  forgetColorScale() {
+    if (this.staticData.colorScale) {
+      this.staticData.colorScale.remove();
+      this.staticData.colorScale = null;
+    }
+  }
+
+
   static getName(name: string) {
     return MsgMgr.getInstance().getName(name) || name;
   }
@@ -564,4 +685,17 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj | M
     this.staticData.persistentKorokMarkers = [];
   }
 
+  keepRailMarkersAlive() {
+    this.staticData.persistentRailMarkers.push(... this.railMarkers);
+    this.staticData.persistentRailLimits = this.getColorlineLimits() || {};
+    this.railMarkers = [];
+    this.railLimits = {};
+  }
+
+  forgetPersistentRailMarkers() {
+    this.staticData.persistentRailMarkers.forEach(m => m.remove());
+    this.staticData.persistentRailMarkers = [];
+    this.staticData.persistentRailLimits = {};
+    this.forgetColorScale();
+  }
 }
