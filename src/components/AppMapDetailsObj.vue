@@ -24,8 +24,8 @@
         <b-btn v-show="staticData.persistentKorokMarkers.length" size="sm" block variant="dark" @click="forgetPersistentKorokMarkers()">Hide Korok markers</b-btn>
       </section>
       <section class="mt-2" v-show="this.railMarkers.length || staticData.persistentRailMarkers.length">
-        <b-btn v-show="this.railMarkers.length" size="sm" block variant="dark" @click="keepRailMarkersAlive()">Keep Rails markers loaded</b-btn>
-        <b-btn v-show="staticData.persistentRailMarkers.length" size="sm" block variant="dark" @click="forgetPersistentRailMarkers()">Hide Rail markers</b-btn>
+        <b-btn v-show="this.railMarkers.length" size="sm" block variant="dark" @click="keepRailMarkersAlive()">Keep Rails loaded</b-btn>
+        <b-btn v-show="staticData.persistentRailMarkers.length" size="sm" block variant="dark" @click="forgetPersistentRailMarkers()">Hide Rails</b-btn>
       </section>
 
       <section class="obj-actor-specific-info">

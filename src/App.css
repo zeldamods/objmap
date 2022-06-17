@@ -145,7 +145,6 @@ code {
 .colorscale-label {
     position: absolute;
     display: inline;
-    //bottom: 0;
     color: white;
     transform: translateX(-50%);
 }
