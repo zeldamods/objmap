@@ -42,6 +42,8 @@ import { calcLayerLength } from '@/util/polyline';
 import '@/util/leaflet_tile_workaround.js';
 import AppMapPopup from '@/components/AppMapPopup';
 
+import draggable from 'vuedraggable';
+
 interface ObjectIdentifier {
   mapType: string;
   mapName: string;
@@ -129,10 +131,12 @@ class LayerProps {
   title: string;
   text: string;
   pathLength: number;
+  order: number;
   constructor() {
     this.title = "";
     this.text = "";
     this.pathLength = 0;
+    this.order = -1;
   }
   lengthAsString(): string {
     if (this.pathLength <= 0.0) {
@@ -147,6 +151,7 @@ class LayerProps {
     this.title = feat.properties.title || '';
     this.text = feat.properties.text || '';
     this.pathLength = feat.properties.pathLength || 0;
+    this.order = (feat.properties.order !== undefined) ? feat.properties.order : -1;
   }
 }
 function addGeoJSONFeatureToLayer(layer: any) {
@@ -173,7 +178,7 @@ function layerSetPopup(layer: L.Marker | L.Polyline, popup: AppMapPopup) {
   layer.popup = popup;
 }
 
-function addPopupAndTooltip(layer: L.Marker | L.Polyline) {
+function addPopupAndTooltip(layer: L.Marker | L.Polyline, root: any) {
   if (layer && layer.feature) {
     let popup = new AppMapPopup({ propsData: layer.feature.properties });
     // Initiate the Element as $el
@@ -183,11 +188,13 @@ function addPopupAndTooltip(layer: L.Marker | L.Polyline) {
       if (layer && layer.feature) {
         layer.feature.properties.title = txt;
         layerSetTooltip(layer);
+        root.updateDrawLayerOpts({ title: txt, layer: layer });
       }
     });
     popup.$on('text', (txt: string) => {
       if (layer && layer.feature) {
         layer.feature.properties.text = txt;
+        root.updateDrawLayerOpts({ txt: txt, layer: layer });
       }
     });
     // Create Popup and Tooltip
@@ -205,6 +212,7 @@ function addPopupAndTooltip(layer: L.Marker | L.Polyline) {
     AppMapSettings,
     ModalGotoCoords,
     ObjectInfo,
+    draggable,
   },
 })
 export default class AppMap extends mixins(MixinUtil) {
@@ -218,6 +226,7 @@ export default class AppMap extends mixins(MixinUtil) {
   private drawControlEnabled = false;
   private drawControl: any;
   private drawLayer!: L.GeoJSON;
+  private drawLayerOpts: any[] = [];
   private drawLineColor = '#3388ff';
   private setLineColorThrottler!: () => void;
 
@@ -464,6 +473,86 @@ export default class AppMap extends mixins(MixinUtil) {
     });
   }
 
+  toggleLayerVisibility(event: any) {
+    const layer = this.drawLayer.getLayer(event.target.id);
+    if (layer) {
+      if (this.map.m.hasLayer(layer)) {
+        layer.remove();
+      } else {
+        layer.addTo(this.map.m);
+      }
+    }
+  }
+
+  changeLayerColor(event: any) {
+    const id = Number(event.target.attributes.layer_id.value);
+    const color = event.target.value;
+    const layer: any = this.drawLayer.getLayer(id);
+    if (layer) {
+      layer.options.color = color;
+      if (ui.leafletType(layer) == ui.LeafletType.Marker) {
+        layer.setIcon(ui.svgIcon(color));
+      } else {
+        layer.setStyle({ color: layer.options.color });
+      }
+      const layerOpt = this.drawLayerOpts.find((layer: any) => layer.id == id);
+      if (layerOpt) {
+        layerOpt.color = color;
+      }
+    }
+  }
+
+  createDrawLayerOpts() {
+    if (this.drawLayer) {
+      const layerIDs = this.drawLayer.getLayers().map((layer: any) => {
+        let props = layer.feature.properties;
+        const id = this.drawLayer.getLayerId(layer);
+        return {
+          id: id,
+          color: layer.options.color,
+          order: props.order,
+          title: props.title,
+          text: props.text,
+          length: (ui.leafletType(layer) == ui.LeafletType.Marker) ? "" : props.pathLength.toFixed(2),
+          visible: true,
+        };
+      })
+      // order values < 0 are appended at the end and given a value
+      const ordered = layerIDs.filter((layer: any) => layer.order >= 0);
+      const unordered = layerIDs.filter((layer: any) => layer.order < 0);
+      let n = ordered.length;
+      unordered.forEach((layer: any) => { layer.order = n++; });
+      ordered.push(...unordered);
+      layerIDs.sort((a: any, b: any) => a.order - b.order);
+      return layerIDs;
+    }
+    return [];
+  }
+
+  updateDrawLayerOptsIndex() {
+    this.drawLayerOpts.forEach((layer: any, k: number) => { layer.order = k; });
+    this.drawLayerOpts.forEach((layer: any) => {
+      // @ts-ignore
+      this.drawLayer.getLayer(layer.id).feature.properties.order = layer.order;
+    });
+  }
+
+  updateDrawLayerOpts(updates: any = {}) {
+    this.$nextTick(() => {
+      if (updates.layer) {
+        let id = this.drawLayer.getLayerId(updates.layer);
+        let opt = this.drawLayerOpts.find((layer: any) => layer.id == id)
+        if (opt) {
+          opt.title = updates.title || opt.title;
+          opt.text = updates.text || opt.text;
+        }
+      } else {
+        this.drawLayerOpts = this.createDrawLayerOpts();
+      }
+      this.updateDrawLayerOptsIndex()
+    });
+  }
+
   initDrawTools() {
     this.drawLayer = new L.GeoJSON(undefined, {
       style: (feature) => {
@@ -498,18 +587,20 @@ export default class AppMap extends mixins(MixinUtil) {
       'draw:created': (e: any) => {
         addGeoJSONFeatureToLayer(e.layer);
         calcLayerLength(e.layer);
-        addPopupAndTooltip(e.layer);
+        addPopupAndTooltip(e.layer, this);
         this.drawLayer.addLayer(e.layer);
         this.initGeojsonFeature(e.layer);
         if (!e.layer.options.color) {
           e.layer.options.color = this.drawLineColor;
         }
+        this.updateDrawLayerOpts();
       },
       'draw:edited': (e: any) => {
         e.layers.eachLayer((layer: L.Marker | L.Polyline) => {
           calcLayerLength(layer);
           layerSetTooltip(layer);
         });
+        this.updateDrawLayerOpts();
       },
       'draw:deleted': (e: any) => {
         // Only use confirm dialog if editable layer is empty and
@@ -521,6 +612,7 @@ export default class AppMap extends mixins(MixinUtil) {
             e.layers.eachLayer((layer: L.Marker | L.Polyline) => this.drawLayer.addLayer(layer));
           }
         }
+        this.updateDrawLayerOpts();
       },
     });
     this.drawOnColorChange({});
@@ -528,6 +620,7 @@ export default class AppMap extends mixins(MixinUtil) {
       Settings.getInstance().drawLayerGeojson = JSON.stringify(this.drawToGeojson());
     });
     this.updateDrawControlsVisibility();
+    this.updateDrawLayerOpts();
   }
 
   private layerFromGeoJSON(feat: any): L.Layer {
@@ -558,10 +651,11 @@ export default class AppMap extends mixins(MixinUtil) {
       // Copy Properties from GeoJSON
       layer.feature.properties.fromGeoJSON(feat);
       calcLayerLength(layer);
-      addPopupAndTooltip(layer);
+      addPopupAndTooltip(layer, this);
       this.drawLayer.addLayer(layer);
       this.initGeojsonFeature(layer);
     });
+    this.updateDrawLayerOpts();
   }
 
   private drawToGeojson(): GeoJSON.FeatureCollection {

@@ -273,6 +273,20 @@
           </div>
         </div>
         <input type="file" id="fileinput" accept=".json" hidden @change="drawImportCb">
+        <hr/>
+        <div v-if="drawLayerOpts.length">
+          <h4 class="subsection-heading">Polyline/Markers</h4>
+          <draggable v-model="drawLayerOpts" @update="updateDrawLayerOptsIndex">
+            <div v-for="layer in drawLayerOpts" :key="layer.id" @model="drawLayerOpts" class="marker-row" draggable="true">
+              <div>
+                <input type="checkbox" @input="toggleLayerVisibility" :id="layer.id" :checked="layer.visible" >
+                <input type="color" :value="layer.color" @input="changeLayerColor" :layer_id="layer.id" class="marker-color">
+                <div class="inline-block">{{layer.title}}</div>
+              </div>
+              <div>{{layer.length}} {{layer.order}}</div>
+            </div>
+          </draggable>
+        </div>
       </div>
 
       <div class="leaflet-sidebar-pane" id="spane-tools">
@@ -449,4 +463,27 @@
     font-size: 80%;
   }
 }
+
+.marker-color {
+    width: 1em;
+    height: 1em;
+    min-height: 0.5em;
+    padding: 0;
+    border: 1px solid #bbb;
+    border-radius: 0.2em;
+    margin-left: 0.5em;
+    margin-right: 0.3em;
+}
+
+.marker-row {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: space-between;
+}
+
+.inline-block {
+    display: inline-block;
+}
+
+
 </style>
