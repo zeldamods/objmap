@@ -188,13 +188,13 @@ function addPopupAndTooltip(layer: L.Marker | L.Polyline, root: any) {
       if (layer && layer.feature) {
         layer.feature.properties.title = txt;
         layerSetTooltip(layer);
-        root.updateDrawLayerOpts({ title: txt, layer: layer });
+        root.updateDrawLayerOpts({ title: txt, layer });
       }
     });
     popup.$on('text', (txt: string) => {
       if (layer && layer.feature) {
         layer.feature.properties.text = txt;
-        root.updateDrawLayerOpts({ txt: txt, layer: layer });
+        root.updateDrawLayerOpts({ txt: txt, layer });
       }
     });
     // Create Popup and Tooltip
@@ -475,12 +475,12 @@ export default class AppMap extends mixins(MixinUtil) {
 
   toggleLayerVisibility(event: any) {
     const layer = this.drawLayer.getLayer(event.target.id);
-    if (layer) {
-      if (this.map.m.hasLayer(layer)) {
-        layer.remove();
-      } else {
-        layer.addTo(this.map.m);
-      }
+    if (!layer)
+      return;
+    if (this.map.m.hasLayer(layer)) {
+      layer.remove();
+    } else {
+      layer.addTo(this.map.m);
     }
   }
 
@@ -488,52 +488,51 @@ export default class AppMap extends mixins(MixinUtil) {
     const id = Number(event.target.attributes.layer_id.value);
     const color = event.target.value;
     const layer: any = this.drawLayer.getLayer(id);
-    if (layer) {
-      layer.options.color = color;
-      if (ui.leafletType(layer) == ui.LeafletType.Marker) {
-        layer.setIcon(ui.svgIcon(color));
-      } else {
-        layer.setStyle({ color: layer.options.color });
-      }
-      const layerOpt = this.drawLayerOpts.find((layer: any) => layer.id == id);
-      if (layerOpt) {
-        layerOpt.color = color;
-      }
+    if (!layer)
+      return;
+    layer.options.color = color;
+    if (ui.leafletType(layer) == ui.LeafletType.Marker) {
+      layer.setIcon(ui.svgIcon(color));
+    } else {
+      layer.setStyle({ color: layer.options.color });
+    }
+    const layerOpt = this.drawLayerOpts.find((layer: any) => layer.id == id);
+    if (layerOpt) {
+      layerOpt.color = color;
     }
   }
 
   createDrawLayerOpts() {
-    if (this.drawLayer) {
-      const layerIDs = this.drawLayer.getLayers().map((layer: any) => {
-        let props = layer.feature.properties;
-        const id = this.drawLayer.getLayerId(layer);
-        return {
-          id: id,
-          color: layer.options.color,
-          order: props.order,
-          title: props.title,
-          text: props.text,
-          length: (ui.leafletType(layer) == ui.LeafletType.Marker) ? "" : props.pathLength.toFixed(2),
-          visible: true,
-        };
-      })
-      // order values < 0 are appended at the end and given a value
-      const ordered = layerIDs.filter((layer: any) => layer.order >= 0);
-      const unordered = layerIDs.filter((layer: any) => layer.order < 0);
-      let n = ordered.length;
-      unordered.forEach((layer: any) => { layer.order = n++; });
-      ordered.push(...unordered);
-      layerIDs.sort((a: any, b: any) => a.order - b.order);
-      return layerIDs;
-    }
-    return [];
+    if (!this.drawLayer)
+      return [];
+    const layerIDs = this.drawLayer.getLayers().map((layer: any) => {
+      let props = layer.feature.properties;
+      const id = this.drawLayer.getLayerId(layer);
+      return {
+        id,
+        color: layer.options.color,
+        order: props.order,
+        title: props.title,
+        text: props.text,
+        length: (ui.leafletType(layer) == ui.LeafletType.Marker) ? "" : props.pathLength.toFixed(2),
+        visible: true,
+      };
+    })
+    // order values < 0 are appended at the end and given a value
+    const ordered = layerIDs.filter((layer: any) => layer.order >= 0);
+    const unordered = layerIDs.filter((layer: any) => layer.order < 0);
+    let n = ordered.length;
+    unordered.forEach((layer: any) => { layer.order = n++; });
+    ordered.push(...unordered);
+    layerIDs.sort((a: any, b: any) => a.order - b.order);
+    return layerIDs;
   }
 
   updateDrawLayerOptsIndex() {
-    this.drawLayerOpts.forEach((layer: any, k: number) => { layer.order = k; });
-    this.drawLayerOpts.forEach((layer: any) => {
+    this.drawLayerOpts.forEach((layer: any, k: number) => {
+      layer.order = k;
       // @ts-ignore
-      this.drawLayer.getLayer(layer.id).feature.properties.order = layer.order;
+      this.drawLayer.getLayer(layer.id).feature.properties.order = k;
     });
   }
 
@@ -549,7 +548,7 @@ export default class AppMap extends mixins(MixinUtil) {
       } else {
         this.drawLayerOpts = this.createDrawLayerOpts();
       }
-      this.updateDrawLayerOptsIndex()
+      this.updateDrawLayerOptsIndex();
     });
   }
 

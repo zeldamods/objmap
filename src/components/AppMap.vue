@@ -283,7 +283,7 @@
                 <input type="color" :value="layer.color" @input="changeLayerColor" :layer_id="layer.id" class="marker-color">
                 <div class="inline-block">{{layer.title}}</div>
               </div>
-              <div>{{layer.length}} {{layer.order}}</div>
+              <div>{{layer.length}}</div>
             </div>
           </draggable>
         </div>
