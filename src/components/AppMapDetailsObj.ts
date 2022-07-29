@@ -109,6 +109,7 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj | M
   private genGroupSet: Map<number, ObjectData> = new Map();
 
   private dropTables: { [key: string]: any } = {};
+  private shopData: { [key: string]: any } = {};
   private links: PlacementLink[] = [];
   private linksToSelf: PlacementLink[] = [];
   private linkTagInputs: PlacementLink[] = [];
@@ -136,6 +137,7 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj | M
     this.rails = [];
     this.railMarkers.forEach(m => m.remove());
     this.railMarkers = [];
+    this.shopData = {};
     if (this.minObj.objid) {
       this.obj = (await MapMgr.getInstance().getObjByObjId(this.minObj.objid))!;
     } else {
@@ -150,6 +152,13 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj | M
     this.genGroup = await MapMgr.getInstance().getObjGenGroup(this.obj.map_type, this.obj.map_name, this.obj.hash_id);
     for (const obj of this.genGroup) {
       this.genGroupSet.set(obj.hash_id, obj);
+    }
+
+    const location = this.getLocationSub();
+    if (location != '') {
+      if (location.includes('Stable') || location == "Oasis") {
+        this.shopData = await MapMgr.getInstance().getObjShopData();
+      }
     }
 
     if (this.obj.data.LinksToRail || DRAGON_HASH_IDS.includes(this.obj.hash_id)) {
@@ -523,6 +532,9 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj | M
   dropTableExists() {
     return Object.keys(this.dropTables).length > 0;
   }
+  shopDataExists() {
+    return Object.keys(this.shopData).length > 0;
+  }
 
   formatDropTable(): string {
     let lines = [];
@@ -697,5 +709,9 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj | M
     this.staticData.persistentRailMarkers = [];
     this.staticData.persistentRailLimits = {};
     this.forgetColorScale();
+  }
+
+  formatShopData(): string {
+    return ui.formatShopData(this.shopData[this.getLocationSub()]);
   }
 }

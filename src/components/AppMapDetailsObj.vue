@@ -66,6 +66,12 @@
         </div>
       </section>
 
+      <section v-if="shopDataExists()">
+        <hr>
+        <h4 class="subsection-heading">Beedle Shop Data</h4>
+        <pre class="obj-params" v-html="formatShopData()"></pre>
+      </section>
+
       <section v-if="obj.data['!Parameters']">
         <hr>
         <h4 class="subsection-heading">Parameters</h4>
@@ -76,6 +82,7 @@
         <h4 class="subsection-heading">Drop Table</h4>
         <pre class="obj-params" v-html="formatDropTable()"></pre>
       </section>
+
     </section>
 
     <section v-if="isSearchResult()">
