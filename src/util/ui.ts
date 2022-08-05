@@ -230,27 +230,7 @@ export function leafletType(layer: L.Layer): LeafletType {
   return LeafletType.Layer;
 }
 
-function getName(name: string) {
+export function getName(name: string) {
   return MsgMgr.getInstance().getName(name) || name;
 }
 
-export function formatShopData(shopData: any): string {
-  let lines = [];
-  let names = Object.keys(shopData);
-  for (let i = 0; i < names.length; i++) {
-    if (["Header", "Cooking", "Compound"].includes(names[i])) {
-      continue;
-    }
-
-    let value = shopData[names[i]];
-    let n = value.ColumnNum;
-    for (let j = 1; j <= n; j++) {
-      let jth = String(j).padStart(3, '0');
-      let item = getName(value[`ItemName${jth}`]).padEnd(21, ' ');
-      let price = String(value[`ItemPrice${jth}`]).padEnd(5, ' ');
-      let count = String(value[`ItemNum${jth}`]).padEnd(5, ' ');
-      lines.push(`${item} ${count} <img width="15" src="rupee.svg"></img> ${price}`);
-    }
-  }
-  return lines.join("\n");
-}

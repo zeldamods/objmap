@@ -108,6 +108,7 @@ export class MapMgr {
   getObjGenGroup(mapType: string, mapName: string, hashId: number): Promise<ObjectData[]> {
     return fetch(`${RADAR_URL}/obj/${mapType}/${mapName}/${hashId}/gen_group`).then(parse);
   }
+
   getObjShopData() {
     return fetch(`${GAME_FILES}/ecosystem/beedle_shop_data.json`).then(parse);
   }

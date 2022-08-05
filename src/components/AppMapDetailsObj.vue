@@ -67,9 +67,7 @@
       </section>
 
       <section v-if="shopDataExists()">
-        <hr>
-        <h4 class="subsection-heading">Beedle Shop Data</h4>
-        <pre class="obj-params" v-html="formatShopData()"></pre>
+        <ShopData :data="shopData[this.getLocationSub()]" />
       </section>
 
       <section v-if="obj.data['!Parameters']">

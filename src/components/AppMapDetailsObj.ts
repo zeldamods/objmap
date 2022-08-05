@@ -7,6 +7,7 @@ import 'leaflet-path-transform';
 import { MapMarkerObj, MapMarkerSearchResult } from '@/MapMarker';
 import AppMapDetailsBase from '@/components/AppMapDetailsBase';
 import ObjectInfo from '@/components/ObjectInfo';
+import ShopData from '@/components/ShopData';
 import { MapMgr, ObjectData, ObjectMinData, PlacementLink } from '@/services/MapMgr';
 import { MsgMgr } from '@/services/MsgMgr';
 import * as ui from '@/util/ui';
@@ -100,6 +101,7 @@ const staticData = new StaticData();
 @Component({
   components: {
     ObjectInfo,
+    ShopData,
   },
 })
 export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj | MapMarkerSearchResult> {
@@ -532,6 +534,7 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj | M
   dropTableExists() {
     return Object.keys(this.dropTables).length > 0;
   }
+
   shopDataExists() {
     return Object.keys(this.shopData).length > 0;
   }
@@ -709,9 +712,5 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj | M
     this.staticData.persistentRailMarkers = [];
     this.staticData.persistentRailLimits = {};
     this.forgetColorScale();
-  }
-
-  formatShopData(): string {
-    return ui.formatShopData(this.shopData[this.getLocationSub()]);
   }
 }

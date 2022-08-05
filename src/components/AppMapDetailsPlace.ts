@@ -3,6 +3,7 @@ import Component from 'vue-class-component';
 import { MapMarkerPlace } from '@/MapMarker';
 import AppMapDetailsBase from '@/components/AppMapDetailsBase';
 import ObjectInfo from '@/components/ObjectInfo';
+import ShopData from '@/components/ShopData';
 import { MapMgr, ObjectMinData } from '@/services/MapMgr';
 import { MsgMgr } from '@/services/MsgMgr';
 import * as ui from '@/util/ui';
@@ -11,6 +12,7 @@ import * as ui from '@/util/ui';
 @Component({
   components: {
     ObjectInfo,
+    ShopData,
   },
 })
 export default class AppMapDetailsPlace extends AppMapDetailsBase<MapMarkerPlace> {
@@ -19,8 +21,8 @@ export default class AppMapDetailsPlace extends AppMapDetailsBase<MapMarkerPlace
   private shopData: any = {};
   private minobj: ObjectMinData | null = null;
   private shrine: any | null = null;
-  private shrine_sub: any | null = null;
-  private shrine_obj: any | null = null;
+  private shrineSub: any | null = null;
+  private shrineObj: any | null = null;
   private tower: any | null = null
   private shrines: any = {
     'Woodland Stable': 'Dungeon056',
@@ -44,7 +46,7 @@ export default class AppMapDetailsPlace extends AppMapDetailsBase<MapMarkerPlace
     this.id = this.marker.data.lm.getMessageId();
     this.sub = MsgMgr.getInstance().getMsgWithFile('StaticMsg/LocationMarker', this.id);
     this.shopData = {};
-    if (this.sub.includes("Stable") || this.sub == "Kara Kara Bazaar") {
+    if (this.sub.includes('Stable') || this.sub == 'Kara Kara Bazaar') {
       this.shopData = await MapMgr.getInstance().getObjShopData();
     }
 
@@ -52,18 +54,13 @@ export default class AppMapDetailsPlace extends AppMapDetailsBase<MapMarkerPlace
       this.minobj = d[0];
     });
     this.shrine = MsgMgr.getInstance().getMsgWithFile('StaticMsg/Dungeon', this.shrines[this.sub]);
-    this.shrine_sub = MsgMgr.getInstance().getMsgWithFile('StaticMsg/Dungeon', this.shrines[this.sub] + '_sub');
+    this.shrineSub = MsgMgr.getInstance().getMsgWithFile('StaticMsg/Dungeon', this.shrines[this.sub] + '_sub');
     MapMgr.getInstance().getObjs('MainField', '', this.shrines[this.sub] + ' actor: LocationTag')
-      .then(d => this.shrine_obj = d[0]);
+      .then(d => this.shrineObj = d[0]);
 
   }
+
   shopDataExists() {
     return Object.keys(this.shopData).length > 0;
-  }
-  formatShopData() {
-    if (this.shopDataExists()) {
-      return ui.formatShopData(this.shopData[this.sub]);
-    }
-    return null;
   }
 }

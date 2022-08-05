@@ -8,18 +8,16 @@
       Position: {{minobj.pos[0].toFixed(2)}} {{minobj.pos[1].toFixed(2)}} {{minobj.pos[2].toFixed(2)}}
     </section>
     <section v-if="shopDataExists()">
-      <hr>
-      <h4 class="subsection-heading">Beedle Shop Data</h4>
-      <pre class="obj-params" v-html="formatShopData()"></pre>
+      <ShopData :data="shopData[this.sub]" />
     </section>
-    <section v-if="shrine && shrine_sub && shrine_obj">
+    <section v-if="shrine && shrineSub && shrineObj">
       <hr>
       <h4 class="subsection-heading">Nearest Shrine</h4>
       <div>
         <div>{{shrine}}</div>
         <div class="ml-3">
-          {{shrine_sub}}
-          <ObjectInfo :obj="shrine_obj" :key="shrine_obj.objid" className="obj-main-info"/>
+          {{shrineSub}}
+          <ObjectInfo :obj="shrineObj" :key="shrineObj.objid" className="obj-main-info"/>
         </div>
       </div>
     </section>
