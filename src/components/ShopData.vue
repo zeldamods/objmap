@@ -12,7 +12,7 @@
       </div>
   </section>
 </template>
-<style>
+<style scoped>
   .table {
       color: white;
       display: table;
@@ -21,7 +21,7 @@
   .table-row {
       display: table-row;
   }
-  .cell {
+  .table-row .cell {
       display: table-cell;
   }
 </style>
