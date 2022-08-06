@@ -7,6 +7,7 @@ import 'leaflet-path-transform';
 import { MapMarkerObj, MapMarkerSearchResult } from '@/MapMarker';
 import AppMapDetailsBase from '@/components/AppMapDetailsBase';
 import ObjectInfo from '@/components/ObjectInfo';
+import ShopData from '@/components/ShopData';
 import { MapMgr, ObjectData, ObjectMinData, PlacementLink } from '@/services/MapMgr';
 import { MsgMgr } from '@/services/MsgMgr';
 import * as ui from '@/util/ui';
@@ -100,6 +101,7 @@ const staticData = new StaticData();
 @Component({
   components: {
     ObjectInfo,
+    ShopData,
   },
 })
 export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj | MapMarkerSearchResult> {
@@ -109,6 +111,7 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj | M
   private genGroupSet: Map<number, ObjectData> = new Map();
 
   private dropTables: { [key: string]: any } = {};
+  private shopData: { [key: string]: any } = {};
   private links: PlacementLink[] = [];
   private linksToSelf: PlacementLink[] = [];
   private linkTagInputs: PlacementLink[] = [];
@@ -136,6 +139,7 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj | M
     this.rails = [];
     this.railMarkers.forEach(m => m.remove());
     this.railMarkers = [];
+    this.shopData = {};
     if (this.minObj.objid) {
       this.obj = (await MapMgr.getInstance().getObjByObjId(this.minObj.objid))!;
     } else {
@@ -150,6 +154,13 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj | M
     this.genGroup = await MapMgr.getInstance().getObjGenGroup(this.obj.map_type, this.obj.map_name, this.obj.hash_id);
     for (const obj of this.genGroup) {
       this.genGroupSet.set(obj.hash_id, obj);
+    }
+
+    const location = this.getLocationSub();
+    if (location != '') {
+      if (location.includes('Stable') || location == "Oasis") {
+        this.shopData = await MapMgr.getInstance().getObjShopData();
+      }
     }
 
     if (this.obj.data.LinksToRail || DRAGON_HASH_IDS.includes(this.obj.hash_id)) {
@@ -522,6 +533,10 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj | M
 
   dropTableExists() {
     return Object.keys(this.dropTables).length > 0;
+  }
+
+  shopDataExists() {
+    return Object.keys(this.shopData).length > 0;
   }
 
   formatDropTable(): string {

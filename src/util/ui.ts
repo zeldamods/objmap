@@ -1,5 +1,6 @@
 
 import * as L from 'leaflet';
+import { MsgMgr } from '@/services/MsgMgr';
 
 /// Wrapper class for objects that should not be observed by Vue.
 export class Unobservable<T> {
@@ -228,3 +229,8 @@ export function leafletType(layer: L.Layer): LeafletType {
   }
   return LeafletType.Layer;
 }
+
+export function getName(name: string) {
+  return MsgMgr.getInstance().getName(name) || name;
+}
+

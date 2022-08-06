@@ -26,6 +26,7 @@ import * as save from '@/save';
 import MixinUtil from '@/components/MixinUtil';
 import AppMapDetailsDungeon from '@/components/AppMapDetailsDungeon';
 import AppMapDetailsObj from '@/components/AppMapDetailsObj';
+import AppMapDetailsPlace from '@/components/AppMapDetailsPlace';
 import AppMapFilterMainButton from '@/components/AppMapFilterMainButton';
 import AppMapSettings from '@/components/AppMapSettings';
 import ModalGotoCoords from '@/components/ModalGotoCoords';
@@ -80,6 +81,8 @@ const MARKER_COMPONENTS: { [type: string]: MarkerComponent } = Object.freeze({
   },
   'Place': {
     cl: MapMarkers.MapMarkerPlace,
+    detailsComponent: 'AppMapDetailsPlace',
+    enableUpdates: false,
     filterIcon: MapIcons.VILLAGE.options.iconUrl,
     filterLabel: 'Places',
   },
@@ -208,6 +211,7 @@ function addPopupAndTooltip(layer: L.Marker | L.Polyline, root: any) {
   components: {
     AppMapDetailsDungeon,
     AppMapDetailsObj,
+    AppMapDetailsPlace,
     AppMapFilterMainButton,
     AppMapSettings,
     ModalGotoCoords,

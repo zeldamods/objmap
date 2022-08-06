@@ -66,6 +66,10 @@
         </div>
       </section>
 
+      <section v-if="shopDataExists()">
+        <ShopData :data="shopData[this.getLocationSub()]" />
+      </section>
+
       <section v-if="obj.data['!Parameters']">
         <hr>
         <h4 class="subsection-heading">Parameters</h4>
@@ -76,6 +80,7 @@
         <h4 class="subsection-heading">Drop Table</h4>
         <pre class="obj-params" v-html="formatDropTable()"></pre>
       </section>
+
     </section>
 
     <section v-if="isSearchResult()">
