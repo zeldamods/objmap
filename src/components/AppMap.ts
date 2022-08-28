@@ -1157,7 +1157,10 @@ export default class AppMap extends mixins(MixinUtil) {
             }
           }
           if (climate.BlueSkyRainPat > 0) {
-            label += `<br>${climate.BlueSkyRainPat}: BlueSkyRain`;
+            label += `<br>${climate.BlueSkyRainPat}: BlueSkyRain Pattern`;
+          }
+          if (climate.IgnitedLevel > 0) {
+            label += `<br>${climate.IgnitedLevel}: IgnitedLevel`;
           }
         }
         layer.bindTooltip(label);
