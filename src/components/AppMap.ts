@@ -1108,27 +1108,27 @@ export default class AppMap extends mixins(MixinUtil) {
       "Lake", "Eldin", "Akkala", "Lanayru", "Hateno",
       "Faron", "Ridgeland"];
     const climate_names = [
-      'HyrulePlainClimate', // 0 BlueSkyRainPat: 1
-      'NorthHyrulePlainClimate', // 1 BlueSkyRainPat: 1
-      'HebraFrostClimate', // 2
-      'TabantaAridClimate', // 3
-      'FrostClimate', // 4
-      'GerudoDesertClimate', // 5
-      'GerudoPlateauClimate', // 6
-      'EldinClimateLv0', // 7
-      'TamourPlainClimate', // 8 BlueSkyRainPat: 1
-      'ZoraTemperateClimate', // 9 BlueSkyRainPat: 1
-      'HateruPlainClimate', // 10 BlueSkyRainPat: 1
-      'FiloneSubtropicalClimate', // 11 BlueSKyRainPat: 2
-      'SouthHateruHumidTemperateClimate', // 12 BlueSKyRainPat: 2
-      'EldinClimateLv1', // 13
-      'EldinClimateLv2', //14
+      'HyrulePlainClimate',
+      'NorthHyrulePlainClimate',
+      'HebraFrostClimate',
+      'TabantaAridClimate',
+      'FrostClimate',
+      'GerudoDesertClimate',
+      'GerudoPlateauClimate',
+      'EldinClimateLv0',
+      'TamourPlainClimate',
+      'ZoraTemperateClimate',
+      'HateruPlainClimate',
+      'FiloneSubtropicalClimate',
+      'SouthHateruHumidTemperateClimate',
+      'EldinClimateLv1',
+      'EldinClimateLv2',
       // sic
-      'DarkWoodsClimat', //15 BlueSkyRainPat 1
-      'LostWoodClimate', //16
-      'GerudoFrostClimate', //17
-      'KorogForest', //18
-      'GerudoDesertClimateLv2' // 19
+      'DarkWoodsClimat',
+      'LostWoodClimate',
+      'GerudoFrostClimate',
+      'KorogForest',
+      'GerudoDesertClimateLv2'
     ];
 
     const areas = await MapMgr.getInstance().fetchAreaMap(name);
@@ -1153,16 +1153,11 @@ export default class AppMap extends mixins(MixinUtil) {
           for (const kind of ['Bluesky', 'Cloudy', 'Rain', 'HeavyRain', 'Storm']) {
             const name = `Weather${kind}Rate`;
             if (climate[name] > 0) {
-              label += `<br>${climate[name]}%: ${kind}`; // Bluesky
+              label += `<br>${climate[name]}%: ${kind}`;
             }
           }
-          //label += `<br>${climate.WeatherBlueskyRate}: Bluesky`; // Bluesky
-          //label += `<br>${climate.WeatherCloudyRate}: Cloudy`;  // Cloudy
-          //label += `<br>${climate.WeatherRainRate}: Rain`; // Rain / Snow
-          //label += `<br>${climate.WeatherHeavyRainRate}: HeavyRain`; // HeavyRain / HeavySnow
-          //label += `<br>${climate.WeatherStormRate}: Storm`; // Storm
           if (climate.BlueSkyRainPat > 0) {
-            label += `<br>${climate.BlueSkyRainPat}: Fake Rain Pattern`; // BlueSkyRain
+            label += `<br>${climate.BlueSkyRainPat}: BlueSkyRain`;
           }
         }
         layer.bindTooltip(label);

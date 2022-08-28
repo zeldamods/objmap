@@ -50,6 +50,7 @@ export class MsgMgr {
     }
     return null;
   }
+
   async getClimateData(item: number) {
     if (!this.climate) {
       const res = await fetch(`${GAME_FILES}/climate_data.json`);
@@ -60,7 +61,6 @@ export class MsgMgr {
     }
     return null;
   }
-
 
   /// Get a message by its message ID (e.g. EventFlowMsg/AncientBall_Kakariko:Label).
   getMsg(id: string): string {
