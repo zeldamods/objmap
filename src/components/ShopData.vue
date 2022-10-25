@@ -3,7 +3,7 @@
     <hr>
     <h4 class="subsection-heading">Beedle Shop Data</h4>
     <div class="table">
-        <div v-for="idx in length()" :key="idx" class="row">
+        <div v-for="idx in length()" :key="idx" class="table-row">
           <div class="cell">{{name(idx)}}</div>
           <div class="cell">{{num(idx)}}</div>
           <div class="cell"><img width="15" src="rupee.svg"></div>
@@ -18,7 +18,7 @@
       display: table;
       width: 100%;
   }
-  .row {
+  .table-row {
       display: table-row;
   }
   .cell {
