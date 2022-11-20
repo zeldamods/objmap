@@ -150,6 +150,13 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj | M
       // Set the objid from the fetched data otherwise Vue does not update
       this.minObj.objid = this.obj.objid;
     }
+    if (!this.minObj.korok_type && this.obj.korok_type) {
+      this.minObj.korok_type = this.obj.korok_type;
+    }
+    if (!this.minObj.korok_id && this.obj.korok_id) {
+      this.minObj.korok_id = this.obj.korok_id;
+    }
+
     this.dropTables = await MapMgr.getInstance().getObjDropTables(this.getRankedUpActorNameForObj(this.minObj), this.getDropTableName());
     this.genGroup = await MapMgr.getInstance().getObjGenGroup(this.obj.map_type, this.obj.map_name, this.obj.hash_id);
     for (const obj of this.genGroup) {
