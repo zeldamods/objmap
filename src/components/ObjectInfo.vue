@@ -53,6 +53,14 @@
       <i class="fas fa-fw fa-leaf" style="color:lightgreen"></i>
       {{data.korok_id}} - {{ data.korok_type }}
     </section>
+    <section class="search-result-life" v-if="meta('life')">
+      <i class="fas fa-fw fa-heart" style="color:tomato"></i> {{meta('life')}}
+    </section>
+    <section class="search-result-life" v-if="meta('attack')">
+      <div class="swords fa-fw fa" style="color: white">&#9876;</div> {{meta('attack')}}
+    </section>
+
+
   </div>
 </template>
 <style lang="less">
@@ -77,6 +85,15 @@
 .search-result-name {
   font-size: 110%;
   margin-bottom: 3px;
+}
+.swords {
+    display: inline;
+    font-weight: bold;
+    font-size: 1.5em;
+}
+.search-result-life {
+    display: inline-block;
+    padding-right: 0.3em
 }
 </style>
 <script src="./ObjectInfo.ts"></script>

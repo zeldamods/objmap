@@ -14,6 +14,7 @@ export class MsgMgr {
   private files: Map<string, File> = new Map();
   private climate: any | null = null;
   private area: any | null = null;
+  private metadata: any | null = null;
 
   async init() {
     const PREFIX = `${GAME_FILES}/text/`;
@@ -58,6 +59,17 @@ export class MsgMgr {
     }
     if (this.climate) {
       return this.climate[`ClimateDefines_${item}`];
+    }
+    return null;
+  }
+
+  async getObjectMetaData(item: string) {
+    if (!this.metadata) {
+      const res = await fetch(`${GAME_FILES}/object_meta.json`);
+      this.metadata = await res.json();
+    }
+    if (this.metadata) {
+      return this.metadata[item];
     }
     return null;
   }
