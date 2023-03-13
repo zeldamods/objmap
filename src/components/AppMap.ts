@@ -279,6 +279,9 @@ export default class AppMap extends mixins(MixinUtil) {
   private mapCastleAreas = new ui.Unobservable(L.layerGroup());
   showCastleAreas = false;
 
+  showBaseMap = true;
+  showReferenceGrid = false;
+
   private tempObjMarker: ui.Unobservable<MapMarker> | null = null;
 
   private settings: Settings | null = null;
@@ -1278,6 +1281,17 @@ export default class AppMap extends mixins(MixinUtil) {
         }
         this.mapSafeAreas.data.addTo(this.map.m);
       }
+    });
+  }
+
+  onShowBaseMap() {
+    this.$nextTick(() => {
+      this.map.showBaseMap(this.showBaseMap);
+    });
+  }
+  onShowReferenceGrid() {
+    this.$nextTick(() => {
+      this.map.showReferenceGrid(this.showReferenceGrid);
     });
   }
 
