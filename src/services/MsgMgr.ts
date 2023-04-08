@@ -68,10 +68,7 @@ export class MsgMgr {
       const res = await fetch(`${GAME_FILES}/object_meta.json`);
       this.metadata = await res.json();
     }
-    if (this.metadata) {
-      return this.metadata[item];
-    }
-    return null;
+    return this.metadata[item];
   }
 
   /// Get a message by its message ID (e.g. EventFlowMsg/AncientBall_Kakariko:Label).

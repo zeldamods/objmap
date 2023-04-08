@@ -30,7 +30,7 @@ export default class ObjectInfo extends mixins(MixinUtil) {
 
   private data!: ObjectData | ObjectMinData;
 
-  private xmeta: any | null = null;
+  private metadata: any | null = null;
 
   private created() {
     if ((!this.obj && !this.link) || (this.obj && this.link))
@@ -42,21 +42,17 @@ export default class ObjectInfo extends mixins(MixinUtil) {
       this.data = this.obj;
   }
 
-  async get_meta() {
-    if (!this.xmeta) {
+  async loadMetaIfNeeded() {
+    if (!this.metadata) {
       const rname = this.getRankedUpActorNameForObj(this.data);
-      this.xmeta = await MsgMgr.getInstance().getObjectMetaData(rname);
+      this.metadata = await MsgMgr.getInstance().getObjectMetaData(rname);
     }
   }
 
   private meta(item: string) {
-    if (!this.xmeta) {
-      this.get_meta();
-    }
-    if (this.xmeta) {
-      return (this.xmeta[item]) ? this.xmeta[item] : null;
-    }
-    return null;
+    this.loadMetaIfNeeded();
+    // Return values may still be null if metadata is not available
+    return (this.metadata) ? this.metadata[item] : null;
   }
 
 
