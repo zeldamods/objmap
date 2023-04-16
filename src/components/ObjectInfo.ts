@@ -30,6 +30,8 @@ export default class ObjectInfo extends mixins(MixinUtil) {
 
   private data!: ObjectData | ObjectMinData;
 
+  private metadata: any | null = null;
+
   private created() {
     if ((!this.obj && !this.link) || (this.obj && this.link))
       throw new Error('needs an object *or* a placement link');
@@ -39,6 +41,20 @@ export default class ObjectInfo extends mixins(MixinUtil) {
     if (this.obj)
       this.data = this.obj;
   }
+
+  async loadMetaIfNeeded() {
+    if (!this.metadata) {
+      const rname = this.getRankedUpActorNameForObj(this.data);
+      this.metadata = await MsgMgr.getInstance().getObjectMetaData(rname);
+    }
+  }
+
+  private meta(item: string) {
+    this.loadMetaIfNeeded();
+    // Return values may still be null if metadata is not available
+    return (this.metadata) ? this.metadata[item] : null;
+  }
+
 
   private name(rankUp: boolean) {
     if (this.dropAsName)
