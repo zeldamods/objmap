@@ -37,6 +37,7 @@ export class MapBase {
       this.m.removeLayer(this.baseLayer);
     }
   }
+
   async loadTowerAreas() {
     const areas = await MapMgr.getInstance().fetchAreaMap('MapTower');
     for (const [data, features] of Object.entries(areas)) {
@@ -51,7 +52,6 @@ export class MapBase {
     }
     this.showReferenceGridInternal();
   }
-
 
   async showReferenceGridInternal() {
     if (!this.refGrid.length) {
@@ -76,8 +76,8 @@ export class MapBase {
     } else {
       this.refGrid.forEach(layer => this.m.removeLayer(layer));
     }
-
   }
+
   showReferenceGrid(show: boolean) {
     this.refGridOn = show;
     this.showReferenceGridInternal();
@@ -249,13 +249,12 @@ preserveAspectRatio="none"  xmlns="http://www.w3.org/2000/svg" >
           icon = svgIcon2;
           k = 1;
         }
-        markers[k].addLayer(L.marker([z, x], { icon }));//.addTo(this.map.m);
+        markers[k].addLayer(L.marker([z, x], { icon }));
       }
     }
     this.loadTowerAreas();
     return markers;
   }
-
 
   private setZoomProp(zoom: number) {
     this.zoom = zoom;
