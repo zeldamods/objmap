@@ -10,6 +10,7 @@ import { Point } from '@/util/map';
 import * as ui from '@/util/ui';
 import '@/util/leaflet_tile_workaround.js';
 import { Settings } from './util/settings';
+import { MapMgr } from '@/services/MapMgr';
 
 declare module 'leaflet' {
   export type RasterCoords = any;
@@ -25,6 +26,63 @@ export class MapBase {
   center: Point = [0, 0, 0];
   zoom: number = map.DEFAULT_ZOOM;
   private zoomChangeCbs: Array<(zoom: number) => void> = [];
+  baseLayer!: L.Layer;
+  refGrid: Array<L.LayerGroup> = [];
+  refGridOn: boolean = false;
+
+  showBaseMap(show: boolean) {
+    if (show) {
+      this.m.addLayer(this.baseLayer);
+    } else {
+      this.m.removeLayer(this.baseLayer);
+    }
+  }
+
+  async loadTowerAreas() {
+    const areas = await MapMgr.getInstance().fetchAreaMap('MapTower');
+    for (const [data, features] of Object.entries(areas)) {
+      const layers: L.GeoJSON[] = features.map((feature) => {
+        return L.geoJSON(feature, {
+          style: function(_) {
+            return { weight: 0.5, fill: false, color: '#60B0E0' }
+          },
+        });
+      });
+      layers.forEach(layer => this.refGrid[3].addLayer(layer));
+    }
+    this.showReferenceGridInternal();
+  }
+
+  async showReferenceGridInternal() {
+    if (!this.refGrid.length) {
+      this.refGrid = this.createMarkers();
+    }
+    const zoomLevel = this.m.getZoom();
+    let minZoom = [1, 4, 5, 1];
+    if (this.refGridOn) {
+      this.refGrid.forEach((layer, i) => {
+        //for (let i = 0; i < 4; i++) {
+        let visible = this.m.hasLayer(layer);
+        if (zoomLevel >= minZoom[i]) {
+          if (!visible) {
+            this.m.addLayer(layer);
+          }
+        } else {
+          if (visible) {
+            this.m.removeLayer(layer);
+          }
+        }
+      });
+    } else {
+      this.refGrid.forEach(layer => this.m.removeLayer(layer));
+    }
+  }
+
+  showReferenceGrid(show: boolean) {
+    this.refGridOn = show;
+    this.showReferenceGridInternal();
+  }
+
 
   toXYZ(latlng: L.LatLng): Point {
     return [latlng.lng, 0, latlng.lat];
@@ -151,9 +209,51 @@ export class MapBase {
       maxNativeZoom: 7,
     });
     baseLayer.addTo(this.m);
+    this.baseLayer = baseLayer;
 
     this.m.createPane('front').style.zIndex = '1000';
     this.m.createPane('front2').style.zIndex = '1001';
+
+    this.refGridOn = false;
+    this.m.on("zoom", () => {
+      this.showReferenceGridInternal();
+    });
+  }
+  svgIconBase(width: number) {
+    return L.divIcon({
+      html: `<svg  viewBox="0 0 100 100" version="1.1"
+preserveAspectRatio="none"  xmlns="http://www.w3.org/2000/svg" >
+<path d="M 100 50 L 0 50 M 50 0 L 50 100" stroke="#60B0E0" stroke-width="${width}" />
+</svg>`,
+      className: "",
+      iconSize: [10, 10],
+      iconAnchor: [5, 5],
+    });
+  }
+  createMarkers() {
+    const svgIcon = this.svgIconBase(3);
+    const svgIcon2 = this.svgIconBase(6);
+    const svgIcon3 = this.svgIconBase(12);
+    let size = 125;
+    let markers = [L.layerGroup(), L.layerGroup(), L.layerGroup(), L.layerGroup()];
+    for (let i = 0; i < 20 * 4; i++) {
+      for (let j = 0; j < 16 * 4; j++) {
+        let z = -4000 + j * size + 125 / 2;
+        let x = -5000 + i * size + 125 / 2;
+        let k = 2;
+        let icon = svgIcon;
+        if (i % 4 == 0 && j % 4 == 0) {
+          icon = svgIcon3;
+          k = 0;
+        } else if (i % 4 == 0 || j % 4 == 0) {
+          icon = svgIcon2;
+          k = 1;
+        }
+        markers[k].addLayer(L.marker([z, x], { icon }));
+      }
+    }
+    this.loadTowerAreas();
+    return markers;
   }
 
   private setZoomProp(zoom: number) {
