@@ -12,6 +12,7 @@ import VueRouter from 'vue-router';
 const { isNavigationFailure, NavigationFailureType } = VueRouter;
 
 import debounce from 'lodash/debounce';
+import { produce } from 'immer';
 import Vue from 'vue';
 import Component, { mixins } from 'vue-class-component';
 
@@ -474,10 +475,116 @@ export default class AppMap extends mixins(MixinUtil) {
           layer.setStyle({ color: this.drawLineColor });
         },
       }, {
-        separator: true,
+        text: 'Break line here',
         index: 1,
+        callback: ({latlng} : ui.LeafletContextMenuCbArg) => {
+          this.breakPolylineAt(layer, latlng)
+        },
+      }, {
+        separator: true,
+        index: 2,
       }],
     });
+  }
+
+  private breakPolylineAt(layer: any, latlng: L.LatLng) {
+    if (!this.map.m.hasLayer(layer)) {
+      return;
+    }
+    if (!layer.toGeoJSON) {
+      return;
+    }
+    const geojson: GeoJSON.Feature = layer.toGeoJSON();
+    if (geojson.geometry.type != "LineString") {
+      return;
+    }
+    const line = geojson.geometry;
+
+    // find where to break
+    let minDistSq = 0;
+    let minIndex = -1;
+
+    for (let i=0;i<line.coordinates.length-1;i++) {
+      const start = line.coordinates[i];
+      const end = line.coordinates[i+1];
+      if (!this.isPointInBound(latlng, start, end)) {
+        continue;
+      }
+      const distSq = this.getPointToLineDistSq(latlng, start, end);
+      if (minIndex < 0 || distSq < minDistSq) {
+        minDistSq = distSq;
+        minIndex = i;
+      }
+    }
+
+    if (minIndex < 0) {
+      return;
+    }
+
+    const line1 = produce(line, (draft) => {
+      const temp = draft.coordinates.slice(0, minIndex+1);
+      temp.push([latlng.lng, latlng.lat]);
+      draft.coordinates = temp;
+    });
+    const line2 = produce(line, (draft) => {
+      const temp = [[latlng.lng, latlng.lat]];
+      temp.push(...draft.coordinates.slice(minIndex+1));
+      draft.coordinates = temp;
+    });
+    const newGeojson1 = produce(geojson, (draft) => {
+      draft.geometry = line1;
+      // @ts-ignore
+      draft.style = { color: layer.options.color };
+    });
+    const newGeojson2 = produce(geojson, (draft) => {
+      draft.geometry = line2;
+      // @ts-ignore
+      draft.style = { color: layer.options.color };
+    });
+
+    layer.remove();
+    this.drawLayer.removeLayer(layer);
+    this.drawFromGeojsonFeature(newGeojson1);
+    this.drawFromGeojsonFeature(newGeojson2);
+    this.updateDrawLayerOpts();
+
+  }
+
+  // Get if the point is inside the rectangle defined by start and end
+  // start and end are [lng, lat] from geojson LineString
+  private isPointInBound(point: L.LatLng, start: number[], end: number[]) {
+    const [startLng, startLat] = start;
+    const [endLng, endLat] = end;
+    // point must be in the bounding box of the start and end
+    const boxMinLat = Math.min(startLat, endLat);
+    const boxMaxLat = Math.max(startLat, endLat);
+    if (point.lat < boxMinLat || point.lat > boxMaxLat) {
+      return false;
+    }
+    const boxMinLng = Math.min(startLng, endLng);
+    const boxMaxLng = Math.max(startLng, endLng);
+    if (point.lng < boxMinLng || point.lng > boxMaxLng) {
+      return false;
+    }
+
+    return true;
+  }
+
+  // Get the distance squared from the point to the line defined by start and end
+  // start and end are [lng, lat] from geojson LineString
+  private getPointToLineDistSq(point: L.LatLng, start: number[], end: number[]) {
+    const [startLng, startLat] = start;
+    const [endLng, endLat] = end;
+    // https://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line#Line_defined_by_two_points
+    const x2Minusx1 = endLng - startLng;
+    const y2Minusy1 = endLat - startLat;
+    const x1Minusx0 = startLng - point.lng;
+    const y1Minusy0 = startLat - point.lat;
+
+    const a = x2Minusx1 * y1Minusy0 - x1Minusx0 * y2Minusy1;
+    const numerator = a * a;
+    const denominator = x2Minusx1 * x2Minusx1 + y2Minusy1 * y2Minusy1;
+    return numerator / denominator;
   }
 
   toggleLayerVisibility(event: any) {
@@ -643,25 +750,29 @@ export default class AppMap extends mixins(MixinUtil) {
       this.drawLayer.clearLayers();
     }
     data.features.forEach((feat: any) => {
-      let layer: any = this.layerFromGeoJSON(feat);
-      // Only set style for Polylines not Markers
-      let color = feat.style.color || this.drawLineColor;
-      if (ui.leafletType(layer) == ui.LeafletType.Marker) {
-        layer.options.color = color;
-        layer.setIcon(ui.svgIcon(color));
-      } else {
-        layer.setStyle({ color: color });
-      }
-      // Create Feature.Properties on Layer
-      addGeoJSONFeatureToLayer(layer);
-      // Copy Properties from GeoJSON
-      layer.feature.properties.fromGeoJSON(feat);
-      calcLayerLength(layer);
-      addPopupAndTooltip(layer, this);
-      this.drawLayer.addLayer(layer);
-      this.initGeojsonFeature(layer);
+      this.drawFromGeojsonFeature(feat);
     });
     this.updateDrawLayerOpts();
+  }
+
+  private drawFromGeojsonFeature(feat: any) {
+    let layer: any = this.layerFromGeoJSON(feat);
+    // Only set style for Polylines not Markers
+    let color = feat.style.color || this.drawLineColor;
+    if (ui.leafletType(layer) == ui.LeafletType.Marker) {
+      layer.options.color = color;
+      layer.setIcon(ui.svgIcon(color));
+    } else {
+      layer.setStyle({ color: color });
+    }
+    // Create Feature.Properties on Layer
+    addGeoJSONFeatureToLayer(layer);
+    // Copy Properties from GeoJSON
+    layer.feature.properties.fromGeoJSON(feat);
+    calcLayerLength(layer);
+    addPopupAndTooltip(layer, this);
+    this.drawLayer.addLayer(layer);
+    this.initGeojsonFeature(layer);
   }
 
   private drawToGeojson(): GeoJSON.FeatureCollection {

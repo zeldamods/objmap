@@ -12,6 +12,7 @@
     "@fortawesome/fontawesome-free": "^5.13.0",
     "bootstrap": "^4.5.0",
     "bootstrap-vue": "^2.15.0",
+    "immer": "^10.0.4",
     "leaflet": "~1.6.0",
     "leaflet-contextmenu": "^1.4.0",
     "leaflet-defaulticon-compatibility": "^0.1.1",
