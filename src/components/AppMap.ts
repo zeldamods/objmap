@@ -986,6 +986,16 @@ export default class AppMap extends mixins(MixinUtil) {
     this.searchThrottler();
   }
 
+  searchSetLink() {
+    const query = this.searchGetQuery();
+    this.$router.replace({
+      path: this.$route.fullPath,
+      query: {
+        q: query,
+      }
+    })
+  }
+
   searchOnAdd() {
     this.searchAddGroup(this.searchGetQuery());
     this.searchQuery = '';
