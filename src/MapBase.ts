@@ -200,10 +200,6 @@ export class MapBase {
     const southWest = this.rc.unproject([0, this.rc.height]);
     const northEast = this.rc.unproject([this.rc.width, 0]);
     const bounds = new L.LatLngBounds(southWest, northEast);
-    const baseImage = L.imageOverlay(`${map.GAME_FILES}/maptex/base.png`, bounds, {
-      pane: BASE_PANE,
-    });
-    baseImage.addTo(this.m);
 
     const baseLayer = L.tileLayer(`${map.GAME_FILES}/maptex/{z}/{x}/{y}.png`, {
       maxNativeZoom: 7,
