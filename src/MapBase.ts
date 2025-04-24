@@ -26,14 +26,17 @@ export class MapBase {
   center: Point = [0, 0, 0];
   zoom: number = map.DEFAULT_ZOOM;
   private zoomChangeCbs: Array<(zoom: number) => void> = [];
+  baseImage!: L.Layer;
   baseLayer!: L.Layer;
   refGrid: Array<L.LayerGroup> = [];
   refGridOn: boolean = false;
 
   showBaseMap(show: boolean) {
     if (show) {
+      this.m.addLayer(this.baseImage);
       this.m.addLayer(this.baseLayer);
     } else {
+      this.m.removeLayer(this.baseImage);
       this.m.removeLayer(this.baseLayer);
     }
   }
@@ -200,6 +203,10 @@ export class MapBase {
     const southWest = this.rc.unproject([0, this.rc.height]);
     const northEast = this.rc.unproject([this.rc.width, 0]);
     const bounds = new L.LatLngBounds(southWest, northEast);
+    this.baseImage = L.imageOverlay(`${map.GAME_FILES}/maptex/base.png`, bounds, {
+      pane: BASE_PANE,
+    });
+    this.baseImage.addTo(this.m);
 
     const baseLayer = L.tileLayer(`${map.GAME_FILES}/maptex/{z}/{x}/{y}.png`, {
       maxNativeZoom: 7,
