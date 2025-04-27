@@ -14,8 +14,22 @@ export default class MixinUtil extends Vue {
     return MsgMgr.getInstance().getName(name) || name;
   }
 
+  isTestOfStrengthShrine(obj: ObjectMinData) {
+    if (obj.map_type != "CDungeon")
+      return false
+    if (!obj.map_name)
+      return false
+    if (obj.map_name.startsWith("Dungeon07") || obj.map_name.startsWith("Dungeon08"))
+      return true
+    if (obj.map_name == "Dungeon135")
+      return true
+    return false
+  }
+
   getRankedUpActorNameForObj(obj: ObjectMinData) {
     if (!Settings.getInstance().hardMode || obj.disable_rankup_for_hard_mode)
+      return obj.name;
+    if (this.isTestOfStrengthShrine(obj))
       return obj.name;
     return rankUpEnemyForHardMode(obj.name);
   }
