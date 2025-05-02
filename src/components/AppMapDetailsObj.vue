@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div v-if="staticData.history.length" style="right: 40px" class="leaflet-sidebar-close" @click="goBack()" v-b-tooltip.hover title="Go back to previous object"><i class="fa fa-arrow-left"></i></div>
+    <div v-if="staticData.history.length" style="right: 40px" class="leaflet-sidebar-close" @click.stop.prevent="goBack()" v-b-tooltip.hover title="Go back to previous object"><i class="fa fa-arrow-left"></i></div>
 
     <h2 class="location-sub" v-if="getLocationSub()">{{getLocationSub()}}</h2>
     <ObjectInfo :obj="minObj" :key="minObj.objid" className="obj-main-info" withPermalink />
@@ -45,13 +45,13 @@
             <hr>
             <h4 class="subsection-heading">Inputs</h4>
             <div class="search-results">
-              <ObjectInfo v-for="(link, idx) in linkTagInputs" :key="'linktag-input'+idx" :link="link" :isStatic="false" @click.native="jumpToObj(link.otherObj)" />
+              <ObjectInfo v-for="(link, idx) in linkTagInputs" :key="'linktag-input'+idx" :link="link" :isStatic="false" @click.native.stop.prevent="jumpToObj(link.otherObj)" />
             </div>
           </section>
           <section v-show="links.length">
             <h4 class="subsection-heading">Triggers</h4>
             <div class="search-results">
-              <ObjectInfo v-for="(link, idx) in links" :key="'linktag-output'+idx" :link="link" :isStatic="false" @click.native="jumpToObj(link.otherObj)" />
+              <ObjectInfo v-for="(link, idx) in links" :key="'linktag-output'+idx" :link="link" :isStatic="false" @click.native.stop.prevent="jumpToObj(link.otherObj)" />
             </div>
           </section>
 
@@ -92,7 +92,7 @@
       <hr>
       <h4 class="subsection-heading"><i class="fas fa-sign-in-alt"></i> Linked by</h4>
       <div class="search-results">
-        <ObjectInfo v-for="(link, idx) in linksToSelf" :key="'linktoself'+idx" :link="link" :isStatic="false" @click.native="jumpToObj(link.otherObj)" />
+        <ObjectInfo v-for="(link, idx) in linksToSelf" :key="'linktoself'+idx" :link="link" :isStatic="false" @click.native.stop.prevent="jumpToObj(link.otherObj)" />
       </div>
     </section>
 
@@ -100,7 +100,7 @@
       <hr>
       <h4 class="subsection-heading"><i class="fas fa-sign-out-alt"></i> Links to</h4>
       <div class="search-results">
-        <ObjectInfo v-for="(link, idx) in links" :key="'link'+idx" :link="link" :isStatic="false" @click.native="jumpToObj(link.otherObj)" />
+        <ObjectInfo v-for="(link, idx) in links" :key="'link'+idx" :link="link" :isStatic="false" @click.native.stop.prevent="jumpToObj(link.otherObj)" />
       </div>
     </section>
 
@@ -108,7 +108,7 @@
       <hr>
       <h4 class="subsection-heading">Generation group</h4>
       <div class="search-results">
-        <ObjectInfo v-for="otherObj in genGroup" :key="otherObj.objid" :obj="otherObj" :isStatic="false" @click.native="jumpToObj(otherObj)" />
+        <ObjectInfo v-for="otherObj in genGroup" :key="otherObj.objid" :obj="otherObj" :isStatic="false" @click.native.stop.prevent="jumpToObj(otherObj)" />
       </div>
     </section>
   </div>
