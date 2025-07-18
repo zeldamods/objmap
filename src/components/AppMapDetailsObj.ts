@@ -11,6 +11,7 @@ import ShopData from '@/components/ShopData';
 import { MapMgr, ObjectData, ObjectMinData, PlacementLink } from '@/services/MapMgr';
 import { MsgMgr } from '@/services/MsgMgr';
 import * as ui from '@/util/ui';
+import { Settings } from '@/util/settings';
 
 import * as curves from '@/util/curves';
 import * as svg from '@/util/svg';
@@ -399,8 +400,11 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj | M
     if (!this.obj)
       return;
 
-    this.addDungeonElevatorLoadAreaMarker(this.obj);
-
+    if (Settings.getInstance().showUnloadRadius) {
+      this.addObjectTraverseDistance(this.obj)
+    } else {
+      this.addDungeonElevatorLoadAreaMarker(this.obj);
+    }
     if (isAreaObject(this.obj))
       this.addAreaMarker(this.obj);
 
@@ -441,6 +445,88 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj | M
     const areaMarker = L.circle(mb.fromXYZ([x, 0, z]), { radius }).addTo(mb.m);
     areaMarker.bringToBack();
     this.areaMarkers.push(areaMarker);
+  }
+
+  private getActorTraverseDist(obj: ObjectData) {
+    const ignored_objs = new Set([
+      "DgnObj_DungeonEntranceSP_Far",
+      "DgnObj_DungeonEntrance_A_01_Far",
+      "DgnObj_EntranceShutter_A_01",
+      "DgnObj_DungeonEntrance_A_01"
+    ])
+    if (ignored_objs.has(obj.data.UnitConfigName)) {
+      return 0.0
+    }
+    if (!obj)
+      return 0.0
+    const passive_radius = [
+      80.0, 100.0, 130.0, 154.0, 169.0, 184.0, 215.0,
+      246.0, 277.0, 308.0, 354.0, 400.0, 446.0, 492.0,
+      539.0, 600.0, 650.0, 700.0, 750.0, 800.0, 850.0,
+      900.0, 950.0, 1000.0, 1050.0, 1100.0, 1300.0, 1400.0,
+      1500.0, 1600.0,
+    ]
+    const active_radius = [
+      70.0, 80.0, 90.0, 100.0, 110.0, 120.0, 140.0,
+      160.0, 180.0, 200.0, 230.0, 260.0, 290.0, 320.0,
+      350.0
+    ]
+    let actorProfile = obj.data['!Parameters']!.ProfileUser
+
+    let traverseDist = 0.0
+    if ('ActorMeta' in obj.data['!Parameters']!)
+      traverseDist = obj.data['!Parameters']!.ActorMeta!.traverseDist || 0.0
+    if (traverseDist > 0) {
+      if (actorProfile.includes('Enemy') || actorProfile.includes('NPC')) {
+        return traverseDist * 0.7
+      }
+      return traverseDist
+    }
+    let boundingForTraverse = 0.0
+    let defaultBoundingForTraverse = 1.0
+    let configuredBoundingForTraverse = 1.0
+    if ('ActorMeta' in obj.data['!Parameters']!)
+      configuredBoundingForTraverse = obj.data['!Parameters']!.ActorMeta!.boundingForTraverse || 0.0
+    if (configuredBoundingForTraverse <= 0.0) {
+      boundingForTraverse = defaultBoundingForTraverse
+    } else {
+      boundingForTraverse = configuredBoundingForTraverse
+    }
+    if (actorProfile.includes("Passive")) {
+      if (boundingForTraverse < 0.3)
+        return 30.0
+      if (boundingForTraverse < 0.5)
+        return 50.0
+      let index = Math.floor(boundingForTraverse)
+      if (index >= 29)
+        index = 29
+      return passive_radius[index]
+    }
+
+    if (boundingForTraverse < 0.3)
+      return 40.0
+    if (boundingForTraverse < 0.5)
+      return 45.0
+    if (boundingForTraverse < 0.8)
+      return 50.0
+    let index = Math.floor(boundingForTraverse)
+    if (index >= 14)
+      index = 14
+    return active_radius[index] * 0.8;
+  }
+
+  private addObjectTraverseDistance(obj: ObjectData) {
+    if (!('ActorMeta' in obj.data['!Parameters']!))
+      return
+    let gg_radius = this.genGroup.map(gg => this.getActorTraverseDist(gg))
+    let radius = Math.max(...gg_radius)
+    if (radius == 0)
+      return
+    const mb = this.marker.data.mb
+    const [x, y, z] = obj.data.Translate
+    const areaMarker = L.circle(mb.fromXYZ([x, 0, z]), { radius, color: 'lightblue', fillColor: 'lightblue' }).addTo(mb.m);
+    areaMarker.bringToBack()
+    this.areaMarkers.push(areaMarker)
   }
 
   private addAreaMarker(obj: ObjectData) {

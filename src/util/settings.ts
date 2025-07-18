@@ -42,6 +42,8 @@ export class Settings {
 
   decompBannerHidden!: boolean;
 
+  showUnloadRadius!: boolean;
+
   private constructor() {
     this.load();
     window.addEventListener('beforeunload', (event) => {
@@ -69,6 +71,7 @@ export class Settings {
     this.hylianMode = false;
     this.drawControlsShown = parse(data.drawControlsShown, Id, false);
     this.decompBannerHidden = parse(data.decompBannerHidden, Id, false);
+    this.showUnloadRadius = parse(data.showUnloadRadius, Id, false);
 
     this.invokeCallbacks();
   }
@@ -92,6 +95,7 @@ export class Settings {
       hylianMode: this.hylianMode,
       drawControlsShown: this.drawControlsShown,
       decompBannerHidden: this.decompBannerHidden,
+      showUnloadRadius: this.showUnloadRadius,
     };
     // Merge with existing data to avoid data loss.
     const existingDataStr = localStorage.getItem(Settings.KEY);

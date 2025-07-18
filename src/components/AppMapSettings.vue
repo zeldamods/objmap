@@ -23,6 +23,7 @@
     <b-checkbox switch v-model="s.useActorNames">Use internal actor names</b-checkbox>
     <b-checkbox switch v-model="s.useHexForHashIds">Show hash IDs in hex</b-checkbox>
     <b-checkbox switch  @change="toggleY">Show object heights in tooltips</b-checkbox>
+    <b-checkbox switch v-model="s.showUnloadRadius">Show object unload radius</b-checkbox>
     <hr>
     <section>
       <h4 class="subsection-heading">Custom Search Presets</h4>
