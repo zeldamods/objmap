@@ -38,14 +38,20 @@ function ptAdd(a: number[], b: number[]): number[] {
 // Curve construction is performed on all components [x,y,z]
 //
 function bezier(pts: any) {
-  let steps = 36;
+  let steps = 4;
   let out = [];
   let n = pts.length;
   if (n == 2) {
     return pts;
   }
-  const coeff = bezierCoeff(n - 1);
+  {
+    let dx = pts[0][0] - pts.at(-1)[0]
+    let dz = pts[0][0] - pts.at(-1)[0]
+    let dist = Math.sqrt(dx * dx + dz * dz)
+    steps = Math.max(steps, Math.floor(dist / 10) + 1)
+  }
 
+  const coeff = bezierCoeff(n - 1);
   let t0 = 0;
   let dt = 1.0 / (steps - 1);
   let xi = pts.map((p: any) => p[0]);
@@ -54,10 +60,8 @@ function bezier(pts: any) {
   for (let k = 0; k < steps; k++) {
     const t = t0 + k * dt;
     const ti = range(n).map((i: number) => coeff[i] * Math.pow(1.0 - t, n - 1 - i) * Math.pow(t, i));
-    for (let i = 0; i < n; i++) {
-      let pt = [dot(ti, xi), dot(ti, yi), dot(ti, zi)];
-      out.push(pt);
-    }
+    let pt = [dot(ti, xi), dot(ti, yi), dot(ti, zi)];
+    out.push(pt);
   }
   return out;
 }

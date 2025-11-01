@@ -319,8 +319,10 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj | M
     this.areaMarkers.forEach(m => m.remove());
     this.korokMarkers.forEach(m => m.remove());
     this.railMarkers.forEach(m => m.remove());
+    this.railMarkers = []
     // Rails
     this.railLimits = {};
+    this.rails = []
     this.updateColorScale();
     if (!this.staticData.persistentRailMarkers.length) {
       this.forgetColorScale();
