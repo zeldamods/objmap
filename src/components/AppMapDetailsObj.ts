@@ -188,6 +188,7 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj | M
 
       let owner = gg.find((g: any) => g.data.ShopName)
       if (owner) {
+        // @ts-ignore
         this.shopName = owner.data.ShopName
       } else {
         owner = gg.find((g: any) => g.data['!Parameters'].ProfileUser == "NPC")
