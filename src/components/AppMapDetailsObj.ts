@@ -84,7 +84,7 @@ function numOrArrayToArray(x: number | [number, number, number] | undefined): [n
 
 function isAreaObject(obj: ObjectMinData) {
   const areaObjectNames = ["Area", "BoxWater", "SpotBgmTag", "PointWindSetTag", "AreaCulling_InnerHide",
-    "AreaCulling_InnerOn", "AreaCulling_OuterNPCMementary", "FarModelCullingArea"];
+    "AreaCulling_InnerOn", "AreaCulling_OuterNPCMementary", "FarModelCullingArea", "CastleBarrier"];
   return areaObjectNames.includes(obj.name) || obj.name.startsWith('AirWall');
 }
 
@@ -113,6 +113,7 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj | M
 
   private dropTables: { [key: string]: any } = {};
   private shopData: { [key: string]: any } = {};
+  private shopName: string | null = null;
   private links: PlacementLink[] = [];
   private linksToSelf: PlacementLink[] = [];
   private linkTagInputs: PlacementLink[] = [];
@@ -141,6 +142,7 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj | M
     this.railMarkers.forEach(m => m.remove());
     this.railMarkers = [];
     this.shopData = {};
+    this.shopName = null;
     if (this.minObj.objid) {
       this.obj = (await MapMgr.getInstance().getObjByObjId(this.minObj.objid))!;
     } else {
@@ -169,6 +171,39 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj | M
       if (location.includes('Stable') || location == "Oasis") {
         this.shopData = await MapMgr.getInstance().getObjShopData();
       }
+    }
+
+    // @ts-ignore
+    if (this.obj.data.ShopData) {
+      // @ts-ignore
+      this.shopData = this.obj.data.ShopData//await MapMgr.getInstance().getObjShopData()
+    }
+    // Count Items in GenGroup with ForSale
+    let ggHasForSale = genGroupForSaleCount(this.genGroup)
+
+    if (ggHasForSale) {
+      this.shopData = {}
+
+      let gg = genGroupFilterItems(this.obj.name, this.genGroup)
+
+      let owner = gg.find((g: any) => g.data.ShopName)
+      if (owner) {
+        this.shopName = owner.data.ShopName
+      } else {
+        owner = gg.find((g: any) => g.data['!Parameters'].ProfileUser == "NPC")
+        if (owner && this.getName(owner.name) != owner.name) {
+          this.shopName = "Shop / " + this.getName(owner.name)
+        }
+      }
+      // Identify items ForSale and count them
+      let items: any = gg
+        .filter(g => g.data.LinksToObj)
+        .filter(g => g.data.LinksToObj.some((gobj: any) => gobj.DefinitionName == "ForSale"))
+        .map(g => g.name)
+        // @ts-ignore
+        .reduce((acc, name) => { acc[name] = (acc[name] || 0) + 1; return acc }, {})
+      let Normal = shopDataFromItems(items)
+      this.shopData = { Header: { TableNum: 1, Table01: "Normal" }, Normal }
     }
 
     if (this.obj.data.LinksToRail || DRAGON_HASH_IDS.includes(this.obj.hash_id)) {
@@ -226,6 +261,10 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj | M
       if (this.railLimits.max === undefined) { this.railLimits.max = yvals[0]; }
       this.railLimits.min = Math.min(this.railLimits.min, ...yvals);
       this.railLimits.max = Math.max(this.railLimits.max, ...yvals);
+      if (Math.abs(this.railLimits.min - this.railLimits.max) < 5) {
+        this.railLimits.min -= 3
+        this.railLimits.max += 3
+      }
       // Draw polyline [x,z,y] but z is North-South and y is Up-Down
       pts = pts.map((pt: any) => [pt[2], pt[0], pt[1]]);
       // @ts-ignore
@@ -632,6 +671,20 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj | M
     return Object.keys(this.shopData).length > 0;
   }
 
+  getShopData() {
+    let location = this.getLocationSub()
+    if (location) {
+      return this.shopData[location]
+    }
+    return this.shopData
+  }
+
+  getShopName() {
+    // @ts-ignore
+    return (this.shopName) ? this.shopName : null
+  }
+
+
   formatDropTable(): string {
     let lines = [];
     let names = Object.keys(this.dropTables);
@@ -806,4 +859,51 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj | M
     this.staticData.persistentRailLimits = {};
     this.forgetColorScale();
   }
+}
+
+function genGroupForSaleCount(genGroup: ObjectData[]) {
+  return genGroup
+    .map(g => g.data.LinksToObj)
+    .filter(g => g)
+    .map(g =>
+      g.map((gobj: any) => gobj.DefinitionName)
+        .filter((name: string) => name == "ForSale"))
+    .flat().length
+}
+
+function genGroupFilterItems(name: string, genGroup: ObjectData[]) {
+  // Tarrey Town groups all Shops together
+  //   Search for Owner and get Shop Name
+  //   Filter out names of items in shop
+  if (!(genGroup.some(g => g.name == "Npc_oasis050"))) { // Found Rhondson in genGroup (Tarrey Town)
+    return genGroup
+  }
+  if (name.startsWith("Mannequin_006_") || name == "Npc_oasis050") {
+    return genGroup.filter(g => g.name.startsWith("Mannequin_006_") || g.name == "Npc_oasis050")
+  }
+  if (name.startsWith("Item_Ore_") || name == "Npc_Goron025") {
+    return genGroup.filter(g => g.name.startsWith("Item_Ore_") || g.name == "Npc_Goron025")
+  }
+  if (name.startsWith("Obj_") || name == "Npc_HighMountain010") {
+    return genGroup.filter(g => g.name.startsWith("Obj_") || g.name == "Npc_HighMountain010")
+      .filter(g => !g.name.startsWith("Obj_Tree"))
+  }
+  return []
+}
+
+function shopDataFromItems(items: any) {
+  let Normal: any = { ColumnNum: Object.keys(items).length }
+  let BuyingPrice = MapMgr.getInstance().getBuyingPrice()
+  Object.keys(items).forEach((name, i) => {
+    let I = (i + 1).toString().padStart(3, '0')
+    Normal[`ItemsSort${I}`] = i + 1
+    Normal[`ItemName${I}`] = name
+    Normal[`ItemNum${I}`] = items[name]
+    Normal[`ItemPriceBase${I}`] = BuyingPrice[name]
+    Normal[`ItemAdjustPrice${I}`] = 0
+    Normal[`ItemPrice${I}`] = BuyingPrice[name]
+    if (!BuyingPrice[name])
+      console.log("No buying price: ", name)
+  })
+  return Normal
 }

@@ -67,7 +67,7 @@
       </section>
 
       <section v-if="shopDataExists()">
-        <ShopData :data="shopData[this.getLocationSub()]" />
+        <ShopData :data="getShopData()" :shop_ui_name="getShopName()" />
       </section>
 
       <section v-if="obj.data['!Parameters']">
