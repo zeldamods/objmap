@@ -49,6 +49,9 @@ export default class AppMapSettings extends Vue {
   toggleY() {
     this.$parent.$emit('AppMap:toggle-y-values');
   }
+  toggleXZ() {
+    this.$parent.$emit('AppMap:toggle-xz-values');
+  }
 
   private loadSettings() {
     this.colorMode = Settings.getInstance().colorPerActor ? 'per-actor' : 'per-group';

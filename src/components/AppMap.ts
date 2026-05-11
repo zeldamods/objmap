@@ -269,7 +269,8 @@ export default class AppMap extends mixins(MixinUtil) {
   areaWhitelist = '';
   showKorokIDs = false;
   shownAutoItem = '';
-  staticTooltip = false;
+  staticTooltipY = false;
+  staticTooltipXZ = false;
 
   private mapUnitGrid = new ui.Unobservable(L.layerGroup());
   showMapUnitGrid = false;
@@ -1077,7 +1078,7 @@ export default class AppMap extends mixins(MixinUtil) {
     this.searching = false;
   }
 
-  enableYTooltip(marker: any) {
+  enableTooltip(marker: any) {
     let m: any = marker.getMarker();
     if (!('_tooltip' in marker.obj)) {
       // @ts-ignore
@@ -1088,14 +1089,22 @@ export default class AppMap extends mixins(MixinUtil) {
     //To update the tooltip with the permanent flag,
     //   we needed to unbind() then re-bind() the tooltip
     //   with a different permanent flag value.
+    this.disableTooltip(marker);
     if (!m.getTooltip().options.permanent) {
       m.unbindTooltip();
-      m.bindTooltip(`${marker.obj.pos[1]}`, { permanent: true });
+      let tip = [] // Position indicies
+      if(this.staticTooltipXZ)
+        tip.push(...[0,2]) // X and Z (0 and 2)
+      if(this.staticTooltipY)
+        tip.push(1) // Y (1)
+      tip.sort()
+      let str = tip.map(id => marker.obj.pos[id].toFixed(2)).join(", ")
+      m.bindTooltip(str, { permanent: true });
       m.openTooltip();
     }
   }
 
-  disableYTooltip(marker: any) {
+  disableTooltip(marker: any) {
     let m: any = marker.getMarker();
     if (m.getTooltip().options.permanent) {
       m.getTooltip().options.permanent = false;
@@ -1105,8 +1114,8 @@ export default class AppMap extends mixins(MixinUtil) {
     }
   }
 
-  toggleYTooltipOnAllMarkers(on: boolean) {
-    let func = on ? this.enableYTooltip : this.disableYTooltip;
+  toggleTooltipOnAllMarkers(on: boolean) {
+    let func = on ? this.enableTooltip : this.disableTooltip;
     this.searchResultMarkers.map(m => m.data).forEach(func);
     this.searchGroups.forEach(group => {
       group.getMarkers().forEach(func);
@@ -1114,11 +1123,16 @@ export default class AppMap extends mixins(MixinUtil) {
   }
 
   updateTooltips() {
-    this.toggleYTooltipOnAllMarkers(this.staticTooltip);
+    this.toggleTooltipOnAllMarkers(this.staticTooltipY || this.staticTooltipXZ);
   }
 
   toggleY() {
-    this.staticTooltip = !this.staticTooltip;
+    this.staticTooltipY = !this.staticTooltipY
+    this.updateTooltips();
+  }
+
+  toggleXZ() {
+    this.staticTooltipXZ = !this.staticTooltipXZ
     this.updateTooltips();
   }
 
@@ -1145,6 +1159,9 @@ export default class AppMap extends mixins(MixinUtil) {
     });
     this.$on('AppMap:toggle-y-values', () => {
       this.toggleY();
+    });
+    this.$on('AppMap:toggle-xz-values', () => {
+      this.toggleXZ();
     });
 
     this.$on('AppMap:open-obj', async (obj: ObjectData) => {
