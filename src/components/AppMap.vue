@@ -290,7 +290,7 @@
           <draggable v-model="drawLayerOpts" @update="updateDrawLayerOptsIndex">
             <div v-for="layer in drawLayerOpts" :key="layer.id" @model="drawLayerOpts" class="marker-row" draggable="true">
               <div>
-                <input type="checkbox" @input="toggleLayerVisibility" :id="layer.id" :checked="layer.visible" >
+                <input type="checkbox" @input="toggleLayerVisibility" :id="layer.id" v-model="layer.visible" >
                 <input type="color" :value="layer.color" @input="changeLayerColor" :layer_id="layer.id" class="marker-color">
                 <div class="inline-block">{{layer.title}}</div>
               </div>
