@@ -599,6 +599,20 @@ export default class AppMap extends mixins(MixinUtil) {
     }
   }
 
+  toggleAllLayers(on: boolean) {
+    this.drawLayerOpts.forEach((opt: any) => {
+      opt.visible = on
+      let layer = this.drawLayer.getLayer(opt.id);
+      if (!layer)
+        return;
+      if (on)
+        layer.addTo(this.map.m)
+      else
+        layer.remove()
+    })
+  }
+
+  
   changeLayerColor(event: any) {
     const id = Number(event.target.attributes.layer_id.value);
     const color = event.target.value;

@@ -283,6 +283,10 @@
         <hr/>
         <div v-if="drawLayerOpts.length">
           <h4 class="subsection-heading">Polyline/Markers</h4>
+          <div style="display: flex; flex-flow; row nowrap; gap: 1em; margin-bottom: 8px;">
+            <b-btn class="polyline_btn" size="sm" variant="link" @click="toggleAllLayers(true)" >All on</b-btn>
+            <b-btn class="polyline_btn" size="sm" variant="link" @click="toggleAllLayers(false)">All off</b-btn>
+          </div>
           <draggable v-model="drawLayerOpts" @update="updateDrawLayerOptsIndex">
             <div v-for="layer in drawLayerOpts" :key="layer.id" @model="drawLayerOpts" class="marker-row" draggable="true">
               <div>
@@ -491,6 +495,6 @@
 .inline-block {
     display: inline-block;
 }
-
+.polyline_btn { padding: 0; }
 
 </style>
