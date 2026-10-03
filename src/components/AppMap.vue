@@ -23,9 +23,9 @@
         <li><a href="#spane-settings" role="tab"><i class="fa fa-cog"></i></a></li>
       </ul>
       <ul role="tablist">
-        <li @click.capture.prevent.stop="toggleHylianMode()"><a href="#dummy" title="Yahaha! You found me!"><i class="fas fa-seedling"></i></a></li>
-        <li v-show="settings.left" @click.capture.prevent.stop="toggleSidebarSide()"><a href="#toggle-sidebar-side" title="Move to the right side"><i class="far fa-caret-square-right"></i></a></li>
-        <li v-show="!settings.left" @click.capture.prevent.stop="toggleSidebarSide()"><a href="#toggle-sidebar-side" title="Move to the left side"><i class="far fa-caret-square-left"></i></a></li>
+        <li @click.capture.prevent.stop="toggleHylianMode()"><a href="#dummy" v-tooltip.hover.right="'Yahaha! You found me!'"><i class="fas fa-seedling"></i></a></li>
+        <li v-show="settings.left" @click.capture.prevent.stop="toggleSidebarSide()"><a href="#toggle-sidebar-side" v-tooltip.hover.right="'Move to the right side'"><i class="far fa-caret-square-right"></i></a></li>
+        <li v-show="!settings.left" @click.capture.prevent.stop="toggleSidebarSide()"><a href="#toggle-sidebar-side" v-tooltip.hover.left="'Move to the left side'"><i class="far fa-caret-square-left"></i></a></li>
       </ul>
     </div>
     <div class="leaflet-sidebar-content" id="sidebar-content">
@@ -362,7 +362,7 @@
         <h1 class="leaflet-sidebar-header">Tools</h1>
         <button type="button" class="btn btn-secondary btn-sm d-block w-100" @click="closeSidebar(); $refs.modalGoto.show()">Go to coordinates...</button>
         <hr>
-        <p><button type="button" class="btn btn-secondary btn-sm d-block w-100" @click="closeSidebar(); showGreatPlateauBarrier()" title="Right click on the Plateau to hide the barrier.">Show Great Plateau barrier</button></p>
+        <p><button type="button" class="btn btn-secondary btn-sm d-block w-100" @click="closeSidebar(); showGreatPlateauBarrier()" v-tooltip.hover="'Right click on the Plateau to hide the barrier.'">Show Great Plateau barrier</button></p>
         <p>The Great Plateau barrier prevents Link from leaving the Great Plateau before he has acquired the paraglider. For more information, read the <a href="https://zeldamods.org/wiki/The_Great_Plateau_barrier">article</a>.</p>
 
         <hr>

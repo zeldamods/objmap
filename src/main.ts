@@ -10,6 +10,7 @@ import router from './router';
 
 import { MapMgr } from '@/services/MapMgr';
 import { MsgMgr } from '@/services/MsgMgr';
+import { vTooltip } from '@/util/tooltip';
 
 async function main() {
   await initServices();
@@ -24,7 +25,7 @@ async function initServices() {
 }
 
 async function initUi() {
-  const app = createApp(App).use(router);
+  const app = createApp(App).use(router).directive('tooltip', vTooltip);
   await router.isReady();
   app.mount('#app');
 }

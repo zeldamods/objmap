@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div v-if="staticData.history.length" style="right: 40px" class="leaflet-sidebar-close" @click.stop.prevent="goBack()" title="Go back to previous object"><i class="fa fa-arrow-left"></i></div>
+    <div v-if="staticData.history.length" style="right: 40px" class="leaflet-sidebar-close" @click.stop.prevent="goBack()" v-tooltip.hover="'Go back to previous object'"><i class="fa fa-arrow-left"></i></div>
 
     <h2 class="location-sub" v-if="getLocationSub()">{{getLocationSub()}}</h2>
     <ObjectInfo :obj="minObj" :key="minObj.objid" className="obj-main-info" withPermalink />

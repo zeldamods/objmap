@@ -1,9 +1,8 @@
+import Modal from 'bootstrap/js/dist/modal';
 import { defineComponent } from 'vue';
 
 import * as map from '@/util/map';
-
-// Bootstrap's .fade transition duration.
-const FADE_DURATION_MS = 150;
+import * as ui from '@/util/ui';
 
 export default defineComponent({
   name: 'ModalGotoCoords',
@@ -11,7 +10,9 @@ export default defineComponent({
 
   setup() {
     return {
-      hideTimer: 0,
+      modal: ui.late<Modal>(),
+      wantShown: false,
+      opener: null as HTMLElement | null,
     };
   },
 
@@ -19,36 +20,48 @@ export default defineComponent({
     return {
       x: "",
       z: "",
-
-      isBlock: false,
-      isShow: false,
     };
+  },
+
+  mounted() {
+    const el = this.$el as HTMLElement;
+    this.modal = new Modal(el);
+    // Bootstrap ignores show() and hide() mid-transition; wantShown lets the last call win once it ends.
+    el.addEventListener('hide.bs.modal', () => {
+      this.wantShown = false;
+    });
+    el.addEventListener('shown.bs.modal', () => {
+      if (!this.wantShown) {
+        this.modal.hide();
+        return;
+      }
+      (this.$refs.formGotoX as HTMLInputElement).focus();
+    });
+    el.addEventListener('hidden.bs.modal', () => {
+      if (this.wantShown) {
+        this.modal.show();
+        return;
+      }
+      this.opener?.focus();
+      this.opener = null;
+    });
+  },
+
+  beforeUnmount() {
+    this.modal.dispose();
   },
 
   methods: {
     show(): void {
-      window.clearTimeout(this.hideTimer);
-      this.hideTimer = 0;
-      this.isBlock = true;
-      document.body.classList.add('modal-open');
-      this.$nextTick(() => {
-        (this.$refs.formGotoX as HTMLInputElement).focus();
-        if (this.hideTimer)
-          return;
-        // Lay the modal out without .show first, or the fade/slide-in transition won't run.
-        void (this.$el as HTMLElement).offsetHeight;
-        this.isShow = true;
-      });
+      const active = document.activeElement;
+      if (active instanceof HTMLElement && !this.$el.contains(active))
+        this.opener = active;
+      this.wantShown = true;
+      this.modal.show();
     },
     hide(): void {
-      if (!this.isBlock)
-        return;
-      this.isShow = false;
-      window.clearTimeout(this.hideTimer);
-      this.hideTimer = window.setTimeout(() => {
-        this.isBlock = false;
-        document.body.classList.remove('modal-open');
-      }, FADE_DURATION_MS);
+      this.wantShown = false;
+      this.modal.hide();
     },
 
     onPaste(evt: ClipboardEvent): void {
