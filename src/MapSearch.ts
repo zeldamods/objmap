@@ -1,4 +1,5 @@
 import * as L from 'leaflet';
+import {markRaw} from 'vue';
 import {MapBase} from '@/MapBase';
 import {SearchResultUpdateMode} from '@/MapMarker';
 import * as MapMarkers from '@/MapMarker';
@@ -104,10 +105,10 @@ export class SearchExcludeSet {
     return this.ids.size;
   }
 
-  ids: Set<number> = new Set();
+  ids: Set<number> = markRaw(new Set());
 
   async init() {
-    this.ids = new Set(await MapMgr.getInstance().getObjids(Settings.getInstance().mapType, Settings.getInstance().mapName, this.query));
+    this.ids = markRaw(new Set(await MapMgr.getInstance().getObjids(Settings.getInstance().mapType, Settings.getInstance().mapName, this.query)));
   }
 }
 
@@ -116,32 +117,32 @@ export class SearchResultGroup {
   }
 
   size() {
-    return this.markers.data ? this.markers.data.length : 0;
+    return this.markers.length;
   }
 
   getMarkers() {
-    return this.markers.data;
+    return this.markers;
   }
 
   remove() {
-    this.markerGroup.data.remove();
-    this.markerGroup.data.clearLayers();
-    this.shownMarkers = new ui.Unobservable([]);
+    this.markerGroup.remove();
+    this.markerGroup.clearLayers();
+    this.shownMarkers = markRaw([]);
   }
 
   update(mode: SearchResultUpdateMode, excludedSets: SearchExcludeSet[]) {
     const isExcluded = (marker: MapMarkers.MapMarkerObj) => {
       return excludedSets.some(set => set.ids.has(marker.obj.objid));
     };
-    for (const [i, marker] of this.markers.data.entries()) {
+    for (const [i, marker] of this.markers.entries()) {
       const shouldShow = mode & SearchResultUpdateMode.UpdateVisibility
-        ? (this.enabled && !isExcluded(marker)) : this.shownMarkers.data[i];
-      if (shouldShow != this.shownMarkers.data[i]) {
+        ? (this.enabled && !isExcluded(marker)) : this.shownMarkers[i];
+      if (shouldShow != this.shownMarkers[i]) {
         if (shouldShow)
-          this.markerGroup.data.addLayer(marker.getMarker());
+          this.markerGroup.addLayer(marker.getMarker());
         else
-          this.markerGroup.data.removeLayer(marker.getMarker());
-        this.shownMarkers.data[i] = shouldShow;
+          this.markerGroup.removeLayer(marker.getMarker());
+        this.shownMarkers[i] = shouldShow;
       }
       if (shouldShow)
         marker.update(this.fillColor, this.strokeColor, mode);
@@ -149,16 +150,16 @@ export class SearchResultGroup {
   }
 
   setObjects(map: MapBase, objs: ObjectMinData[]) {
-    this.markers = new ui.Unobservable(
+    this.markers = markRaw(
         objs.map(r => new MapMarkers.MapMarkerObj(map, r, this.fillColor, this.strokeColor)));
-    this.markerGroup.data.clearLayers();
-    this.shownMarkers = new ui.Unobservable([]);
+    this.markerGroup.clearLayers();
+    this.shownMarkers = markRaw([]);
   }
 
   async init(map: MapBase) {
     this.fillColor = ui.shadeColor(ui.genColor(10, SearchResultGroup.COLOR_COUNTER++), -5);
     this.strokeColor = ui.shadeColor(this.fillColor, -20);
-    this.markerGroup.data.addTo(map.m);
+    this.markerGroup.addTo(map.m);
     if (!this.query)
       return;
     const results = await MapMgr.getInstance().getObjs(Settings.getInstance().mapType, Settings.getInstance().mapName, this.query);
@@ -166,9 +167,9 @@ export class SearchResultGroup {
   }
 
   private static COLOR_COUNTER = 0;
-  private markerGroup = new ui.Unobservable<L.LayerGroup>(L.layerGroup());
-  private markers = new ui.Unobservable<MapMarkers.MapMarkerObj[]>([]);
-  private shownMarkers: ui.Unobservable<boolean[]> = new ui.Unobservable([]);
+  private markerGroup = markRaw(L.layerGroup());
+  private markers = markRaw<MapMarkers.MapMarkerObj[]>([]);
+  private shownMarkers = markRaw<boolean[]>([]);
   private fillColor = '';
   private strokeColor = '';
 }

@@ -4,7 +4,6 @@ import Component, { mixins } from 'vue-class-component';
 
 import MixinUtil from '@/components/MixinUtil';
 import { ObjectMinData } from '@/services/MapMgr';
-import * as ui from '@/util/ui';
 
 @Component({
   watch: {
@@ -14,7 +13,7 @@ import * as ui from '@/util/ui';
 })
 export default class AppMapDetailsBase<MarkerClass> extends mixins(MixinUtil) {
   @Prop()
-  protected marker!: ui.Unobservable<MarkerClass>;
+  protected marker!: MarkerClass;
   protected init() { }
 
   private created() {

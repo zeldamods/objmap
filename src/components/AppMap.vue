@@ -320,7 +320,7 @@
 
       <div class="leaflet-sidebar-pane" id="spane-details">
         <div class="leaflet-sidebar-close" @click="closeSidebar()"><i class="fa fa-times"></i></div>
-        <h1 v-if="detailsMarker" class="location-title leaflet-sidebar-header" :title="detailsMarker.data.title"><span>{{detailsMarker.data.title}}</span></h1>
+        <h1 v-if="detailsMarker" class="location-title leaflet-sidebar-header" :title="detailsMarker.title"><span>{{detailsMarker.title}}</span></h1>
         <component v-if="detailsComponent" :is="detailsComponent" v-bind:marker="detailsMarker"></component>
       </div>
 

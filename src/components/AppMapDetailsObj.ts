@@ -1,5 +1,5 @@
 import * as L from 'leaflet';
-import Vue from 'vue';
+import Vue, { markRaw } from 'vue';
 import { Prop } from 'vue-property-decorator';
 import Component from 'vue-class-component';
 import 'leaflet-path-transform';
@@ -110,7 +110,7 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj | M
   private minObj: ObjectMinData | null = null;
   private obj: ObjectData | null = null;
   private genGroup: ObjectData[] = [];
-  private genGroupSet: Map<number, ObjectData> = new Map();
+  private genGroupSet: Map<number, ObjectData> = markRaw(new Map());
 
   private dropTables: { [key: string]: any } = {};
   private shopData: { [key: string]: any } = {};
@@ -129,7 +129,7 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj | M
   private railLimits: { [key: string]: any } = {};
 
   async init() {
-    this.minObj = this.marker.data.obj;
+    this.minObj = this.marker.obj;
     this.obj = null;
     this.genGroup = [];
     this.genGroupSet.clear();
@@ -219,7 +219,7 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj | M
 
     this.initAreaMarkers();
 
-    this.marker.data.mb.m.on('ColorScale:change', async (args: any) => {
+    this.marker.mb.m.on('ColorScale:change', async (args: any) => {
       this.updateColorlineStyle({ palette: args.palette });
     });
 
@@ -254,7 +254,7 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj | M
       pane: 'tilePane',
     };
 
-    let map = this.marker.data.mb;
+    let map = this.marker.mb;
     this.railLimits = {};
     this.railMarkers = this.rails.map((rail: any) => {
       let pts = curves.railPath(rail); //[x,y,z] y is UpDown
@@ -270,11 +270,11 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj | M
       // Draw polyline [x,z,y] but z is North-South and y is Up-Down
       pts = pts.map((pt: any) => [pt[2], pt[0], pt[1]]);
       // @ts-ignore
-      return L.hotline(pts, { ...opts, renderer: L.Hotline.renderer({ pane: opts.pane }) }).addTo(map.m);
+      return markRaw(L.hotline(pts, { ...opts, renderer: L.Hotline.renderer({ pane: opts.pane }) }).addTo(map.m));
     });
     if (this.railMarkers.length) {
       if (!this.staticData.colorScale) {
-        this.staticData.colorScale = new ColorScale(opts, { position: 'bottomleft' }).addTo(map.m);
+        this.staticData.colorScale = markRaw(new ColorScale(opts, { position: 'bottomleft' }).addTo(map.m));
         this.updateColorlineStyle({ palette: this.staticData.colorScale.palette() });
       }
       this.updateColorScale();
@@ -331,7 +331,7 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj | M
   }
 
   getLocationSub() {
-    const obj = this.marker.data.obj;
+    const obj = this.marker.obj;
     if (obj.name === 'LocationTag' && obj.messageid) {
       const locationName = MsgMgr.getInstance().getMsgWithFile('StaticMsg/LocationMarker', obj.messageid)
         || MsgMgr.getInstance().getMsgWithFile('StaticMsg/Dungeon', obj.messageid);
@@ -341,7 +341,7 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj | M
   }
 
   isSearchResult() {
-    return this.marker.data instanceof MapMarkerSearchResult;
+    return this.marker instanceof MapMarkerSearchResult;
   }
 
   emitBackToSearch() {
@@ -483,9 +483,9 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj | M
     if (radius == 0.0)
       return;
 
-    const mb = this.marker.data.mb;
+    const mb = this.marker.mb;
     const [x, y, z] = obj.data.Translate;
-    const areaMarker = L.circle(mb.fromXYZ([x, 0, z]), { radius }).addTo(mb.m);
+    const areaMarker = markRaw(L.circle(mb.fromXYZ([x, 0, z]), { radius }).addTo(mb.m));
     areaMarker.bringToBack();
     this.areaMarkers.push(areaMarker);
   }
@@ -565,15 +565,15 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj | M
     let radius = Math.max(...gg_radius)
     if (radius == 0)
       return
-    const mb = this.marker.data.mb
+    const mb = this.marker.mb
     const [x, y, z] = obj.data.Translate
-    const areaMarker = L.circle(mb.fromXYZ([x, 0, z]), { radius, color: 'lightblue', fillColor: 'lightblue' }).addTo(mb.m);
+    const areaMarker = markRaw(L.circle(mb.fromXYZ([x, 0, z]), { radius, color: 'lightblue', fillColor: 'lightblue' }).addTo(mb.m));
     areaMarker.bringToBack()
     this.areaMarkers.push(areaMarker)
   }
 
   private addAreaMarker(obj: ObjectData) {
-    const mb = this.marker.data.mb;
+    const mb = this.marker.mb;
     const [x, y, z] = obj.data.Translate;
     const params = obj.data['!Parameters'];
     const shape: string = (params && params.Shape) ? params.Shape : 'Box';
@@ -620,7 +620,7 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj | M
     }
 
     areaMarker.bringToBack();
-    this.areaMarkers.push(areaMarker);
+    this.areaMarkers.push(markRaw(areaMarker));
   }
 
   isAreaReprPossiblyWrong(): boolean {
@@ -781,14 +781,14 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj | M
 
   getKorokMarkerWithIcon(obj: any, style: string = "", text: string = "") {
     let icon = this.getKorokIcon(obj.data.UnitConfigName, style, text);
-    return L.marker([obj.data.Translate[2], obj.data.Translate[0]], { icon: icon });
+    return markRaw(L.marker([obj.data.Translate[2], obj.data.Translate[0]], { icon: icon }));
   }
 
   initKorokMarkers() {
     if (!this.obj)
       return;
     const use_icon = true;
-    let map = this.marker.data.mb;
+    let map = this.marker.mb;
     if (this.obj.korok_type == "Goal Ring (Race)") {
       let names = ["FldObj_KorokStartingBlock_A_01", "FldObj_KorokGoal_A_01"];
       let objs = this.genGroup.filter((obj: any) => names.includes(this.getName(obj.name)));
@@ -798,12 +798,12 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj | M
 
       // Connecting Line
       let ll = objs.map((obj: any) => [obj.data.Translate[2], obj.data.Translate[0]]);
-      let line = L.polyline(ll, { color: '#cccccc', weight: 1.5 }).addTo(map.m);
+      let line = markRaw(L.polyline(ll, { color: '#cccccc', weight: 1.5 }).addTo(map.m));
       this.korokMarkers.push(line);
     } else if (this.obj.korok_type == "Moving Lights") {
       this.rails.forEach((rail: any) => {
         let pts = curves.railPath(rail).map((pt: any) => [pt[2], pt[0]]);
-        let line = L.polyline(pts, { color: "#cccccc", weight: 2.0 }).addTo(map.m);
+        let line = markRaw(L.polyline(pts, { color: "#cccccc", weight: 2.0 }).addTo(map.m));
         this.korokMarkers.push(line);
       });
     } else if (this.obj.korok_type == "Rock Pattern") {
@@ -825,7 +825,7 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj | M
           let m = this.getKorokMarkerWithIcon(obj, s, `<span style="color: #ccc; font-size: 1.2em;">${i + 1}</span>`).addTo(map.m);
           this.korokMarkers.push(m);
         } else {
-          let m = L.marker([obj.data.Translate[2], obj.data.Translate[0]]).addTo(map.m);
+          let m = markRaw(L.marker([obj.data.Translate[2], obj.data.Translate[0]]).addTo(map.m));
           this.korokMarkers.push(m);
         }
       });
@@ -834,7 +834,7 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj | M
         let z = obj.data.Translate[2];
         return [z, x];
       });
-      let line = L.polyline(ll, { color: "#cccccc", weight: 1.5 }).addTo(map.m);
+      let line = markRaw(L.polyline(ll, { color: "#cccccc", weight: 1.5 }).addTo(map.m));
       this.korokMarkers.push(line);
     }
   }
@@ -845,7 +845,7 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj | M
   }
 
   forgetPersistentKorokMarkers() {
-    let map = this.marker.data.mb;
+    let map = this.marker.mb;
     this.staticData.persistentKorokMarkers.forEach(m => m.remove());
     this.staticData.persistentKorokMarkers = [];
   }

@@ -43,7 +43,7 @@ export default class AppMapDetailsPlace extends AppMapDetailsBase<MapMarkerPlace
   }
 
   protected async init() {
-    this.id = this.marker.data.lm.getMessageId();
+    this.id = this.marker.lm.getMessageId();
     this.sub = MsgMgr.getInstance().getMsgWithFile('StaticMsg/LocationMarker', this.id);
     this.shopData = {};
     if (this.sub.includes('Stable') || this.sub == 'Kara Kara Bazaar') {

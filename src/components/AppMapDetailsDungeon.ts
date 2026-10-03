@@ -19,7 +19,7 @@ export default class AppMapDetailsDungeon extends AppMapDetailsBase<MapMarkerDun
   private enemies: ObjectMinData[] = [];
 
   protected init() {
-    this.id = this.marker.data.lm.getMessageId();
+    this.id = this.marker.lm.getMessageId();
     this.sub = MsgMgr.getInstance().getMsgWithFile('StaticMsg/Dungeon', this.id + '_sub');
 
     MapMgr.getInstance().getObjs('CDungeon', this.id, 'actor:^"TBox_"').then(d => this.tboxObjs = d);

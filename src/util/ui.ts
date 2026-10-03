@@ -2,15 +2,6 @@
 import * as L from 'leaflet';
 import { MsgMgr } from '@/services/MsgMgr';
 
-/// Wrapper class for objects that should not be observed by Vue.
-export class Unobservable<T> {
-  public readonly data: T;
-  constructor(data: T) {
-    this.data = data;
-    Object.freeze(this);
-  }
-}
-
 export type LeafletContextMenuCbArg = { latlng: L.LatLng };
 
 export function copyToClipboard(text: string) {

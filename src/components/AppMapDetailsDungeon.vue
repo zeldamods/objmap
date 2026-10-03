@@ -1,7 +1,7 @@
 <template>
   <section>
     <h2 class="location-sub">{{sub}}</h2>
-    <p>Dungeon number: {{marker.data.dungeonNum}}</p>
+    <p>Dungeon number: {{marker.dungeonNum}}</p>
     <hr>
     <section v-if="tboxObjs.length">
       <h4 class="subsection-heading">Treasure Chests</h4>
