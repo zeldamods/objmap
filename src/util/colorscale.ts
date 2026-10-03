@@ -105,13 +105,13 @@ export class ColorScale extends L.Control {
   };
 
   createPicker() {
-    let div = L.DomUtil.create('div', 'colorscale-picker');
-    let title = L.DomUtil.create('div', 'colorscale-picker-title');
+    const div = L.DomUtil.create('div', 'colorscale-picker');
+    const title = L.DomUtil.create('div', 'colorscale-picker-title');
     title.textContent = "Change Color Scheme";
     div.appendChild(title);
     for (const name of Object.keys(this.palettes)) {
-      let cmap = this.palettes[name];
-      let link = L.DomUtil.create('a');
+      const cmap = this.palettes[name];
+      const link = L.DomUtil.create('a');
       link.href = "#";
       link.title = `Use ${name} colormap`;
       link.addEventListener('click', (event: any) => {
@@ -125,7 +125,7 @@ export class ColorScale extends L.Control {
           max: this.max,
         });
       });
-      let line = this.createColorBar(cmap);
+      const line = this.createColorBar(cmap);
       line.classList.add('colorscale-picker-sample');
       line.style.margin = '5px';
       link.appendChild(line);
@@ -136,18 +136,18 @@ export class ColorScale extends L.Control {
   }
 
   createColorBar(palette: any) {
-    let div = L.DomUtil.create('div', 'colorscale-bar');
+    const div = L.DomUtil.create('div', 'colorscale-bar');
     this.setColorScale(div, palette);
     return div;
   }
 
   setColorScale(scale: HTMLElement, palette: any) {
-    let stops = Object.keys(palette).sort()
+    const stops = Object.keys(palette).sort()
       .map((v: any) => `${palette[v]} ${v * 100}%`).join(", ");
     scale.style.background = `linear-gradient(to right, ${stops})`;
   }
   updateColorScale(palette: any) {
-    let div = L.DomUtil.get('colorscale-bar-id');
+    const div = L.DomUtil.get('colorscale-bar-id');
     if (div) {
       this.setColorScale(div, palette);
     }
@@ -160,7 +160,7 @@ export class ColorScale extends L.Control {
 
 
   createScale(parent: any) {
-    let title = L.DomUtil.create('div', 'colorscale-title');
+    const title = L.DomUtil.create('div', 'colorscale-title');
     title.innerHTML = 'Height (m)';
     parent.appendChild(title);
 
@@ -177,9 +177,9 @@ export class ColorScale extends L.Control {
     scale = (scale < 0) ? Math.abs(scale) : 0;
 
     while (tick <= this.nice_max) {
-      let tag = L.DomUtil.create('div', 'colorscale-label');
+      const tag = L.DomUtil.create('div', 'colorscale-label');
       tag.innerHTML = `${tick.toFixed(scale)}`;
-      let pct = this._valToNorm(tick);
+      const pct = this._valToNorm(tick);
       tag.style.left = `${pct * 100}% `;
       div.appendChild(tag);
       i += 1;
@@ -191,13 +191,13 @@ export class ColorScale extends L.Control {
   }
 
   updateScale() {
-    let parent: any = L.DomUtil.get('colorscale-id');
+    const parent: any = L.DomUtil.get('colorscale-id');
     L.DomUtil.empty(parent);
     this.createScale(parent);
   }
 
   onAdd(map: L.Map) {
-    let parent = L.DomUtil.create('div', 'colorscale');
+    const parent = L.DomUtil.create('div', 'colorscale');
     parent.id = "colorscale-id";
     return this.createScale(parent);
   }
@@ -214,7 +214,7 @@ export class ColorScale extends L.Control {
   }
 
   _calculate() {
-    let range = this._niceNum(this.max - this.min, false);
+    const range = this._niceNum(this.max - this.min, false);
     this.tick_spacing = this._niceNum(range / (this.max_ticks - 1), true);
     this.nice_min = Math.ceil(this.min / this.tick_spacing) * this.tick_spacing;
     this.nice_max = Math.floor(this.max / this.tick_spacing) * this.tick_spacing;
@@ -222,10 +222,10 @@ export class ColorScale extends L.Control {
 
 
   _niceNum(range: number, round: boolean): number {
-    let exponent = Math.floor(Math.log10(range));
-    let fraction = range / Math.pow(10, exponent);
+    const exponent = Math.floor(Math.log10(range));
+    const fraction = range / Math.pow(10, exponent);
 
-    let nice_fraction = 1.0;
+    let nice_fraction: number;
     if (round) {
       if (fraction < 1.5) {
         nice_fraction = 1;

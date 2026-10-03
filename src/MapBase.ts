@@ -61,11 +61,11 @@ export class MapBase {
       this.refGrid = this.createMarkers();
     }
     const zoomLevel = this.m.getZoom();
-    let minZoom = [1, 4, 5, 1];
+    const minZoom = [1, 4, 5, 1];
     if (this.refGridOn) {
       this.refGrid.forEach((layer, i) => {
         //for (let i = 0; i < 4; i++) {
-        let visible = this.m.hasLayer(layer);
+        const visible = this.m.hasLayer(layer);
         if (zoomLevel >= minZoom[i]) {
           if (!visible) {
             this.m.addLayer(layer);
@@ -237,12 +237,12 @@ preserveAspectRatio="none"  xmlns="http://www.w3.org/2000/svg" >
     const svgIcon = this.svgIconBase(3);
     const svgIcon2 = this.svgIconBase(6);
     const svgIcon3 = this.svgIconBase(12);
-    let size = 125;
-    let markers = [L.layerGroup(), L.layerGroup(), L.layerGroup(), L.layerGroup()];
+    const size = 125;
+    const markers = [L.layerGroup(), L.layerGroup(), L.layerGroup(), L.layerGroup()];
     for (let i = 0; i < 20 * 4; i++) {
       for (let j = 0; j < 16 * 4; j++) {
-        let z = -4000 + j * size + 125 / 2;
-        let x = -5000 + i * size + 125 / 2;
+        const z = -4000 + j * size + 125 / 2;
+        const x = -5000 + i * size + 125 / 2;
         let k = 2;
         let icon = svgIcon;
         if (i % 4 == 0 && j % 4 == 0) {

@@ -9,7 +9,7 @@ export function late<T>(): T {
 export type LeafletContextMenuCbArg = { latlng: L.LatLng };
 
 export function copyToClipboard(text: string) {
-  let textarea = document.createElement("textarea");
+  const textarea = document.createElement("textarea");
   textarea.textContent = text;
   textarea.style.position = "fixed";
   document.body.appendChild(textarea);
@@ -27,11 +27,11 @@ export function genColor(numOfSteps: number, step: number) {
   // This function generates vibrant, "evenly spaced" colours (i.e. no clustering). This is ideal for creating easily distinguishable vibrant markers in Google Maps and other apps.
   // Adam Cole, 2011-Sept-14
   // HSV to RBG adapted from: http://mjijackson.com/2008/02/rgb-to-hsl-and-rgb-to-hsv-color-model-conversion-algorithms-in-javascript
-  var r, g, b;
-  var h = step / numOfSteps;
-  var i = ~~(h * 6);
-  var f = h * 6 - i;
-  var q = 1 - f;
+  let r, g, b;
+  const h = step / numOfSteps;
+  const i = ~~(h * 6);
+  const f = h * 6 - i;
+  const q = 1 - f;
   switch (i % 6) {
     case 0: r = 1; g = f; b = 0; break;
     case 1: r = q; g = 1; b = 0; break;
@@ -55,11 +55,11 @@ export function shadeColor(color: string, percent: number) {
 }
 
 function areaTooltip(area: any): string {
-  let auto_areas = ['Fish', 'Bird', 'Insect', 'Animal', 'Enemy', 'Material'];
+  const auto_areas = ['Fish', 'Bird', 'Insect', 'Animal', 'Enemy', 'Material'];
   if (area.type == "Safe") {
     return "Safe Area";
   } else if (auto_areas.includes(area.type)) {
-    let parts = area.items.map((item: any) => `- ${item.real_name}: ${item.num}`).join("<br/>");
+    const parts = area.items.map((item: any) => `- ${item.real_name}: ${item.num}`).join("<br/>");
     return [`Auto ${area.type}`, parts, `<small>Field Map Area ${area.field_map_area}</small>`].join("<br/>");
   }
   return 'Area';
@@ -67,9 +67,9 @@ function areaTooltip(area: any): string {
 
 export function areaMapToLayers(areas: any): L.Path[] {
   const nentries = Object.entries(areas).length;
-  let layers: L.Path[] = Object.values(areas).map((feature: any, i) => {
-    let layer: L.Circle | L.Polygon = toShape(feature.shape, feature.loc, feature.scale, feature.rotate);
-    let color = feature.color || genColor(nentries, i);
+  const layers: L.Path[] = Object.values(areas).map((feature: any, i) => {
+    const layer: L.Circle | L.Polygon = toShape(feature.shape, feature.loc, feature.scale, feature.rotate);
+    const color = feature.color || genColor(nentries, i);
     layer.setStyle({
       color: color,
       fillOpacity: 0.2,
@@ -98,11 +98,11 @@ export function layerHover(layer: L.Path, data: string) {
 // Functions for creating Leaflet objects
 //
 function yrotate(p: [number, number], angle: number): [number, number] {
-  let ang = angle * Math.PI / 180.0;
-  let x = p[0];
-  let y = p[1];
-  let ca = Math.cos(ang);
-  let sa = Math.sin(ang);
+  const ang = angle * Math.PI / 180.0;
+  const x = p[0];
+  const y = p[1];
+  const ca = Math.cos(ang);
+  const sa = Math.sin(ang);
   return [x * ca - y * sa, x * sa + y * ca];
 }
 
@@ -111,9 +111,9 @@ export function cylinder(loc: number[], scale: number[], rotate: number[]): L.Ci
 }
 
 export function circle(loc: number[], scale: number[], rotate: number[]): L.Circle {
-  let x0 = loc[0];
-  let z0 = loc[2];
-  let sx = scale[0];
+  const x0 = loc[0];
+  const z0 = loc[2];
+  const sx = scale[0];
   return L.circle(L.latLng(z0, x0), { radius: sx });
 }
 
@@ -127,14 +127,14 @@ export function capsule(loc: number[], scale: number[], rotate: number[]): L.Cir
 }
 
 export function rectangle(loc: number[], scale: number[], rotate: number[]): L.Polygon {
-  let x0 = loc[0];
+  const x0 = loc[0];
   //let y0 = loc[1];
-  let z0 = loc[2];
-  let sx = scale[0];
+  const z0 = loc[2];
+  const sx = scale[0];
   //let sy = scale[1];
-  let sz = scale[2];
+  const sz = scale[2];
   // Rotate around the y axis (clockwise);
-  let angle = -rotate[1];
+  const angle = -rotate[1];
   let pts: [number, number][] = [
     [-sx, -sz],
     [+sx, -sz],
@@ -144,7 +144,7 @@ export function rectangle(loc: number[], scale: number[], rotate: number[]): L.P
   pts = pts
     .map(p => yrotate(p, angle))
     .map(p => [x0 + p[0], z0 + p[1]]);
-  let latlng = pts.map(p => L.latLng(p[1], p[0]));
+  const latlng = pts.map(p => L.latLng(p[1], p[0]));
   return L.polygon(latlng);
 }
 
@@ -167,9 +167,9 @@ export function toShape(shape: string, loc: number[], scale: number[], rotate: n
 
 
 export function svgIcon(fill: string): L.DivIcon {
-  let stroke: string = shadeColor(fill, -10) as string;
+  const stroke: string = shadeColor(fill, -10) as string;
   // Note: Attach styles directly to paths, as styles within <style></style> are overwritten by new SVG Icons
-  let svg = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="30" height="40" viewBox="0 0 50.29 81.47">
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="30" height="40" viewBox="0 0 50.29 81.47">
     <defs>
       <linearGradient id="linear-gradient" x1="281.94" y1="307.83" x2="281.94" y2="383.66" gradientUnits="userSpaceOnUse">
         <stop offset="0" stop-color="#fff" stop-opacity="0.2"/>

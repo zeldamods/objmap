@@ -376,7 +376,7 @@ export default defineComponent({
     // Similar to updateMarkers() but only called
     //   on toggle of KorokIDs
     updateKorokIDs() {
-      let type = "Korok";
+      const type = "Korok";
       const info = MapMgr.getInstance().getInfoMainField();
       if (Settings.getInstance().shownGroups.has(type)) {
         this.markerGroups.get(type)!.destroy();
@@ -636,7 +636,7 @@ export default defineComponent({
     toggleAllLayers(on: boolean) {
       this.drawLayerOpts.forEach((opt: any) => {
         opt.visible = on
-        let layer = this.drawLayer.getLayer(opt.id);
+        const layer = this.drawLayer.getLayer(opt.id);
         if (!layer)
           return;
         if (on)
@@ -669,7 +669,7 @@ export default defineComponent({
       if (!this.drawLayer)
         return [];
       const layerIDs = this.drawLayer.getLayers().map((layer: any) => {
-        let props = layer.feature.properties;
+        const props = layer.feature.properties;
         const id = this.drawLayer.getLayerId(layer);
         return {
           id,
@@ -702,8 +702,8 @@ export default defineComponent({
     updateDrawLayerOpts(updates: any = {}) {
       this.$nextTick(() => {
         if (updates.layer) {
-          let id = this.drawLayer.getLayerId(updates.layer);
-          let opt = this.drawLayerOpts.find((layer: any) => layer.id == id)
+          const id = this.drawLayer.getLayerId(updates.layer);
+          const opt = this.drawLayerOpts.find((layer: any) => layer.id == id)
           if (opt) {
             opt.title = updates.title || opt.title;
             opt.text = updates.text || opt.text;
@@ -769,7 +769,7 @@ export default defineComponent({
           //   the layers passed are not empty
           // A 'Save' action should have a possibly non-empty editable layer
           if (this.drawLayer.getLayers().length == 0 && e.layers.getLayers().length != 0) {
-            let ans = confirm("Clear all map items?");
+            const ans = confirm("Clear all map items?");
             if (!ans) {
               e.layers.eachLayer((layer: L.Marker | L.Polyline) => this.drawLayer.addLayer(layer));
             }
@@ -786,9 +786,9 @@ export default defineComponent({
     },
 
     layerFromGeoJSON(feat: any): L.Layer {
-      let isCircle = feat.geometry.type == "Point" && feat.properties.radius;
+      const isCircle = feat.geometry.type == "Point" && feat.properties.radius;
       if (isCircle) {
-        let latlon = L.latLng(feat.geometry.coordinates[1], feat.geometry.coordinates[0]);
+        const latlon = L.latLng(feat.geometry.coordinates[1], feat.geometry.coordinates[0]);
         return new L.Circle(latlon, { radius: feat.properties.radius });
       }
       return L.GeoJSON.geometryToLayer(feat);
@@ -805,9 +805,9 @@ export default defineComponent({
     },
 
     drawFromGeojsonFeature(feat: any) {
-      let layer: any = this.layerFromGeoJSON(feat);
+      const layer: any = this.layerFromGeoJSON(feat);
       // Only set style for Polylines not Markers
-      let color = feat.style.color || this.drawLineColor;
+      const color = feat.style.color || this.drawLineColor;
       if (ui.leafletType(layer) == ui.LeafletType.Marker) {
         layer.options.color = color;
         layer.setIcon(ui.svgIcon(color));
@@ -1127,10 +1127,10 @@ export default defineComponent({
     },
 
     enableTooltip(marker: any) {
-      let m: any = marker.getMarker();
+      const m: any = marker.getMarker();
       if (!('_tooltip' in marker.obj)) {
         // @ts-ignore
-        let tt = m.getTooltip();
+        const tt = m.getTooltip();
         marker.obj._tooltip = tt.getContent();
         marker.obj._tooltip_options = tt.options;
       }
@@ -1140,20 +1140,20 @@ export default defineComponent({
       this.disableTooltip(marker);
       if (!m.getTooltip().options.permanent) {
         m.unbindTooltip();
-        let tip = [] // Position indicies
+        const tip = [] // Position indicies
         if(this.staticTooltipXZ)
           tip.push(...[0,2]) // X and Z (0 and 2)
         if(this.staticTooltipY)
           tip.push(1) // Y (1)
         tip.sort()
-        let str = tip.map(id => marker.obj.pos[id].toFixed(2)).join(", ")
+        const str = tip.map(id => marker.obj.pos[id].toFixed(2)).join(", ")
         m.bindTooltip(str, { permanent: true });
         m.openTooltip();
       }
     },
 
     disableTooltip(marker: any) {
-      let m: any = marker.getMarker();
+      const m: any = marker.getMarker();
       if (m.getTooltip().options.permanent) {
         m.getTooltip().options.permanent = false;
         m.unbindTooltip();
@@ -1163,7 +1163,7 @@ export default defineComponent({
     },
 
     toggleTooltipOnAllMarkers(on: boolean) {
-      let func = on ? this.enableTooltip : this.disableTooltip;
+      const func = on ? this.enableTooltip : this.disableTooltip;
       this.searchResultMarkers.forEach(func);
       this.searchGroups.forEach(group => {
         group.getMarkers().forEach(func);
@@ -1186,7 +1186,7 @@ export default defineComponent({
 
     initContextMenu() {
       this.map.m.on(SHOW_ALL_OBJS_FOR_MAP_UNIT_EVENT, (e) => {
-        let mapType = Settings.getInstance().mapType;
+        const mapType = Settings.getInstance().mapType;
         if (mapType !== 'MainField' && mapType !== 'AocField') {
           this.searchAddGroup(`map:"${mapType}/${Settings.getInstance().mapName}"`);
           return;
@@ -1283,7 +1283,7 @@ export default defineComponent({
       if (!name)
         return;
       const areas = await MapMgr.getInstance().fetchAreaMap(name);
-      let layers: L.Path[] = ui.areaMapToLayers(areas);
+      const layers: L.Path[] = ui.areaMapToLayers(areas);
       layers.forEach(l => this.areaAutoItem.addLayer(l));
       this.areaAutoItem.setZIndex(1000);
     },
@@ -1389,7 +1389,7 @@ export default defineComponent({
 
     async initMapSafeAreas(): Promise<void> {
       const areas = await MapMgr.getInstance().fetchAreaMap("AutoSafe");
-      let layers: L.Path[] = ui.areaMapToLayers(areas);
+      const layers: L.Path[] = ui.areaMapToLayers(areas);
       layers.forEach(l => this.mapSafeAreas.addLayer(l));
     },
 
@@ -1398,8 +1398,8 @@ export default defineComponent({
       const features = areas.features;
 
       const layers: L.GeoJSON[] = features.map((feature: any, i: number) => {
-        let color = ui.genColor(300, feature.properties.y);
-        let layer = L.geoJSON(feature, {
+        const color = ui.genColor(300, feature.properties.y);
+        const layer = L.geoJSON(feature, {
           style: function(_) {
             return { weight: 2, fillOpacity: 0.2, color: color };
           },

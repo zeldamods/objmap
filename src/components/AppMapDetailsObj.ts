@@ -201,12 +201,12 @@ export default defineComponent({
         this.shopData = this.obj.data.ShopData//await MapMgr.getInstance().getObjShopData()
       }
       // Count Items in GenGroup with ForSale
-      let ggHasForSale = genGroupForSaleCount(this.genGroup)
+      const ggHasForSale = genGroupForSaleCount(this.genGroup)
 
       if (ggHasForSale) {
         this.shopData = {}
 
-        let gg = genGroupFilterItems(this.obj.name, this.genGroup)
+        const gg = genGroupFilterItems(this.obj.name, this.genGroup)
 
         let owner = gg.find((g: any) => g.data.ShopName)
         if (owner) {
@@ -219,13 +219,13 @@ export default defineComponent({
           }
         }
         // Identify items ForSale and count them
-        let items: any = gg
+        const items: any = gg
           .filter(g => g.data.LinksToObj)
           .filter(g => g.data.LinksToObj.some((gobj: any) => gobj.DefinitionName == "ForSale"))
           .map(g => g.name)
           // @ts-ignore
           .reduce((acc, name) => { acc[name] = (acc[name] || 0) + 1; return acc }, {})
-        let Normal = shopDataFromItems(items)
+        const Normal = shopDataFromItems(items)
         this.shopData = { Header: { TableNum: 1, Table01: "Normal" }, Normal }
       }
 
@@ -257,10 +257,10 @@ export default defineComponent({
       if (this.obj.korok_type && this.obj.korok_type == "Moving Lights")
         return;
 
-      let palette = (this.staticData.colorScale) ? this.staticData.colorScale.palette() : {
+      const palette = (this.staticData.colorScale) ? this.staticData.colorScale.palette() : {
         0: 'pink', 1: 'white'
       };
-      let opts = {
+      const opts = {
         min: 0, max: 800,
         palette: palette,
         weight: 4,
@@ -275,11 +275,11 @@ export default defineComponent({
         pane: 'tilePane',
       };
 
-      let map = this.marker.mb;
+      const map = this.marker.mb;
       this.railLimits = {};
       this.railMarkers = this.rails.map((rail: any) => {
         let pts = curves.railPath(rail); //[x,y,z] y is UpDown
-        let yvals = pts.map((pt: any) => pt[1]);
+        const yvals = pts.map((pt: any) => pt[1]);
         if (this.railLimits.min === undefined) { this.railLimits.min = yvals[0]; }
         if (this.railLimits.max === undefined) { this.railLimits.max = yvals[0]; }
         this.railLimits.min = Math.min(this.railLimits.min, ...yvals);
@@ -312,11 +312,11 @@ export default defineComponent({
     },
 
     getColorlineLimits(): any | null {
-      let prl = this.staticData.persistentRailLimits;
+      const prl = this.staticData.persistentRailLimits;
       // Min/Max, filter out undefined
       //   if all are undefined, return infinity/-infinity
-      let amin = Math.min(...[prl.min, this.railLimits.min].filter(isFinite));
-      let amax = Math.max(...[prl.max, this.railLimits.max].filter(isFinite));
+      const amin = Math.min(...[prl.min, this.railLimits.min].filter(isFinite));
+      const amax = Math.max(...[prl.max, this.railLimits.max].filter(isFinite));
       if (!isFinite(amin) || !isFinite(amax)) {
         return null;
       }
@@ -331,7 +331,7 @@ export default defineComponent({
     },
 
     updateColorScale() {
-      let limits = this.getColorlineLimits();
+      const limits = this.getColorlineLimits();
       if (limits) {
         this.setColorlineLimits(limits);
       }
@@ -521,7 +521,7 @@ export default defineComponent({
         160.0, 180.0, 200.0, 230.0, 260.0, 290.0, 320.0,
         350.0
       ]
-      let actorProfile = obj.data['!Parameters']!.ProfileUser
+      const actorProfile = obj.data['!Parameters']!.ProfileUser
 
       let traverseDist = 0.0
       if ('ActorMeta' in obj.data['!Parameters']!)
@@ -532,8 +532,8 @@ export default defineComponent({
         }
         return traverseDist
       }
-      let boundingForTraverse = 0.0
-      let defaultBoundingForTraverse = 1.0
+      let boundingForTraverse: number
+      const defaultBoundingForTraverse = 1.0
       let configuredBoundingForTraverse = 1.0
       if ('ActorMeta' in obj.data['!Parameters']!)
         configuredBoundingForTraverse = obj.data['!Parameters']!.ActorMeta!.boundingForTraverse || 0.0
@@ -568,8 +568,8 @@ export default defineComponent({
     addObjectTraverseDistance(obj: ObjectData) {
       if (!('ActorMeta' in obj.data['!Parameters']!))
         return
-      let gg_radius = this.genGroup.map(gg => this.getActorTraverseDist(gg))
-      let radius = Math.max(...gg_radius)
+      const gg_radius = this.genGroup.map(gg => this.getActorTraverseDist(gg))
+      const radius = Math.max(...gg_radius)
       if (radius == 0)
         return
       const mb = this.marker.mb
@@ -657,7 +657,6 @@ export default defineComponent({
     },
 
     forgetPersistentAreaMarkers() {
-      this.areaMarkers.length = this.areaMarkers.length;
       this.staticData.persistentAreaMarkers.forEach(m => m.remove());
       this.staticData.persistentAreaMarkers = [];
     },
@@ -678,7 +677,7 @@ export default defineComponent({
     },
 
     getShopData(): any {
-      let location = this.getLocationSub()
+      const location = this.getLocationSub()
       if (location) {
         return this.shopData[location]
       }
@@ -690,18 +689,18 @@ export default defineComponent({
     },
 
     formatDropTable(): string {
-      let lines = [];
-      let names = Object.keys(this.dropTables);
-      for (var i = 0; i < names.length; i++) {
-        let table = this.dropTables[names[i]];
-        let repeatNum = table.repeat_num;
+      const lines = [];
+      const names = Object.keys(this.dropTables);
+      for (let i = 0; i < names.length; i++) {
+        const table = this.dropTables[names[i]];
+        const repeatNum = table.repeat_num;
         if (repeatNum[0] == repeatNum[1]) {
           lines.push(`<span style="text-decoration: underline;"><b>${names[i]}</b> - x${repeatNum[0]}</span>`);
         } else {
           lines.push(`<span style="text-decoration: underline;"><b>${names[i]}</b> - x${repeatNum[0]}-${repeatNum[1]}</span>`);
         }
-        let items = Object.keys(table.items).sort(function(a, b) { return table.items[b] - table.items[a]; });
-        for (var j = 0; j < items.length; j++) {
+        const items = Object.keys(table.items).sort(function(a, b) { return table.items[b] - table.items[a]; });
+        for (let j = 0; j < items.length; j++) {
           lines.push(`  ${table.items[items[j]].toFixed(1).padStart(4, ' ')}% - ${this.getName(items[j])}`);
         }
       }
@@ -713,9 +712,9 @@ export default defineComponent({
         return "";
       }
       const params: { [key: string]: any } = this.obj.data['!Parameters'];
-      let dropTableName = "Normal";
-      let keys = ['ArrowName', 'DropTable'];
-      for (var i = 0; i < keys.length; i++) {
+      const dropTableName = "Normal";
+      const keys = ['ArrowName', 'DropTable'];
+      for (let i = 0; i < keys.length; i++) {
         if (keys[i] in params) {
           return params[keys[i]];
         }
@@ -724,25 +723,25 @@ export default defineComponent({
     },
 
     findItemByHash(group: any[], links: any[], name: string): any {
-      let hashes = links.map(link => link.DestUnitHashId);
-      let out = group.find(g => g.data.UnitConfigName == name && hashes.includes(g.hash_id));
+      const hashes = links.map(link => link.DestUnitHashId);
+      const out = group.find(g => g.data.UnitConfigName == name && hashes.includes(g.hash_id));
       return (out) ? out : null;
     },
 
     getNextFlowerInKorokFlowerTrail(group: any[], flower: any): any {
-      let or = this.findItemByHash(group, flower.data.LinksToObj, "LinkTagOr");
+      const or = this.findItemByHash(group, flower.data.LinksToObj, "LinkTagOr");
       if (!or) {
         return null;
       }
-      let lag = this.findItemByHash(group, or.data.LinksToObj, "SwitchTimeLag");
+      const lag = this.findItemByHash(group, or.data.LinksToObj, "SwitchTimeLag");
       if (!lag) {
         return null;
       }
-      let and = this.findItemByHash(group, lag.data.LinksToObj, "LinkTagAnd");
+      const and = this.findItemByHash(group, lag.data.LinksToObj, "LinkTagAnd");
       if (!and) {
         return null;
       }
-      let plant = this.findItemByHash(group, and.data.LinksToObj, "Obj_Plant_Korok_A_01");
+      const plant = this.findItemByHash(group, and.data.LinksToObj, "Obj_Plant_Korok_A_01");
       return plant;
     },
 
@@ -751,9 +750,9 @@ export default defineComponent({
     },
 
     getFlowersInKorokFlowerTrail(group: any[], flower: any): any[] {
-      let flowers = [flower];
+      const flowers = [flower];
       while (flower && !this.isLastFlowerInKorokFlowerTrail(flower)) {
-        let f = this.getNextFlowerInKorokFlowerTrail(group, flower);
+        const f = this.getNextFlowerInKorokFlowerTrail(group, flower);
         flowers.push(f);
         flower = f;
       }
@@ -762,7 +761,7 @@ export default defineComponent({
 
     getKorokIcon(obj_name: string, style: string = "", text: string = ""): L.DivIcon {
       let html = "";
-      let className = "";
+      const className = "";
       if (obj_name == "FldObj_KorokStartingBlock_A_01") {
         html = '<div class="stump"><i class="fa fa-leaf big-leaf"></i></div>';
       } else if (obj_name == "FldObj_KorokGoal_A_01") {
@@ -780,7 +779,7 @@ export default defineComponent({
     },
 
     getKorokMarkerWithIcon(obj: any, style: string = "", text: string = ""): L.Marker {
-      let icon = this.getKorokIcon(obj.data.UnitConfigName, style, text);
+      const icon = this.getKorokIcon(obj.data.UnitConfigName, style, text);
       return markRaw(L.marker([obj.data.Translate[2], obj.data.Translate[0]], { icon: icon }));
     },
 
@@ -788,53 +787,53 @@ export default defineComponent({
       if (!this.obj)
         return;
       const use_icon = true;
-      let map = this.marker.mb;
+      const map = this.marker.mb;
       if (this.obj.korok_type == "Goal Ring (Race)") {
-        let names = ["FldObj_KorokStartingBlock_A_01", "FldObj_KorokGoal_A_01"];
-        let objs = this.genGroup.filter((obj: any) => names.includes(this.getName(obj.name)));
+        const names = ["FldObj_KorokStartingBlock_A_01", "FldObj_KorokGoal_A_01"];
+        const objs = this.genGroup.filter((obj: any) => names.includes(this.getName(obj.name)));
         // Start and End Markers
-        let markers = objs.map((obj: any) => this.getKorokMarkerWithIcon(obj).addTo(map.m));
+        const markers = objs.map((obj: any) => this.getKorokMarkerWithIcon(obj).addTo(map.m));
         this.korokMarkers.push(...markers);
 
         // Connecting Line
-        let ll = objs.map((obj: any) => [obj.data.Translate[2], obj.data.Translate[0]]);
-        let line = markRaw(L.polyline(ll, { color: '#cccccc', weight: 1.5 }).addTo(map.m));
+        const ll = objs.map((obj: any) => [obj.data.Translate[2], obj.data.Translate[0]]);
+        const line = markRaw(L.polyline(ll, { color: '#cccccc', weight: 1.5 }).addTo(map.m));
         this.korokMarkers.push(line);
       } else if (this.obj.korok_type == "Moving Lights") {
         this.rails.forEach((rail: any) => {
-          let pts = curves.railPath(rail).map((pt: any) => [pt[2], pt[0]]);
-          let line = markRaw(L.polyline(pts, { color: "#cccccc", weight: 2.0 }).addTo(map.m));
+          const pts = curves.railPath(rail).map((pt: any) => [pt[2], pt[0]]);
+          const line = markRaw(L.polyline(pts, { color: "#cccccc", weight: 2.0 }).addTo(map.m));
           this.korokMarkers.push(line);
         });
       } else if (this.obj.korok_type == "Rock Pattern") {
         const rocks = [...rock_target, ...rock_source];
-        let objs = this.genGroup.filter((obj: any) => rocks.includes(this.getName(obj.name)))
-        let markers = objs.map((obj: any) => this.getKorokMarkerWithIcon(obj).addTo(map.m));
+        const objs = this.genGroup.filter((obj: any) => rocks.includes(this.getName(obj.name)))
+        const markers = objs.map((obj: any) => this.getKorokMarkerWithIcon(obj).addTo(map.m));
         this.korokMarkers.push(...markers);
       } else if (this.obj.korok_type == "Flower Trail") {
-        let group = this.genGroup;
-        let start = group.find((g: any) => this.getName(g.name) == "Obj_Plant_Korok_A_01" &&
+        const group = this.genGroup;
+        const start = group.find((g: any) => this.getName(g.name) == "Obj_Plant_Korok_A_01" &&
           g.data['!Parameters'].IsNoAppearEffect);
 
-        let flowers = this.getFlowersInKorokFlowerTrail(group, start);
-        let style = "color: #E2DF41; font-size: 2em; display: inline;";
-        let style_end = "color: #eeeeee; font-size: 2em;  display: inline;";
+        const flowers = this.getFlowersInKorokFlowerTrail(group, start);
+        const style = "color: #E2DF41; font-size: 2em; display: inline;";
+        const style_end = "color: #eeeeee; font-size: 2em;  display: inline;";
         flowers.forEach((obj: any, i: number) => {
-          let s = (i + 1 == flowers.length) ? style_end : style;
+          const s = (i + 1 == flowers.length) ? style_end : style;
           if (use_icon) {
-            let m = this.getKorokMarkerWithIcon(obj, s, `<span style="color: #ccc; font-size: 1.2em;">${i + 1}</span>`).addTo(map.m);
+            const m = this.getKorokMarkerWithIcon(obj, s, `<span style="color: #ccc; font-size: 1.2em;">${i + 1}</span>`).addTo(map.m);
             this.korokMarkers.push(m);
           } else {
-            let m = markRaw(L.marker([obj.data.Translate[2], obj.data.Translate[0]]).addTo(map.m));
+            const m = markRaw(L.marker([obj.data.Translate[2], obj.data.Translate[0]]).addTo(map.m));
             this.korokMarkers.push(m);
           }
         });
-        let ll = flowers.map((obj: any) => {
-          let x = obj.data.Translate[0];
-          let z = obj.data.Translate[2];
+        const ll = flowers.map((obj: any) => {
+          const x = obj.data.Translate[0];
+          const z = obj.data.Translate[2];
           return [z, x];
         });
-        let line = markRaw(L.polyline(ll, { color: "#cccccc", weight: 1.5 }).addTo(map.m));
+        const line = markRaw(L.polyline(ll, { color: "#cccccc", weight: 1.5 }).addTo(map.m));
         this.korokMarkers.push(line);
       }
     },
@@ -845,7 +844,7 @@ export default defineComponent({
     },
 
     forgetPersistentKorokMarkers() {
-      let map = this.marker.mb;
+      const map = this.marker.mb;
       this.staticData.persistentKorokMarkers.forEach(m => m.remove());
       this.staticData.persistentKorokMarkers = [];
     },
@@ -897,10 +896,10 @@ function genGroupFilterItems(name: string, genGroup: ObjectData[]) {
 }
 
 function shopDataFromItems(items: any) {
-  let Normal: any = { ColumnNum: Object.keys(items).length }
-  let BuyingPrice = MapMgr.getInstance().getBuyingPrice()
+  const Normal: any = { ColumnNum: Object.keys(items).length }
+  const BuyingPrice = MapMgr.getInstance().getBuyingPrice()
   Object.keys(items).forEach((name, i) => {
-    let I = (i + 1).toString().padStart(3, '0')
+    const I = (i + 1).toString().padStart(3, '0')
     Normal[`ItemsSort${I}`] = i + 1
     Normal[`ItemName${I}`] = name
     Normal[`ItemNum${I}`] = items[name]
