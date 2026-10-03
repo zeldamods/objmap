@@ -23,9 +23,9 @@
         <li><a href="#spane-settings" role="tab"><i class="fa fa-cog"></i></a></li>
       </ul>
       <ul role="tablist">
-        <li @click.capture.prevent.stop="toggleHylianMode()"><a href="#dummy" v-b-tooltip.hover.right title="Yahaha! You found me!"><i class="fas fa-seedling"></i></a></li>
-        <li v-show="settings.left" @click.capture.prevent.stop="toggleSidebarSide()"><a href="#toggle-sidebar-side" v-b-tooltip.hover.right title="Move to the right side"><i class="far fa-caret-square-right"></i></a></li>
-        <li v-show="!settings.left" @click.capture.prevent.stop="toggleSidebarSide()"><a href="#toggle-sidebar-side" v-b-tooltip.hover.left title="Move to the left side"><i class="far fa-caret-square-left"></i></a></li>
+        <li @click.capture.prevent.stop="toggleHylianMode()"><a href="#dummy" title="Yahaha! You found me!"><i class="fas fa-seedling"></i></a></li>
+        <li v-show="settings.left" @click.capture.prevent.stop="toggleSidebarSide()"><a href="#toggle-sidebar-side" title="Move to the right side"><i class="far fa-caret-square-right"></i></a></li>
+        <li v-show="!settings.left" @click.capture.prevent.stop="toggleSidebarSide()"><a href="#toggle-sidebar-side" title="Move to the left side"><i class="far fa-caret-square-left"></i></a></li>
       </ul>
     </div>
     <div class="leaflet-sidebar-content" id="sidebar-content">
@@ -167,21 +167,21 @@
           <code>TBox_<b>*</b></code> for TBox_Field_Wood, TBox_Field_Iron, etc.
         </p>
 
-        <b-btn block size="sm" variant="primary" @click="switchPane('spane-search')"><i class="fa fa-chevron-left"></i> Back</b-btn>
+        <button type="button" class="btn btn-primary btn-sm btn-block" @click="switchPane('spane-search')"><i class="fa fa-chevron-left"></i> Back</button>
       </div>
 
       <div class="leaflet-sidebar-pane" id="spane-search">
           <div class="search-header">
             <input type="search" class="form-control search-main-input" placeholder="Search" @input="searchOnInput" v-model="searchQuery">
             <div class="d-flex justify-content-end">
-              <b-btn size="sm" variant="link" @click="switchPane('spane-search-help')">Help</b-btn>
-              <b-dropdown v-for="presetGroup in searchPresets" :key="presetGroup.label" size="sm" variant="link">
-                <template slot="button-content"><span v-html="presetGroup.label"></span></template>
-                <b-dd-item v-for="preset in presetGroup.presets" :key="preset.label" @click="searchAddGroup(preset.query, preset.label)">{{preset.label}}</b-dd-item>
-              </b-dropdown>
-              <b-dropdown size="sm" variant="link" text="Custom" v-if="settings && settings.customSearchPresets.length">
-                <b-dd-item v-for="preset in settings.customSearchPresets" :key="preset[0]" @click="searchAddGroup(preset[1], preset[0])">{{preset[0]}}</b-dd-item>
-              </b-dropdown>
+              <button type="button" class="btn btn-link btn-sm" @click="switchPane('spane-search-help')">Help</button>
+              <AppDropdown v-for="presetGroup in searchPresets" :key="presetGroup.label" size="sm" variant="link">
+                <template v-slot:button-content><span v-html="presetGroup.label"></span></template>
+                <li role="presentation" v-for="preset in presetGroup.presets" :key="preset.label"><a role="menuitem" href="#" class="dropdown-item" @click.prevent="searchAddGroup(preset.query, preset.label)">{{preset.label}}</a></li>
+              </AppDropdown>
+              <AppDropdown size="sm" variant="link" text="Custom" v-if="settings && settings.customSearchPresets.length">
+                <li role="presentation" v-for="preset in settings.customSearchPresets" :key="preset[0]"><a role="menuitem" href="#" class="dropdown-item" @click.prevent="searchAddGroup(preset[1], preset[0])">{{preset[0]}}</a></li>
+              </AppDropdown>
             </div>
           </div>
 
@@ -189,7 +189,10 @@
 
           <section class="search-groups" v-show="searchGroups.length || searchExcludedSets.length">
             <div class="search-group d-flex align-items-center" v-for="(group, idx) in searchGroups" :key="'searchgroup' + idx">
-              <b-form-checkbox class="ml-2 d-inline-block search-enable-checkbox" v-model="group.enabled" @change="searchToggleGroupEnabledStatus(idx)"></b-form-checkbox>
+              <div class="ml-2 d-inline-block search-enable-checkbox custom-control custom-checkbox">
+                <input type="checkbox" class="custom-control-input" :id="'search-group-enabled-' + idx" v-model="group.enabled" @change="searchToggleGroupEnabledStatus(idx)">
+                <label class="custom-control-label" :for="'search-group-enabled-' + idx"></label>
+              </div>
               <span class="d-inline-block">
                 <span>{{group.label}}</span>
                 <a class="ml-2" @click="searchRemoveGroup(idx)"><i class="text-danger fa fa-times"></i></a>
@@ -210,9 +213,9 @@
             <div v-show="searchResults.length">
               <p class="text-center mb-1">
                 <span v-show="this.searchResults.length >= this.MAX_SEARCH_RESULT_COUNT">Showing only the first {{MAX_SEARCH_RESULT_COUNT}} results.<br></span>
-                <b-btn size="sm" variant="link" @click="searchOnAdd"><i class="fa fa-plus"></i> Add to map</b-btn>
-                <b-btn size="sm" variant="link" @click="searchOnExclude"><i class="far fa-eye-slash"></i> Hide</b-btn>
-                <b-btn size="sm" variant="link" @click="searchSetLink"><i class="fas fa-link"></i> Link</b-btn>
+                <button type="button" class="btn btn-link btn-sm" @click="searchOnAdd"><i class="fa fa-plus"></i> Add to map</button>
+                <button type="button" class="btn btn-link btn-sm" @click="searchOnExclude"><i class="far fa-eye-slash"></i> Hide</button>
+                <button type="button" class="btn btn-link btn-sm" @click="searchSetLink"><i class="fas fa-link"></i> Link</button>
               </p>
               <ObjectInfo v-for="(result, idx) in searchResults" :obj="result" :is-static="false" :key="result.objid" @click="searchJumpToResult(idx)" />
             </div>
@@ -224,59 +227,114 @@
         <div class="row">
           <AppMapFilterMainButton v-for="(v, type) in markerComponents" :key="type" :type="type" :label="v.filterLabel" :icon="v.filterIcon" @toggle="updateMarkers" />
         </div>
-        <b-checkbox switch v-model="showKorokIDs" @change="updateKorokIDs">Show Korok IDs</b-checkbox>
+        <div class="custom-control custom-switch">
+          <input type="checkbox" class="custom-control-input" id="filter-korok-ids" v-model="showKorokIDs" @change="updateKorokIDs">
+          <label class="custom-control-label" for="filter-korok-ids">Show Korok IDs</label>
+        </div>
         <hr>
         <h4 class="subsection-heading">Visible map areas</h4>
-        <b-radio-group stacked class="mb-4" v-model="shownAreaMap" @change="onShownAreaMapChanged">
-          <b-radio value="">None</b-radio>
-          <b-radio value="FieldMapArea">Field map areas</b-radio>
-          <b-radio value="MapTower">Map tower areas</b-radio>
-          <b-radio value="LoadBalancer">Load balancer areas</b-radio>
-        </b-radio-group>
-        <b-form-group label="Filter map areas" label-for="mapareafilter">
+        <div role="radiogroup" class="mb-4">
+          <div class="custom-control custom-radio">
+            <input type="radio" class="custom-control-input" name="filter-area-map" id="filter-area-map-none" value="" v-model="shownAreaMap" @change="onShownAreaMapChanged">
+            <label class="custom-control-label" for="filter-area-map-none">None</label>
+          </div>
+          <div class="custom-control custom-radio">
+            <input type="radio" class="custom-control-input" name="filter-area-map" id="filter-area-map-field" value="FieldMapArea" v-model="shownAreaMap" @change="onShownAreaMapChanged">
+            <label class="custom-control-label" for="filter-area-map-field">Field map areas</label>
+          </div>
+          <div class="custom-control custom-radio">
+            <input type="radio" class="custom-control-input" name="filter-area-map" id="filter-area-map-tower" value="MapTower" v-model="shownAreaMap" @change="onShownAreaMapChanged">
+            <label class="custom-control-label" for="filter-area-map-tower">Map tower areas</label>
+          </div>
+          <div class="custom-control custom-radio">
+            <input type="radio" class="custom-control-input" name="filter-area-map" id="filter-area-map-lb" value="LoadBalancer" v-model="shownAreaMap" @change="onShownAreaMapChanged">
+            <label class="custom-control-label" for="filter-area-map-lb">Load balancer areas</label>
+          </div>
+        </div>
+        <div role="group" class="form-group">
+          <label for="mapareafilter" class="d-block">Filter map areas</label>
           <div class="d-flex mb-1">
             <input type="search" style="flex: 1" class="form-control form-control-sm mr-2" id="mapareafilter" placeholder="Example: 1,2,3,64" v-model="areaWhitelist">
-            <b-btn size="sm" variant="primary" @click="updateAreaMapVisibility()"><i class="fa fa-filter"></i></b-btn>
+            <button type="button" class="btn btn-primary btn-sm" @click="updateAreaMapVisibility()"><i class="fa fa-filter"></i></button>
           </div>
-        </b-form-group>
-        <b-checkbox switch v-model="showSafeAreas" @change="onShowSafeAreas">Enemy non-search areas (safe zones)</b-checkbox>
-        <b-checkbox switch v-model="showMapUnitGrid" @change="onShowMapUnitGridChanged">Show map unit grid</b-checkbox>
-        <b-checkbox switch v-model="showCastleAreas" @change="onShowCastleAreas">Show Hyrule castle interior</b-checkbox>
-        <b-checkbox switch v-model="showBaseMap" @change="onShowBaseMap">Show base map</b-checkbox>
-        <b-checkbox switch v-model="showReferenceGrid" @change="onShowReferenceGrid">
-          <div title="Display an overlap map with region outlines and grid markers, similar to that before Tower activation. This map can be displayed over the base map.">
-            Show region outlines and grid
-          </div>
-        </b-checkbox>
+        </div>
+        <div class="custom-control custom-switch">
+          <input type="checkbox" class="custom-control-input" id="filter-safe-areas" v-model="showSafeAreas" @change="onShowSafeAreas">
+          <label class="custom-control-label" for="filter-safe-areas">Enemy non-search areas (safe zones)</label>
+        </div>
+        <div class="custom-control custom-switch">
+          <input type="checkbox" class="custom-control-input" id="filter-map-unit-grid" v-model="showMapUnitGrid" @change="onShowMapUnitGridChanged">
+          <label class="custom-control-label" for="filter-map-unit-grid">Show map unit grid</label>
+        </div>
+        <div class="custom-control custom-switch">
+          <input type="checkbox" class="custom-control-input" id="filter-castle-areas" v-model="showCastleAreas" @change="onShowCastleAreas">
+          <label class="custom-control-label" for="filter-castle-areas">Show Hyrule castle interior</label>
+        </div>
+        <div class="custom-control custom-switch">
+          <input type="checkbox" class="custom-control-input" id="filter-base-map" v-model="showBaseMap" @change="onShowBaseMap">
+          <label class="custom-control-label" for="filter-base-map">Show base map</label>
+        </div>
+        <div class="custom-control custom-switch">
+          <input type="checkbox" class="custom-control-input" id="filter-reference-grid" v-model="showReferenceGrid" @change="onShowReferenceGrid">
+          <label class="custom-control-label" for="filter-reference-grid">
+            <div title="Display an overlap map with region outlines and grid markers, similar to that before Tower activation. This map can be displayed over the base map.">
+              Show region outlines and grid
+            </div>
+          </label>
+        </div>
         <hr/>
         <h4 class="subsection-heading">Item Auto Placement</h4>
-        <b-radio-group stacked class="mb-4" v-model="shownAutoItem" @change="onShownAutoItemChanged">
-          <b-radio value="">None</b-radio>
-          <b-radio value="AutoFish">Auto Fish</b-radio>
-          <b-radio value="AutoBird">Auto Bird</b-radio>
-          <b-radio value="AutoInsect">Auto Insect</b-radio>
-          <b-radio value="AutoAnimal">Auto Animal</b-radio>
-          <b-radio value="AutoEnemy">Auto Enemy</b-radio>
-          <b-radio value="AutoMaterial">Auto Material</b-radio>
-        </b-radio-group>
+        <div role="radiogroup" class="mb-4">
+          <div class="custom-control custom-radio">
+            <input type="radio" class="custom-control-input" name="filter-auto-item" id="filter-auto-item-none" value="" v-model="shownAutoItem" @change="onShownAutoItemChanged">
+            <label class="custom-control-label" for="filter-auto-item-none">None</label>
+          </div>
+          <div class="custom-control custom-radio">
+            <input type="radio" class="custom-control-input" name="filter-auto-item" id="filter-auto-item-fish" value="AutoFish" v-model="shownAutoItem" @change="onShownAutoItemChanged">
+            <label class="custom-control-label" for="filter-auto-item-fish">Auto Fish</label>
+          </div>
+          <div class="custom-control custom-radio">
+            <input type="radio" class="custom-control-input" name="filter-auto-item" id="filter-auto-item-bird" value="AutoBird" v-model="shownAutoItem" @change="onShownAutoItemChanged">
+            <label class="custom-control-label" for="filter-auto-item-bird">Auto Bird</label>
+          </div>
+          <div class="custom-control custom-radio">
+            <input type="radio" class="custom-control-input" name="filter-auto-item" id="filter-auto-item-insect" value="AutoInsect" v-model="shownAutoItem" @change="onShownAutoItemChanged">
+            <label class="custom-control-label" for="filter-auto-item-insect">Auto Insect</label>
+          </div>
+          <div class="custom-control custom-radio">
+            <input type="radio" class="custom-control-input" name="filter-auto-item" id="filter-auto-item-animal" value="AutoAnimal" v-model="shownAutoItem" @change="onShownAutoItemChanged">
+            <label class="custom-control-label" for="filter-auto-item-animal">Auto Animal</label>
+          </div>
+          <div class="custom-control custom-radio">
+            <input type="radio" class="custom-control-input" name="filter-auto-item" id="filter-auto-item-enemy" value="AutoEnemy" v-model="shownAutoItem" @change="onShownAutoItemChanged">
+            <label class="custom-control-label" for="filter-auto-item-enemy">Auto Enemy</label>
+          </div>
+          <div class="custom-control custom-radio">
+            <input type="radio" class="custom-control-input" name="filter-auto-item" id="filter-auto-item-material" value="AutoMaterial" v-model="shownAutoItem" @change="onShownAutoItemChanged">
+            <label class="custom-control-label" for="filter-auto-item-material">Auto Material</label>
+          </div>
+        </div>
       </div>
 
       <div class="leaflet-sidebar-pane" id="spane-draw">
         <h1 class="leaflet-sidebar-header">Draw</h1>
-        <b-btn size="sm" block variant="primary" @click="toggleDraw()"><i class="fa fa-draw-polygon"></i> Toggle draw controls</b-btn>
+        <button type="button" class="btn btn-primary btn-sm btn-block" @click="toggleDraw()"><i class="fa fa-draw-polygon"></i> Toggle draw controls</button>
         <hr>
         <h4 class="subsection-heading">Polyline color</h4>
-        <input type="color"  @input="drawOnColorChange" value="#3388ff"> <b-btn size="sm" variant="link" @click="drawLineColor = '#3388ff'">Reset to default</b-btn>
+        <input type="color"  @input="drawOnColorChange" value="#3388ff"> <button type="button" class="btn btn-link btn-sm" @click="drawLineColor = '#3388ff'">Reset to default</button>
         <hr>
         <h4 class="subsection-heading">Data import/export</h4>
         <p>Exported data includes search groups and drawn objects.</p>
         <div class="row no-gutters">
           <div class="col mr-3">
-            <b-btn size="sm" variant="secondary" block @click="drawExport()"><i class="fas fa-file-export"></i> Export</b-btn>
+            <button type="button" class="btn btn-secondary btn-sm btn-block" @click="drawExport()"><i class="fas fa-file-export"></i> Export</button>
           </div>
           <div class="col">
-            <b-btn size="sm" variant="danger" block @click="drawImport()"><i class="fas fa-file-import"></i> Import</b-btn>
-            <b-form-checkbox v-model="importReplace">Replace existing data</b-form-checkbox>
+            <button type="button" class="btn btn-danger btn-sm btn-block" @click="drawImport()"><i class="fas fa-file-import"></i> Import</button>
+            <div class="custom-control custom-checkbox">
+              <input type="checkbox" class="custom-control-input" id="draw-import-replace" v-model="importReplace">
+              <label class="custom-control-label" for="draw-import-replace">Replace existing data</label>
+            </div>
           </div>
         </div>
         <input type="file" id="fileinput" accept=".json" hidden @change="drawImportCb">
@@ -284,8 +342,8 @@
         <div v-if="drawLayerOpts.length">
           <h4 class="subsection-heading">Polyline/Markers</h4>
           <div style="display: flex; flex-flow; row nowrap; gap: 1em; margin-bottom: 8px;">
-            <b-btn class="polyline_btn" size="sm" variant="link" @click="toggleAllLayers(true)" >All on</b-btn>
-            <b-btn class="polyline_btn" size="sm" variant="link" @click="toggleAllLayers(false)">All off</b-btn>
+            <button type="button" class="btn btn-link btn-sm polyline_btn" @click="toggleAllLayers(true)" >All on</button>
+            <button type="button" class="btn btn-link btn-sm polyline_btn" @click="toggleAllLayers(false)">All off</button>
           </div>
           <VueDraggable v-model="drawLayerOpts" @update="updateDrawLayerOptsIndex">
             <div v-for="layer in drawLayerOpts" :key="layer.id" @model="drawLayerOpts" class="marker-row" draggable="true">
@@ -302,9 +360,9 @@
 
       <div class="leaflet-sidebar-pane" id="spane-tools">
         <h1 class="leaflet-sidebar-header">Tools</h1>
-        <b-button size="sm" variant="secondary" block @click="closeSidebar(); $refs.modalGoto.show()">Go to coordinates...</b-button>
+        <button type="button" class="btn btn-secondary btn-sm btn-block" @click="closeSidebar(); $refs.modalGoto.show()">Go to coordinates...</button>
         <hr>
-        <p><b-button size="sm" variant="secondary" block @click="closeSidebar(); showGreatPlateauBarrier()" v-b-tooltip.hover title="Right click on the Plateau to hide the barrier.">Show Great Plateau barrier</b-button></p>
+        <p><button type="button" class="btn btn-secondary btn-sm btn-block" @click="closeSidebar(); showGreatPlateauBarrier()" title="Right click on the Plateau to hide the barrier.">Show Great Plateau barrier</button></p>
         <p>The Great Plateau barrier prevents Link from leaving the Great Plateau before he has acquired the paraglider. For more information, read the <a href="https://zeldamods.org/wiki/The_Great_Plateau_barrier">article</a>.</p>
 
         <hr>

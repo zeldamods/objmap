@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div v-if="staticData.history.length" style="right: 40px" class="leaflet-sidebar-close" @click.stop.prevent="goBack()" v-b-tooltip.hover title="Go back to previous object"><i class="fa fa-arrow-left"></i></div>
+    <div v-if="staticData.history.length" style="right: 40px" class="leaflet-sidebar-close" @click.stop.prevent="goBack()" title="Go back to previous object"><i class="fa fa-arrow-left"></i></div>
 
     <h2 class="location-sub" v-if="getLocationSub()">{{getLocationSub()}}</h2>
     <ObjectInfo :obj="minObj" :key="minObj.objid" className="obj-main-info" withPermalink />
@@ -16,16 +16,16 @@
       <p v-if="isAreaReprPossiblyWrong()"><i class="fa fa-exclamation-circle"></i> Area representation may be inaccurate because of rotation parameters.</p>
 
       <section class="mt-2" v-show="areaMarkers.length || staticData.persistentAreaMarkers.length">
-        <b-btn v-show="areaMarkers.length" size="sm" block variant="dark" @click="keepAreaMarkersAlive()">Keep area representation loaded</b-btn>
-        <b-btn v-show="staticData.persistentAreaMarkers.length" size="sm" block variant="dark" @click="forgetPersistentAreaMarkers()">Hide area representation</b-btn>
+        <button type="button" class="btn btn-dark btn-sm btn-block" v-show="areaMarkers.length" @click="keepAreaMarkersAlive()">Keep area representation loaded</button>
+        <button type="button" class="btn btn-dark btn-sm btn-block" v-show="staticData.persistentAreaMarkers.length" @click="forgetPersistentAreaMarkers()">Hide area representation</button>
       </section>
       <section class="mt-2" v-show="minObj.korok_type && (this.korokMarkers.length || staticData.persistentKorokMarkers.length)">
-        <b-btn v-show="this.korokMarkers.length" size="sm" block variant="dark" @click="keepKorokMarkersAlive()">Keep Korok markers loaded</b-btn>
-        <b-btn v-show="staticData.persistentKorokMarkers.length" size="sm" block variant="dark" @click="forgetPersistentKorokMarkers()">Hide Korok markers</b-btn>
+        <button type="button" class="btn btn-dark btn-sm btn-block" v-show="this.korokMarkers.length" @click="keepKorokMarkersAlive()">Keep Korok markers loaded</button>
+        <button type="button" class="btn btn-dark btn-sm btn-block" v-show="staticData.persistentKorokMarkers.length" @click="forgetPersistentKorokMarkers()">Hide Korok markers</button>
       </section>
       <section class="mt-2" v-show="this.railMarkers.length || staticData.persistentRailMarkers.length">
-        <b-btn v-show="this.railMarkers.length" size="sm" block variant="dark" @click="keepRailMarkersAlive()">Keep Rails loaded</b-btn>
-        <b-btn v-show="staticData.persistentRailMarkers.length" size="sm" block variant="dark" @click="forgetPersistentRailMarkers()">Hide Rails</b-btn>
+        <button type="button" class="btn btn-dark btn-sm btn-block" v-show="this.railMarkers.length" @click="keepRailMarkersAlive()">Keep Rails loaded</button>
+        <button type="button" class="btn btn-dark btn-sm btn-block" v-show="staticData.persistentRailMarkers.length" @click="forgetPersistentRailMarkers()">Hide Rails</button>
       </section>
 
       <section class="obj-actor-specific-info">
@@ -85,7 +85,7 @@
 
     <section v-if="isSearchResult()">
       <br>
-      <b-btn size="sm" block @click="emitBackToSearch()"><i class="fa fa-chevron-circle-left"></i> Back to search</b-btn>
+      <button type="button" class="btn btn-secondary btn-sm btn-block" @click="emitBackToSearch()"><i class="fa fa-chevron-circle-left"></i> Back to search</button>
     </section>
 
     <section v-show="linksToSelf.length">

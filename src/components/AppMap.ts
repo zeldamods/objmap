@@ -25,6 +25,7 @@ import { SearchResultGroup, SearchExcludeSet, SEARCH_PRESETS } from '@/MapSearch
 import * as save from '@/save';
 
 import MixinUtil from '@/components/MixinUtil';
+import AppDropdown from '@/components/AppDropdown';
 import AppMapDetailsDungeon from '@/components/AppMapDetailsDungeon';
 import AppMapDetailsObj from '@/components/AppMapDetailsObj';
 import AppMapDetailsPlace from '@/components/AppMapDetailsPlace';
@@ -205,6 +206,7 @@ function addPopupAndTooltip(layer: L.Marker | L.Polyline, root: any) {
 
 @Component({
   components: {
+    AppDropdown,
     AppMapDetailsDungeon,
     AppMapDetailsObj,
     AppMapDetailsPlace,
