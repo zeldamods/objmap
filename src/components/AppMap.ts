@@ -9,12 +9,9 @@ import '@/util/leaflet_draw_globals';
 import 'leaflet-draw';
 import 'leaflet-draw/dist/leaflet.draw.css';
 
-import VueRouter from 'vue-router';
-const { isNavigationFailure, NavigationFailureType } = VueRouter;
-
 import debounce from 'lodash/debounce';
 import { produce } from 'immer';
-import { Component, defineComponent, markRaw, reactive } from 'vue';
+import { defineComponent, markRaw, reactive } from 'vue';
 
 import { MapBase, SHOW_ALL_OBJS_FOR_MAP_UNIT_EVENT } from '@/MapBase';
 import * as MapIcons from '@/MapIcon';
@@ -215,7 +212,7 @@ export default defineComponent({
     AppMapSettings,
     ModalGotoCoords,
     ObjectInfo,
-    VueDraggable: VueDraggable as Component,
+    VueDraggable,
   },
   setup() {
     return {
@@ -331,7 +328,7 @@ export default defineComponent({
     }
   },
 
-  beforeDestroy() {
+  beforeUnmount() {
     this.offAppMapEvents();
     this.map.m.remove();
   },
@@ -351,7 +348,6 @@ export default defineComponent({
       this.map.setView([x, 0, z], zoom);
     },
     updateRoute() {
-      // @ts-ignore
       this.$router.replace({
         name: 'map',
         params: {
@@ -360,11 +356,6 @@ export default defineComponent({
           zoom: this.map.m.getZoom(),
         },
         query: this.$route.query,
-      }).catch(err => {
-        if (!isNavigationFailure(err, NavigationFailureType.duplicated)) {
-          // eslint-disable-next-line no-console
-          console.error(err);
-        }
       });
     },
 

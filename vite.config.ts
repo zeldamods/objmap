@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, URL } from 'node:url';
 import { defineConfig, Plugin } from 'vite';
-import vue from '@vitejs/plugin-vue2';
+import vue from '@vitejs/plugin-vue';
 
 // Vite cannot exclude part of publicDir, and public/game_files is often a
 // symlink to ~300 MB of game data that the app loads from VUE_APP_GAME_FILES.
@@ -25,8 +25,7 @@ function copyPublicDirExceptGameFiles(): Plugin {
 
 export default defineConfig({
   plugins: [
-    // Match Vue CLI's whitespace handling: the templates rely on spaces between elements being dropped.
-    vue({ template: { compilerOptions: { whitespace: undefined, preserveWhitespace: false } } }),
+    vue(),
     copyPublicDirExceptGameFiles(),
   ],
   envPrefix: 'VUE_APP_',

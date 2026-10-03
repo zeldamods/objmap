@@ -8,7 +8,7 @@
       Position: {{minobj.pos[0].toFixed(2)}} {{minobj.pos[1].toFixed(2)}} {{minobj.pos[2].toFixed(2)}}
     </section>
     <section v-if="shopDataExists()">
-      <ShopData :data="shopData[this.sub]" />
+      <ShopData :data="shopData[sub]" />
     </section>
     <section v-if="shrine && shrineSub && shrineObj">
       <hr>

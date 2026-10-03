@@ -212,7 +212,7 @@
 
             <div v-show="searchResults.length">
               <p class="text-center mb-1">
-                <span v-show="this.searchResults.length >= this.MAX_SEARCH_RESULT_COUNT">Showing only the first {{MAX_SEARCH_RESULT_COUNT}} results.<br></span>
+                <span v-show="searchResults.length >= MAX_SEARCH_RESULT_COUNT">Showing only the first {{MAX_SEARCH_RESULT_COUNT}} results.<br></span>
                 <button type="button" class="btn btn-link btn-sm" @click="searchOnAdd"><i class="fa fa-plus"></i> Add to map</button>
                 <button type="button" class="btn btn-link btn-sm" @click="searchOnExclude"><i class="far fa-eye-slash"></i> Hide</button>
                 <button type="button" class="btn btn-link btn-sm" @click="searchSetLink"><i class="fas fa-link"></i> Link</button>
@@ -321,7 +321,7 @@
         <button type="button" class="btn btn-primary btn-sm btn-block" @click="toggleDraw()"><i class="fa fa-draw-polygon"></i> Toggle draw controls</button>
         <hr>
         <h4 class="subsection-heading">Polyline color</h4>
-        <input type="color"  @input="drawOnColorChange" value="#3388ff"> <button type="button" class="btn btn-link btn-sm" @click="drawLineColor = '#3388ff'">Reset to default</button>
+        <input type="color"  @input="drawOnColorChange" value="#3388ff"><button type="button" class="btn btn-link btn-sm" @click="drawLineColor = '#3388ff'">Reset to default</button>
         <hr>
         <h4 class="subsection-heading">Data import/export</h4>
         <p>Exported data includes search groups and drawn objects.</p>
@@ -346,7 +346,7 @@
             <button type="button" class="btn btn-link btn-sm polyline_btn" @click="toggleAllLayers(false)">All off</button>
           </div>
           <VueDraggable v-model="drawLayerOpts" @update="updateDrawLayerOptsIndex">
-            <div v-for="layer in drawLayerOpts" :key="layer.id" @model="drawLayerOpts" class="marker-row" draggable="true">
+            <div v-for="layer in drawLayerOpts" :key="layer.id" class="marker-row" draggable="true">
               <div>
                 <input type="checkbox" @input="toggleLayerVisibility" :id="layer.id" v-model="layer.visible" >
                 <input type="color" :value="layer.color" @input="changeLayerColor" :layer_id="layer.id" class="marker-color">

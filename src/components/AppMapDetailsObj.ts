@@ -135,7 +135,7 @@ export default defineComponent({
       railLimits: {} as { [key: string]: any },
     };
   },
-  beforeDestroy() {
+  beforeUnmount() {
     this.areaMarkers.forEach(m => m.remove());
     this.korokMarkers.forEach(m => m.remove());
     this.railMarkers.forEach(m => m.remove());

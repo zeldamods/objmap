@@ -19,12 +19,12 @@
         <button type="button" class="btn btn-dark btn-sm btn-block" v-show="areaMarkers.length" @click="keepAreaMarkersAlive()">Keep area representation loaded</button>
         <button type="button" class="btn btn-dark btn-sm btn-block" v-show="staticData.persistentAreaMarkers.length" @click="forgetPersistentAreaMarkers()">Hide area representation</button>
       </section>
-      <section class="mt-2" v-show="minObj.korok_type && (this.korokMarkers.length || staticData.persistentKorokMarkers.length)">
-        <button type="button" class="btn btn-dark btn-sm btn-block" v-show="this.korokMarkers.length" @click="keepKorokMarkersAlive()">Keep Korok markers loaded</button>
+      <section class="mt-2" v-show="minObj.korok_type && (korokMarkers.length || staticData.persistentKorokMarkers.length)">
+        <button type="button" class="btn btn-dark btn-sm btn-block" v-show="korokMarkers.length" @click="keepKorokMarkersAlive()">Keep Korok markers loaded</button>
         <button type="button" class="btn btn-dark btn-sm btn-block" v-show="staticData.persistentKorokMarkers.length" @click="forgetPersistentKorokMarkers()">Hide Korok markers</button>
       </section>
-      <section class="mt-2" v-show="this.railMarkers.length || staticData.persistentRailMarkers.length">
-        <button type="button" class="btn btn-dark btn-sm btn-block" v-show="this.railMarkers.length" @click="keepRailMarkersAlive()">Keep Rails loaded</button>
+      <section class="mt-2" v-show="railMarkers.length || staticData.persistentRailMarkers.length">
+        <button type="button" class="btn btn-dark btn-sm btn-block" v-show="railMarkers.length" @click="keepRailMarkersAlive()">Keep Rails loaded</button>
         <button type="button" class="btn btn-dark btn-sm btn-block" v-show="staticData.persistentRailMarkers.length" @click="forgetPersistentRailMarkers()">Hide Rails</button>
       </section>
 

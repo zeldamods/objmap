@@ -1,9 +1,11 @@
 <template>
-  <div id="app" class="d-flex h-100 flex-column">
+  <div class="d-flex h-100 flex-column">
     <div id="content" class="flex-fill d-flex">
-      <keep-alive>
-        <router-view/>
-      </keep-alive>
+      <router-view v-slot="{ Component }">
+        <keep-alive>
+          <component :is="Component"/>
+        </keep-alive>
+      </router-view>
     </div>
   </div>
 </template>

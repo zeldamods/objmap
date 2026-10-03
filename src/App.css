@@ -16,7 +16,7 @@
   src: url('./assets/fonts/Calamity-Bold.otf');
 }
 
-html, body {
+html, body, #app {
   height: 100%;
 }
 

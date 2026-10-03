@@ -1,12 +1,9 @@
-import Vue from 'vue';
-import Router from 'vue-router';
+import { createRouter, createWebHashHistory } from 'vue-router';
 
 import AppMap from '@/components/AppMap.vue';
 
-Vue.use(Router);
-
-export default new Router({
-  // mode: 'history',
+export default createRouter({
+  history: createWebHashHistory(),
   routes: [
     { path: '/map', redirect: '/map/zx,0,0' },
     {
@@ -14,6 +11,6 @@ export default new Router({
       name: 'map',
       component: AppMap,
     },
-    { path: '*', redirect: '/map' },
+    { path: '/:pathMatch(.*)*', redirect: '/map' },
   ],
 });

@@ -3,7 +3,7 @@ import '@fortawesome/fontawesome-free/css/fontawesome.css';
 import '@fortawesome/fontawesome-free/css/regular.css';
 import '@fortawesome/fontawesome-free/css/solid.css';
 
-import Vue from 'vue';
+import { createApp } from 'vue';
 
 import App from './App.vue';
 import router from './router';
@@ -13,7 +13,7 @@ import { MsgMgr } from '@/services/MsgMgr';
 
 async function main() {
   await initServices();
-  initUi();
+  await initUi();
 }
 
 async function initServices() {
@@ -23,13 +23,10 @@ async function initServices() {
   ]);
 }
 
-function initUi() {
-  Vue.config.productionTip = false;
-
-  new Vue({
-    router,
-    render: h => h(App)
-  }).$mount('#app');
+async function initUi() {
+  const app = createApp(App).use(router);
+  await router.isReady();
+  app.mount('#app');
 }
 
 main();
