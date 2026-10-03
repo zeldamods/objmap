@@ -1,24 +1,24 @@
 name: deploy
 on:
   push:
-    branches:
-    - master
+  pull_request:
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    - uses: actions/setup-node@v3
+    - uses: actions/checkout@v7
+    - uses: actions/setup-node@v7
       with:
-        node-version: 18
+        node-version: 26
         cache: 'npm'
     - name: install dependencies
-      run: npm install --include=dev
+      run: npm ci
     - name: build
       run: npm run build
     - name: deploy build
-      uses: burnett01/rsync-deployments@7.0.1
+      if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+      uses: burnett01/rsync-deployments@155b6d6c1219ab2224c20c58d423a3f1b850395f # 9.0.1
       with:
         switches: -avr
         path: dist/
