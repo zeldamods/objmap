@@ -1,3 +1,4 @@
 module.exports = {
-  productionSourceMap: false
+  productionSourceMap: false,
+  lintOnSave: false,
 }

@@ -50,7 +50,7 @@ class MapMarkerImpl extends MapMarker {
 }
 
 class MapMarkerCanvasImpl extends MapMarker {
-  constructor(mb: MapBase, title: string, pos: Point, options: CanvasMarkerOptions = {}) {
+  constructor(mb: MapBase, title: string, pos: Point, options: Partial<CanvasMarkerOptions> = {}) {
     super(mb);
     this.title = title;
     let extra: any = {};
@@ -63,7 +63,7 @@ class MapMarkerCanvasImpl extends MapMarker {
     this.marker = new CanvasMarker(mb.fromXYZ(pos), Object.assign(options, {
       bubblingMouseEvents: false,
       contextmenu: true,
-    }));
+    }) as CanvasMarkerOptions);
     this.marker.bindTooltip(title, { pane: 'front2', ...extra });
     super.commonInit();
   }

@@ -287,7 +287,7 @@
             <b-btn class="polyline_btn" size="sm" variant="link" @click="toggleAllLayers(true)" >All on</b-btn>
             <b-btn class="polyline_btn" size="sm" variant="link" @click="toggleAllLayers(false)">All off</b-btn>
           </div>
-          <draggable v-model="drawLayerOpts" @update="updateDrawLayerOptsIndex">
+          <VueDraggable v-model="drawLayerOpts" @update="updateDrawLayerOptsIndex">
             <div v-for="layer in drawLayerOpts" :key="layer.id" @model="drawLayerOpts" class="marker-row" draggable="true">
               <div>
                 <input type="checkbox" @input="toggleLayerVisibility" :id="layer.id" v-model="layer.visible" >
@@ -296,7 +296,7 @@
               </div>
               <div>{{layer.length}}</div>
             </div>
-          </draggable>
+          </VueDraggable>
         </div>
       </div>
 

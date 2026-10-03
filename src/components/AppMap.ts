@@ -46,7 +46,7 @@ import { appMapBus, ObjectIdentifier, onAppMapEvents } from '@/util/bus';
 import '@/util/leaflet_tile_workaround.js';
 import AppMapPopup, { AppMapPopupProps } from '@/components/AppMapPopup';
 
-import draggable from 'vuedraggable';
+import { VueDraggable } from 'vue-draggable-plus';
 
 function valueOrDefault<T>(value: T | undefined, defaultValue: T) {
   return value === undefined ? defaultValue : value;
@@ -212,7 +212,7 @@ function addPopupAndTooltip(layer: L.Marker | L.Polyline, root: any) {
     AppMapSettings,
     ModalGotoCoords,
     ObjectInfo,
-    draggable,
+    VueDraggable,
   },
 })
 export default class AppMap extends mixins(MixinUtil) {
@@ -707,8 +707,8 @@ export default class AppMap extends mixins(MixinUtil) {
     // @ts-ignore
     this.drawControl = new L.Control.Draw(options);
     this.setLineColorThrottler = debounce(() => this.setLineColor(), 100);
+    // @ts-ignore
     this.map.m.on({
-      // @ts-ignore
       'draw:created': (e: any) => {
         addGeoJSONFeatureToLayer(e.layer);
         calcLayerLength(e.layer);
