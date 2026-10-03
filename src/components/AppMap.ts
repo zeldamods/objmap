@@ -752,8 +752,7 @@ export default defineComponent({
       // @ts-ignore
       this.drawControl = new L.Control.Draw(options);
       this.setLineColorThrottler = debounce(() => this.setLineColor(), 100);
-      // @ts-ignore
-      this.map.m.on({
+      const drawHandlers: { [event: string]: (e: any) => void } = {
         'draw:created': (e: any) => {
           addGeoJSONFeatureToLayer(e.layer);
           calcLayerLength(e.layer);
@@ -788,7 +787,8 @@ export default defineComponent({
           });
           this.updateDrawLayerOpts();
         },
-      });
+      };
+      this.map.m.on(drawHandlers);
       this.drawOnColorChange({});
       Settings.getInstance().registerBeforeSaveCallback(() => {
         Settings.getInstance().drawLayerGeojson = JSON.stringify(this.drawToGeojson());
@@ -1027,7 +1027,7 @@ export default defineComponent({
 
       this.map.registerZoomCb(() => {
         for (const group of this.searchGroups)
-          group.update(0, this.searchExcludedSets);
+          group.update(SearchResultUpdateMode.None, this.searchExcludedSets);
       });
     },
 
