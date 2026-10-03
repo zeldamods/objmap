@@ -219,7 +219,6 @@ function addPopupAndTooltip(layer: L.Marker | L.Polyline, root: any) {
 })
 export default class AppMap extends mixins(MixinUtil) {
   private map!: MapBase;
-  private updatingRoute = false;
   private zoom = map.DEFAULT_ZOOM;
 
   private sidebar!: L.Control.Sidebar;
@@ -305,7 +304,6 @@ export default class AppMap extends mixins(MixinUtil) {
     this.map.setView([x, 0, z], zoom);
   }
   updateRoute() {
-    this.updatingRoute = true;
     // @ts-ignore
     this.$router.replace({
       name: 'map',
@@ -321,7 +319,6 @@ export default class AppMap extends mixins(MixinUtil) {
         console.error(err);
       }
     });
-    this.updatingRoute = false;
   }
 
   initMapRouteIntegration() {
@@ -1488,11 +1485,5 @@ export default class AppMap extends mixins(MixinUtil) {
   beforeDestroy() {
     this.offAppMapEvents();
     this.map.m.remove();
-  }
-
-  beforeRouteUpdate(to: any, from: any, next: any) {
-    if (!this.updatingRoute)
-      this.setViewFromRoute(to);
-    next();
   }
 }

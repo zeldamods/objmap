@@ -4,7 +4,6 @@ import '@fortawesome/fontawesome-free/css/regular.css';
 import '@fortawesome/fontawesome-free/css/solid.css';
 
 import Vue from 'vue';
-import Component from 'vue-class-component'
 
 import App from './App.vue';
 import router from './router';
@@ -26,12 +25,6 @@ async function initServices() {
 
 function initUi() {
   Vue.config.productionTip = false;
-
-  Component.registerHooks([
-    'beforeRouteEnter',
-    'beforeRouteLeave',
-    'beforeRouteUpdate',
-  ]);
 
   new Vue({
     router,
