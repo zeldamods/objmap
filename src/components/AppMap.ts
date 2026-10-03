@@ -176,6 +176,13 @@ function layerSetPopup(layer: L.Marker | L.Polyline, popup: MountedComponent<App
   layer.popup = popup;
 }
 
+function unmountPopup(layer: any) {
+  if (layer.popup) {
+    layer.popup.unmount();
+    delete layer.popup;
+  }
+}
+
 function addPopupAndTooltip(layer: L.Marker | L.Polyline, root: any) {
   if (layer && layer.feature) {
     const { title, text, pathLength } = layer.feature.properties;
@@ -579,6 +586,7 @@ export default defineComponent({
 
       layer.remove();
       this.drawLayer.removeLayer(layer);
+      unmountPopup(layer);
       this.drawFromGeojsonFeature(newGeojson1);
       this.drawFromGeojsonFeature(newGeojson2);
       this.updateDrawLayerOpts();
@@ -774,6 +782,10 @@ export default defineComponent({
               e.layers.eachLayer((layer: L.Marker | L.Polyline) => this.drawLayer.addLayer(layer));
             }
           }
+          e.layers.eachLayer((layer: L.Layer) => {
+            if (!this.drawLayer.hasLayer(layer))
+              unmountPopup(layer);
+          });
           this.updateDrawLayerOpts();
         },
       });
@@ -796,6 +808,7 @@ export default defineComponent({
 
     drawFromGeojson(data: any) {
       if (this.importReplace) {
+        this.drawLayer.eachLayer(unmountPopup);
         this.drawLayer.clearLayers();
       }
       data.features.forEach((feat: any) => {

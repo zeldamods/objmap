@@ -3,6 +3,7 @@ import { Component, createApp, h, reactive, toHandlerKey } from 'vue';
 export interface MountedComponent<Props> {
   el: HTMLElement;
   props: Props;
+  unmount(): void;
 }
 
 export function mountComponent<Props extends object>(
@@ -12,8 +13,9 @@ export function mountComponent<Props extends object>(
 ): MountedComponent<Props> {
   const reactiveProps = reactive({ ...props }) as Props;
   const onListeners = Object.fromEntries(Object.entries(listeners).map(([name, fn]) => [toHandlerKey(name), fn]));
-  const vm = createApp({
+  const app = createApp({
     render: () => h(component, { ...reactiveProps, ...onListeners }),
-  }).mount(document.createElement('div'));
-  return { el: vm.$el as HTMLElement, props: reactiveProps };
+  });
+  const vm = app.mount(document.createElement('div'));
+  return { el: vm.$el as HTMLElement, props: reactiveProps, unmount: () => app.unmount() };
 }
