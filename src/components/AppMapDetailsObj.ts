@@ -269,7 +269,7 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj | M
       // Draw polyline [x,z,y] but z is North-South and y is Up-Down
       pts = pts.map((pt: any) => [pt[2], pt[0], pt[1]]);
       // @ts-ignore
-      return L.hotline(pts, opts).addTo(map.m);
+      return L.hotline(pts, { ...opts, renderer: L.Hotline.renderer({ pane: opts.pane }) }).addTo(map.m);
     });
     if (this.railMarkers.length) {
       if (!this.staticData.colorScale) {
