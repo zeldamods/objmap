@@ -1,87 +1,86 @@
-import Vue from 'vue';
-import { Prop } from 'vue-property-decorator';
-import Component, { mixins } from 'vue-class-component';
+import { defineComponent, PropType } from 'vue';
 
 import { rankUpEnemyForHardMode } from '@/level_scaling';
 import MixinUtil from '@/components/MixinUtil';
 import { MsgMgr } from '@/services/MsgMgr';
 import { ObjectData, ObjectMinData, PlacementLink } from '@/services/MapMgr';
-import { Settings } from '@/util/settings';
 
-@Component
-export default class ObjectInfo extends mixins(MixinUtil) {
-  @Prop()
-  private obj!: ObjectData | ObjectMinData | null;
+export default defineComponent({
+  name: 'ObjectInfo',
+  mixins: [MixinUtil],
+  props: {
+    obj: { type: Object as PropType<ObjectData | ObjectMinData | null>, default: null },
+    link: { type: Object as PropType<PlacementLink | null>, default: null },
+    className: { type: String, default: 'search-result' },
+    isStatic: { type: Boolean, default: true },
+    dropAsName: { type: Boolean, default: false },
+    withPermalink: { type: Boolean, default: false },
+  },
+  emits: ['click'],
 
-  @Prop()
-  private link!: PlacementLink | null;
+  data() {
+    return {
+      metadata: null as any,
+    };
+  },
 
-  @Prop({ type: String, default: 'search-result' })
-  private className!: string;
+  computed: {
+    data(): ObjectData | ObjectMinData {
+      return (this.link ? this.link.otherObj : this.obj)!;
+    },
+  },
 
-  @Prop({ type: Boolean, default: true })
-  private isStatic!: boolean;
+  watch: {
+    data() {
+      this.metadata = null;
+    },
+  },
 
-  @Prop({ type: Boolean, default: false })
-  private dropAsName!: boolean;
-
-  @Prop({ type: Boolean, default: false })
-  private withPermalink!: boolean;
-
-  private data!: ObjectData | ObjectMinData;
-
-  private metadata: any | null = null;
-
-  private created() {
+  created() {
     if ((!this.obj && !this.link) || (this.obj && this.link))
       throw new Error('needs an object *or* a placement link');
+  },
 
-    if (this.link)
-      this.data = this.link.otherObj;
-    if (this.obj)
-      this.data = this.obj;
-  }
+  methods: {
+    async loadMetaIfNeeded(): Promise<void> {
+      if (!this.metadata) {
+        const data = this.data;
+        const metadata = await MsgMgr.getInstance().getObjectMetaData(this.getRankedUpActorNameForObj(data));
+        if (data === this.data)
+          this.metadata = metadata;
+      }
+    },
 
-  async loadMetaIfNeeded() {
-    if (!this.metadata) {
-      const rname = this.getRankedUpActorNameForObj(this.data);
-      this.metadata = await MsgMgr.getInstance().getObjectMetaData(rname);
-    }
-  }
-
-  private meta(item: string) {
-    this.loadMetaIfNeeded();
-    // Return values may still be null if metadata is not available
-    return (this.metadata) ? this.metadata[item] : null;
-  }
+    meta(item: string): any {
+      this.loadMetaIfNeeded();
+      // Return values may still be null if metadata is not available
+      return (this.metadata) ? this.metadata[item] : null;
+    },
 
 
-  private name(rankUp: boolean) {
-    if (this.dropAsName)
-      return this.drop();
+    name(rankUp: boolean): string {
+      if (this.dropAsName)
+        return this.drop();
 
-    const objName = this.data.name;
-    if (objName === 'LocationTag' && this.data.messageid) {
-      const locationName = MsgMgr.getInstance().getMsgWithFile('StaticMsg/LocationMarker', this.data.messageid)
-        || MsgMgr.getInstance().getMsgWithFile('StaticMsg/Dungeon', this.data.messageid);
-      return `Location: ${locationName}`;
-    }
+      const objName = this.data.name;
+      if (objName === 'LocationTag' && this.data.messageid) {
+        const locationName = MsgMgr.getInstance().getMsgWithFile('StaticMsg/LocationMarker', this.data.messageid)
+          || MsgMgr.getInstance().getMsgWithFile('StaticMsg/Dungeon', this.data.messageid);
+        return `Location: ${locationName}`;
+      }
 
-    return this.getName(rankUp ? this.getRankedUpActorNameForObj(this.data) : this.data.name);
-  }
+      return this.getName(rankUp ? this.getRankedUpActorNameForObj(this.data) : this.data.name);
+    },
 
-  private isHardMode() {
-    return Settings.getInstance().hardMode;
-  }
+    drop(): string {
+      let s = '';
+      if (!this.data.drop)
+        return s;
 
-  private drop() {
-    let s = '';
-    if (!this.data.drop)
+      s += this.data.drop[0] == 2 ? 'Drop table: ' : '';
+      s += this.getName(this.data.drop[1]);
+
       return s;
-
-    s += this.data.drop[0] == 2 ? 'Drop table: ' : '';
-    s += this.getName(this.data.drop[1]);
-
-    return s;
-  }
-}
+    },
+  },
+});

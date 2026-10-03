@@ -179,7 +179,7 @@
                 <template v-slot:button-content><span v-html="presetGroup.label"></span></template>
                 <li role="presentation" v-for="preset in presetGroup.presets" :key="preset.label"><a role="menuitem" href="#" class="dropdown-item" @click.prevent="searchAddGroup(preset.query, preset.label)">{{preset.label}}</a></li>
               </AppDropdown>
-              <AppDropdown size="sm" variant="link" text="Custom" v-if="settings && settings.customSearchPresets.length">
+              <AppDropdown size="sm" variant="link" text="Custom" v-if="settings.customSearchPresets.length">
                 <li role="presentation" v-for="preset in settings.customSearchPresets" :key="preset[0]"><a role="menuitem" href="#" class="dropdown-item" @click.prevent="searchAddGroup(preset[1], preset[0])">{{preset[0]}}</a></li>
               </AppDropdown>
             </div>

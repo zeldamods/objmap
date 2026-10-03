@@ -1,6 +1,4 @@
-import Vue from 'vue';
-import Component from 'vue-class-component';
-import { Prop, Watch } from 'vue-property-decorator';
+import { defineComponent } from 'vue';
 
 export interface AppMapPopupProps {
   title?: string;
@@ -8,27 +6,26 @@ export interface AppMapPopupProps {
   pathLength?: number;
 }
 
-@Component
-export default class AppMapPopup extends Vue {
-  @Prop(String)
-  private title!: string;
-
-  @Prop(String)
-  private text!: string;
-
-  @Prop(Number)
-  private pathLength!: number;
-
-  private currentTitle = this.title;
-  private currentText = this.text;
-
-  @Watch('currentTitle')
-  onTitleChanged(val: string) {
-    this.$emit('title', val);
-  }
-
-  @Watch('currentText')
-  onTextChanged(val: string) {
-    this.$emit('text', val);
-  }
-}
+export default defineComponent({
+  name: 'AppMapPopup',
+  props: {
+    title: String,
+    text: String,
+    pathLength: Number,
+  },
+  emits: ['title', 'text'],
+  data() {
+    return {
+      currentTitle: this.title,
+      currentText: this.text,
+    };
+  },
+  watch: {
+    currentTitle(val: string) {
+      this.$emit('title', val);
+    },
+    currentText(val: string) {
+      this.$emit('text', val);
+    },
+  },
+});

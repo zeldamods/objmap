@@ -2,6 +2,10 @@
 import * as L from 'leaflet';
 import { MsgMgr } from '@/services/MsgMgr';
 
+export function late<T>(): T {
+  return undefined as unknown as T;
+}
+
 export type LeafletContextMenuCbArg = { latlng: L.LatLng };
 
 export function copyToClipboard(text: string) {
