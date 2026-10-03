@@ -7,7 +7,7 @@
     </section>
     <section class="search-result-id">
       <i class="fas fa-hashtag fa-fw"></i> ID
-      <span v-if="withPermalink"><router-link :to="{ query: { id: `${data.map_type},${data.map_name},${data.hash_id}` } }" append>{{formatObjId(data.hash_id)}}</router-link></span>
+      <span v-if="withPermalink"><router-link :to="{ query: { id: `${data.map_type},${data.map_name},${data.hash_id}` } }">{{formatObjId(data.hash_id)}}</router-link></span>
       <span v-if="!withPermalink">{{formatObjId(data.hash_id)}}</span>
     </section>
     <section class="search-result-hard-mode">
