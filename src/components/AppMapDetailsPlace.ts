@@ -2,8 +2,8 @@ import { defineComponent } from 'vue';
 
 import { MapMarkerPlace } from '@/MapMarker';
 import { defineDetailsBase } from '@/components/AppMapDetailsBase';
-import ObjectInfo from '@/components/ObjectInfo';
-import ShopData from '@/components/ShopData';
+import ObjectInfo from '@/components/ObjectInfo.vue';
+import ShopData from '@/components/ShopData.vue';
 import { MapMgr, ObjectMinData } from '@/services/MapMgr';
 import { MsgMgr } from '@/services/MsgMgr';
 

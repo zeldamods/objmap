@@ -4,9 +4,10 @@
   "private": true,
   "author": "Léo Lam <leo@leolam.fr>",
   "scripts": {
-    "serve": "env NODE_OPTIONS=--openssl-legacy-provider vue-cli-service serve",
-    "build": "env NODE_OPTIONS=--openssl-legacy-provider vue-cli-service build",
-    "lint": "env NODE_OPTIONS=--openssl-legacy-provider vue-cli-service lint"
+    "serve": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.13.0",
@@ -22,7 +23,6 @@
     "leaflet.markercluster": "^1.4.1",
     "lodash": "^4.17.21",
     "mitt": "^3.0.1",
-    "terser": "^4.8.1",
     "vue": "2.7.16",
     "vue-draggable-plus": "^0.6.1",
     "vue-router": "^3.2.0"
@@ -32,19 +32,10 @@
     "@types/leaflet-draw": "1.0.11",
     "@types/leaflet.markercluster": "1.5.5",
     "@types/lodash": "4.17.13",
-    "@vue/cli-plugin-babel": "^3.12.1",
-    "@vue/cli-plugin-eslint": "^3.12.1",
-    "@vue/cli-plugin-typescript": "^3.12.1",
-    "@vue/cli-service": "^3.12.1",
-    "@vue/eslint-config-typescript": "^4.0.0",
-    "babel-eslint": "^10.1.0",
-    "eslint": "^5.16.0",
-    "eslint-plugin-vue": "^5.2.3",
+    "@vitejs/plugin-vue2": "^2.3.4",
     "leaflet": "^1.9.4",
-    "less": "^3.13.1",
-    "less-loader": "^4.1.0",
+    "less": "^4.9.1",
     "typescript": "~4.9.5",
-    "vue-loader": "^15.11.1",
-    "vue-template-compiler": "2.7.16"
+    "vite": "^7.3.6"
   }
 }

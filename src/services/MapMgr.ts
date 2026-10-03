@@ -3,7 +3,7 @@ import { GAME_FILES } from '@/util/map';
 
 import { BuyingPrice } from './buying_price'
 
-const RADAR_URL = process.env.VUE_APP_RADAR_URL;
+const RADAR_URL = import.meta.env.VUE_APP_RADAR_URL;
 
 export type Vec3 = [number, number, number];
 

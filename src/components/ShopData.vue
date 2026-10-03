@@ -11,7 +11,7 @@
         <div v-for="idx in length()" :key="idx" class="table-row">
           <div class="cell">{{name(idx)}}</div>
           <div class="cell">{{num(idx)}}</div>
-          <div class="cell"><img width="15" src="rupee.svg"></div>
+          <div class="cell"><img width="15" src="/rupee.svg"></div>
           <div class="cell">{{price(idx)}}</div>
         </div>
       </div>

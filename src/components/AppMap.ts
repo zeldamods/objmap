@@ -1,10 +1,11 @@
 import * as L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import 'leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.webpack.css';
+import 'leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css';
 import 'leaflet-defaulticon-compatibility';
 import 'leaflet-sidebar-v2';
 import 'leaflet-sidebar-v2/css/leaflet-sidebar.css';
 
+import '@/util/leaflet_draw_globals';
 import 'leaflet-draw';
 import 'leaflet-draw/dist/leaflet.draw.css';
 
@@ -23,14 +24,14 @@ import { MapMarkerGroup } from '@/MapMarkerGroup';
 import { SearchResultGroup, SearchExcludeSet, SEARCH_PRESETS } from '@/MapSearch';
 import * as save from '@/save';
 
-import AppDropdown from '@/components/AppDropdown';
-import AppMapDetailsDungeon from '@/components/AppMapDetailsDungeon';
-import AppMapDetailsObj from '@/components/AppMapDetailsObj';
-import AppMapDetailsPlace from '@/components/AppMapDetailsPlace';
-import AppMapFilterMainButton from '@/components/AppMapFilterMainButton';
-import AppMapSettings from '@/components/AppMapSettings';
-import ModalGotoCoords from '@/components/ModalGotoCoords';
-import ObjectInfo from '@/components/ObjectInfo';
+import AppDropdown from '@/components/AppDropdown.vue';
+import AppMapDetailsDungeon from '@/components/AppMapDetailsDungeon.vue';
+import AppMapDetailsObj from '@/components/AppMapDetailsObj.vue';
+import AppMapDetailsPlace from '@/components/AppMapDetailsPlace.vue';
+import AppMapFilterMainButton from '@/components/AppMapFilterMainButton.vue';
+import AppMapSettings from '@/components/AppMapSettings.vue';
+import ModalGotoCoords from '@/components/ModalGotoCoords.vue';
+import ObjectInfo from '@/components/ObjectInfo.vue';
 
 import { MapMgr, ObjectData, ObjectMinData } from '@/services/MapMgr';
 import { MsgMgr } from '@/services/MsgMgr';
@@ -43,7 +44,8 @@ import { calcLayerLength } from '@/util/polyline';
 import { mountComponent, MountedComponent } from '@/util/mount';
 import { appMapBus, ObjectIdentifier, onAppMapEvents } from '@/util/bus';
 import '@/util/leaflet_tile_workaround.js';
-import AppMapPopup, { AppMapPopupProps } from '@/components/AppMapPopup';
+import AppMapPopup from '@/components/AppMapPopup.vue';
+import type { AppMapPopupProps } from '@/components/AppMapPopup';
 
 import { VueDraggable } from 'vue-draggable-plus';
 
