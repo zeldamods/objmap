@@ -29,6 +29,24 @@ body {
   box-sizing: border-box;
 }
 
+:root {
+  --bs-border-radius: .25rem;
+  --bs-border-radius-sm: .2rem;
+  --bs-border-radius-lg: .3rem;
+}
+
+a {
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+.btn:hover {
+  text-decoration: none;
+}
+
 a, a:active, a:visited {
   color: #29d1fc;
 }
@@ -59,7 +77,7 @@ code {
   padding: 15px;
 }
 
-.form-control, .form-control:focus, .custom-control-label::before {
+.form-control, .form-control:focus, .form-check-input {
   color: white;
   background-color: #01151fe0;
   border: 1px solid #01151fe0;
@@ -67,6 +85,44 @@ code {
 
 .form-control::placeholder {
   color: #7a7a7a;
+}
+
+::-webkit-color-swatch-wrapper {
+  padding: revert;
+}
+
+/* Bootstrap 5 sizes checks in em, which shrinks them in the 15px sidebar. */
+.form-check {
+  padding-left: 1.5rem;
+  margin-bottom: 0;
+}
+
+.form-check .form-check-input {
+  width: 1rem;
+  height: 1rem;
+  margin-top: .25rem;
+  margin-left: -1.5rem;
+}
+
+.form-switch {
+  padding-left: 2.25rem;
+}
+
+.form-switch .form-check-input {
+  width: 1.75rem;
+  margin-left: -2.25rem;
+}
+
+.form-switch .form-check-input:not(:checked) {
+  --bs-form-switch-bg: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23adb5bd'/%3e%3c/svg%3e");
+}
+
+.form-select {
+  --bs-form-select-bg-img: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='4' height='5' viewBox='0 0 4 5'%3e%3cpath fill='%23343a40' d='M2 0L0 2h4zm0 5L0 3h4z'/%3e%3c/svg%3e");
+  padding-right: 1.75rem;
+  color: #495057;
+  background-size: 8px 10px;
+  border-color: #ced4da;
 }
 
 /* https://stackoverflow.com/a/49852634 */
@@ -203,4 +259,33 @@ code {
 
 .colorscale-picker-sample:hover {
     outline: 1px solid white;
+}
+
+/* Bootstrap 4 palettes: v5 lightens .btn-dark on hover and turns .btn-info light cyan. */
+.btn-dark {
+  --bs-btn-bg: #343a40;
+  --bs-btn-border-color: #343a40;
+  --bs-btn-hover-bg: #23272b;
+  --bs-btn-hover-border-color: #1d2124;
+  --bs-btn-focus-shadow-rgb: 82, 88, 93;
+  --bs-btn-active-bg: #1d2124;
+  --bs-btn-active-border-color: #171a1d;
+  --bs-btn-disabled-bg: #343a40;
+  --bs-btn-disabled-border-color: #343a40;
+}
+
+.btn-info {
+  --bs-btn-color: #fff;
+  --bs-btn-bg: #17a2b8;
+  --bs-btn-border-color: #17a2b8;
+  --bs-btn-hover-color: #fff;
+  --bs-btn-hover-bg: #138496;
+  --bs-btn-hover-border-color: #117a8b;
+  --bs-btn-focus-shadow-rgb: 58, 176, 195;
+  --bs-btn-active-color: #fff;
+  --bs-btn-active-bg: #117a8b;
+  --bs-btn-active-border-color: #10707f;
+  --bs-btn-disabled-color: #fff;
+  --bs-btn-disabled-bg: #17a2b8;
+  --bs-btn-disabled-border-color: #17a2b8;
 }

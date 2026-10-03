@@ -3,7 +3,7 @@
   <div class="banner" v-show="!settings.decompBannerHidden">
     Help us understand the BotW engine! <a href="https://github.com/zeldaret/botw" target="_blank">Contribute to the decompilation project now</a>
 
-    <button type="button" aria-label="Close" class="close" @click="settings.decompBannerHidden = true">×</button>
+    <button type="button" aria-label="Close" class="btn-close" data-bs-theme="dark" @click="settings.decompBannerHidden = true"></button>
   </div>
 
   <div id="lmap" class="h-100"></div>
@@ -69,7 +69,7 @@
           <code>lotm</code>: Spawns with Lord of the Mountain (1 or 0) <br>
           <code>location</code>: Item possibly in, beneath or above something
 
-          <details class="ml-3">
+          <details class="ms-3">
             <summary>Locations</summary>
             <ul class="small">
               <li>Castle Tower</li>
@@ -101,7 +101,7 @@
           </details>
 
           <code>korok_type</code>: Korok puzzle type<br>
-          <details class="ml-3">
+          <details class="ms-3">
             <summary>Korok Types</summary>
             <ul class="small">
               <li>Acorn in a Hole</li>
@@ -167,7 +167,7 @@
           <code>TBox_<b>*</b></code> for TBox_Field_Wood, TBox_Field_Iron, etc.
         </p>
 
-        <button type="button" class="btn btn-primary btn-sm btn-block" @click="switchPane('spane-search')"><i class="fa fa-chevron-left"></i> Back</button>
+        <button type="button" class="btn btn-primary btn-sm d-block w-100" @click="switchPane('spane-search')"><i class="fa fa-chevron-left"></i> Back</button>
       </div>
 
       <div class="leaflet-sidebar-pane" id="spane-search">
@@ -189,15 +189,15 @@
 
           <section class="search-groups" v-show="searchGroups.length || searchExcludedSets.length">
             <div class="search-group d-flex align-items-center" v-for="(group, idx) in searchGroups" :key="'searchgroup' + idx">
-              <div class="ml-2 d-inline-block search-enable-checkbox custom-control custom-checkbox">
-                <input type="checkbox" class="custom-control-input" :id="'search-group-enabled-' + idx" v-model="group.enabled" @change="searchToggleGroupEnabledStatus(idx)">
-                <label class="custom-control-label" :for="'search-group-enabled-' + idx"></label>
+              <div class="ms-2 d-inline-block search-enable-checkbox form-check">
+                <input type="checkbox" class="form-check-input" :id="'search-group-enabled-' + idx" v-model="group.enabled" @change="searchToggleGroupEnabledStatus(idx)">
+                <label class="form-check-label" :for="'search-group-enabled-' + idx"></label>
               </div>
               <span class="d-inline-block">
                 <span>{{group.label}}</span>
-                <a class="ml-2" @click="searchRemoveGroup(idx)"><i class="text-danger fa fa-times"></i></a>
-                <a class="ml-2" style="font-size: 90%" v-if="group.query" @click="searchViewGroup(idx)"><i class="fa fa-edit"></i></a>
-                <span class="ml-2">({{group.size()}})</span>
+                <a class="ms-2" @click="searchRemoveGroup(idx)"><i class="text-danger fa fa-times"></i></a>
+                <a class="ms-2" style="font-size: 90%" v-if="group.query" @click="searchViewGroup(idx)"><i class="fa fa-edit"></i></a>
+                <span class="ms-2">({{group.size()}})</span>
               </span>
             </div>
             <div class="search-group" v-for="(set, idx) in searchExcludedSets" :key="'searchexclude' + idx">
@@ -227,56 +227,56 @@
         <div class="row">
           <AppMapFilterMainButton v-for="(v, type) in markerComponents" :key="type" :type="type" :label="v.filterLabel" :icon="v.filterIcon" @toggle="updateMarkers" />
         </div>
-        <div class="custom-control custom-switch">
-          <input type="checkbox" class="custom-control-input" id="filter-korok-ids" v-model="showKorokIDs" @change="updateKorokIDs">
-          <label class="custom-control-label" for="filter-korok-ids">Show Korok IDs</label>
+        <div class="form-check form-switch">
+          <input type="checkbox" class="form-check-input" id="filter-korok-ids" v-model="showKorokIDs" @change="updateKorokIDs">
+          <label class="form-check-label" for="filter-korok-ids">Show Korok IDs</label>
         </div>
         <hr>
         <h4 class="subsection-heading">Visible map areas</h4>
         <div role="radiogroup" class="mb-4">
-          <div class="custom-control custom-radio">
-            <input type="radio" class="custom-control-input" name="filter-area-map" id="filter-area-map-none" value="" v-model="shownAreaMap" @change="onShownAreaMapChanged">
-            <label class="custom-control-label" for="filter-area-map-none">None</label>
+          <div class="form-check">
+            <input type="radio" class="form-check-input" name="filter-area-map" id="filter-area-map-none" value="" v-model="shownAreaMap" @change="onShownAreaMapChanged">
+            <label class="form-check-label" for="filter-area-map-none">None</label>
           </div>
-          <div class="custom-control custom-radio">
-            <input type="radio" class="custom-control-input" name="filter-area-map" id="filter-area-map-field" value="FieldMapArea" v-model="shownAreaMap" @change="onShownAreaMapChanged">
-            <label class="custom-control-label" for="filter-area-map-field">Field map areas</label>
+          <div class="form-check">
+            <input type="radio" class="form-check-input" name="filter-area-map" id="filter-area-map-field" value="FieldMapArea" v-model="shownAreaMap" @change="onShownAreaMapChanged">
+            <label class="form-check-label" for="filter-area-map-field">Field map areas</label>
           </div>
-          <div class="custom-control custom-radio">
-            <input type="radio" class="custom-control-input" name="filter-area-map" id="filter-area-map-tower" value="MapTower" v-model="shownAreaMap" @change="onShownAreaMapChanged">
-            <label class="custom-control-label" for="filter-area-map-tower">Map tower areas</label>
+          <div class="form-check">
+            <input type="radio" class="form-check-input" name="filter-area-map" id="filter-area-map-tower" value="MapTower" v-model="shownAreaMap" @change="onShownAreaMapChanged">
+            <label class="form-check-label" for="filter-area-map-tower">Map tower areas</label>
           </div>
-          <div class="custom-control custom-radio">
-            <input type="radio" class="custom-control-input" name="filter-area-map" id="filter-area-map-lb" value="LoadBalancer" v-model="shownAreaMap" @change="onShownAreaMapChanged">
-            <label class="custom-control-label" for="filter-area-map-lb">Load balancer areas</label>
+          <div class="form-check">
+            <input type="radio" class="form-check-input" name="filter-area-map" id="filter-area-map-lb" value="LoadBalancer" v-model="shownAreaMap" @change="onShownAreaMapChanged">
+            <label class="form-check-label" for="filter-area-map-lb">Load balancer areas</label>
           </div>
         </div>
-        <div role="group" class="form-group">
-          <label for="mapareafilter" class="d-block">Filter map areas</label>
+        <div role="group" class="mb-3">
+          <label for="mapareafilter" class="form-label d-block">Filter map areas</label>
           <div class="d-flex mb-1">
-            <input type="search" style="flex: 1" class="form-control form-control-sm mr-2" id="mapareafilter" placeholder="Example: 1,2,3,64" v-model="areaWhitelist">
+            <input type="search" style="flex: 1" class="form-control form-control-sm me-2" id="mapareafilter" placeholder="Example: 1,2,3,64" v-model="areaWhitelist">
             <button type="button" class="btn btn-primary btn-sm" @click="updateAreaMapVisibility()"><i class="fa fa-filter"></i></button>
           </div>
         </div>
-        <div class="custom-control custom-switch">
-          <input type="checkbox" class="custom-control-input" id="filter-safe-areas" v-model="showSafeAreas" @change="onShowSafeAreas">
-          <label class="custom-control-label" for="filter-safe-areas">Enemy non-search areas (safe zones)</label>
+        <div class="form-check form-switch">
+          <input type="checkbox" class="form-check-input" id="filter-safe-areas" v-model="showSafeAreas" @change="onShowSafeAreas">
+          <label class="form-check-label" for="filter-safe-areas">Enemy non-search areas (safe zones)</label>
         </div>
-        <div class="custom-control custom-switch">
-          <input type="checkbox" class="custom-control-input" id="filter-map-unit-grid" v-model="showMapUnitGrid" @change="onShowMapUnitGridChanged">
-          <label class="custom-control-label" for="filter-map-unit-grid">Show map unit grid</label>
+        <div class="form-check form-switch">
+          <input type="checkbox" class="form-check-input" id="filter-map-unit-grid" v-model="showMapUnitGrid" @change="onShowMapUnitGridChanged">
+          <label class="form-check-label" for="filter-map-unit-grid">Show map unit grid</label>
         </div>
-        <div class="custom-control custom-switch">
-          <input type="checkbox" class="custom-control-input" id="filter-castle-areas" v-model="showCastleAreas" @change="onShowCastleAreas">
-          <label class="custom-control-label" for="filter-castle-areas">Show Hyrule castle interior</label>
+        <div class="form-check form-switch">
+          <input type="checkbox" class="form-check-input" id="filter-castle-areas" v-model="showCastleAreas" @change="onShowCastleAreas">
+          <label class="form-check-label" for="filter-castle-areas">Show Hyrule castle interior</label>
         </div>
-        <div class="custom-control custom-switch">
-          <input type="checkbox" class="custom-control-input" id="filter-base-map" v-model="showBaseMap" @change="onShowBaseMap">
-          <label class="custom-control-label" for="filter-base-map">Show base map</label>
+        <div class="form-check form-switch">
+          <input type="checkbox" class="form-check-input" id="filter-base-map" v-model="showBaseMap" @change="onShowBaseMap">
+          <label class="form-check-label" for="filter-base-map">Show base map</label>
         </div>
-        <div class="custom-control custom-switch">
-          <input type="checkbox" class="custom-control-input" id="filter-reference-grid" v-model="showReferenceGrid" @change="onShowReferenceGrid">
-          <label class="custom-control-label" for="filter-reference-grid">
+        <div class="form-check form-switch">
+          <input type="checkbox" class="form-check-input" id="filter-reference-grid" v-model="showReferenceGrid" @change="onShowReferenceGrid">
+          <label class="form-check-label" for="filter-reference-grid">
             <div title="Display an overlap map with region outlines and grid markers, similar to that before Tower activation. This map can be displayed over the base map.">
               Show region outlines and grid
             </div>
@@ -285,55 +285,55 @@
         <hr/>
         <h4 class="subsection-heading">Item Auto Placement</h4>
         <div role="radiogroup" class="mb-4">
-          <div class="custom-control custom-radio">
-            <input type="radio" class="custom-control-input" name="filter-auto-item" id="filter-auto-item-none" value="" v-model="shownAutoItem" @change="onShownAutoItemChanged">
-            <label class="custom-control-label" for="filter-auto-item-none">None</label>
+          <div class="form-check">
+            <input type="radio" class="form-check-input" name="filter-auto-item" id="filter-auto-item-none" value="" v-model="shownAutoItem" @change="onShownAutoItemChanged">
+            <label class="form-check-label" for="filter-auto-item-none">None</label>
           </div>
-          <div class="custom-control custom-radio">
-            <input type="radio" class="custom-control-input" name="filter-auto-item" id="filter-auto-item-fish" value="AutoFish" v-model="shownAutoItem" @change="onShownAutoItemChanged">
-            <label class="custom-control-label" for="filter-auto-item-fish">Auto Fish</label>
+          <div class="form-check">
+            <input type="radio" class="form-check-input" name="filter-auto-item" id="filter-auto-item-fish" value="AutoFish" v-model="shownAutoItem" @change="onShownAutoItemChanged">
+            <label class="form-check-label" for="filter-auto-item-fish">Auto Fish</label>
           </div>
-          <div class="custom-control custom-radio">
-            <input type="radio" class="custom-control-input" name="filter-auto-item" id="filter-auto-item-bird" value="AutoBird" v-model="shownAutoItem" @change="onShownAutoItemChanged">
-            <label class="custom-control-label" for="filter-auto-item-bird">Auto Bird</label>
+          <div class="form-check">
+            <input type="radio" class="form-check-input" name="filter-auto-item" id="filter-auto-item-bird" value="AutoBird" v-model="shownAutoItem" @change="onShownAutoItemChanged">
+            <label class="form-check-label" for="filter-auto-item-bird">Auto Bird</label>
           </div>
-          <div class="custom-control custom-radio">
-            <input type="radio" class="custom-control-input" name="filter-auto-item" id="filter-auto-item-insect" value="AutoInsect" v-model="shownAutoItem" @change="onShownAutoItemChanged">
-            <label class="custom-control-label" for="filter-auto-item-insect">Auto Insect</label>
+          <div class="form-check">
+            <input type="radio" class="form-check-input" name="filter-auto-item" id="filter-auto-item-insect" value="AutoInsect" v-model="shownAutoItem" @change="onShownAutoItemChanged">
+            <label class="form-check-label" for="filter-auto-item-insect">Auto Insect</label>
           </div>
-          <div class="custom-control custom-radio">
-            <input type="radio" class="custom-control-input" name="filter-auto-item" id="filter-auto-item-animal" value="AutoAnimal" v-model="shownAutoItem" @change="onShownAutoItemChanged">
-            <label class="custom-control-label" for="filter-auto-item-animal">Auto Animal</label>
+          <div class="form-check">
+            <input type="radio" class="form-check-input" name="filter-auto-item" id="filter-auto-item-animal" value="AutoAnimal" v-model="shownAutoItem" @change="onShownAutoItemChanged">
+            <label class="form-check-label" for="filter-auto-item-animal">Auto Animal</label>
           </div>
-          <div class="custom-control custom-radio">
-            <input type="radio" class="custom-control-input" name="filter-auto-item" id="filter-auto-item-enemy" value="AutoEnemy" v-model="shownAutoItem" @change="onShownAutoItemChanged">
-            <label class="custom-control-label" for="filter-auto-item-enemy">Auto Enemy</label>
+          <div class="form-check">
+            <input type="radio" class="form-check-input" name="filter-auto-item" id="filter-auto-item-enemy" value="AutoEnemy" v-model="shownAutoItem" @change="onShownAutoItemChanged">
+            <label class="form-check-label" for="filter-auto-item-enemy">Auto Enemy</label>
           </div>
-          <div class="custom-control custom-radio">
-            <input type="radio" class="custom-control-input" name="filter-auto-item" id="filter-auto-item-material" value="AutoMaterial" v-model="shownAutoItem" @change="onShownAutoItemChanged">
-            <label class="custom-control-label" for="filter-auto-item-material">Auto Material</label>
+          <div class="form-check">
+            <input type="radio" class="form-check-input" name="filter-auto-item" id="filter-auto-item-material" value="AutoMaterial" v-model="shownAutoItem" @change="onShownAutoItemChanged">
+            <label class="form-check-label" for="filter-auto-item-material">Auto Material</label>
           </div>
         </div>
       </div>
 
       <div class="leaflet-sidebar-pane" id="spane-draw">
         <h1 class="leaflet-sidebar-header">Draw</h1>
-        <button type="button" class="btn btn-primary btn-sm btn-block" @click="toggleDraw()"><i class="fa fa-draw-polygon"></i> Toggle draw controls</button>
+        <button type="button" class="btn btn-primary btn-sm d-block w-100" @click="toggleDraw()"><i class="fa fa-draw-polygon"></i> Toggle draw controls</button>
         <hr>
         <h4 class="subsection-heading">Polyline color</h4>
         <input type="color"  @input="drawOnColorChange" value="#3388ff"><button type="button" class="btn btn-link btn-sm" @click="drawLineColor = '#3388ff'">Reset to default</button>
         <hr>
         <h4 class="subsection-heading">Data import/export</h4>
         <p>Exported data includes search groups and drawn objects.</p>
-        <div class="row no-gutters">
-          <div class="col mr-3">
-            <button type="button" class="btn btn-secondary btn-sm btn-block" @click="drawExport()"><i class="fas fa-file-export"></i> Export</button>
+        <div class="row g-0">
+          <div class="col me-3">
+            <button type="button" class="btn btn-secondary btn-sm d-block w-100" @click="drawExport()"><i class="fas fa-file-export"></i> Export</button>
           </div>
           <div class="col">
-            <button type="button" class="btn btn-danger btn-sm btn-block" @click="drawImport()"><i class="fas fa-file-import"></i> Import</button>
-            <div class="custom-control custom-checkbox">
-              <input type="checkbox" class="custom-control-input" id="draw-import-replace" v-model="importReplace">
-              <label class="custom-control-label" for="draw-import-replace">Replace existing data</label>
+            <button type="button" class="btn btn-danger btn-sm d-block w-100" @click="drawImport()"><i class="fas fa-file-import"></i> Import</button>
+            <div class="form-check">
+              <input type="checkbox" class="form-check-input" id="draw-import-replace" v-model="importReplace">
+              <label class="form-check-label" for="draw-import-replace">Replace existing data</label>
             </div>
           </div>
         </div>
@@ -360,9 +360,9 @@
 
       <div class="leaflet-sidebar-pane" id="spane-tools">
         <h1 class="leaflet-sidebar-header">Tools</h1>
-        <button type="button" class="btn btn-secondary btn-sm btn-block" @click="closeSidebar(); $refs.modalGoto.show()">Go to coordinates...</button>
+        <button type="button" class="btn btn-secondary btn-sm d-block w-100" @click="closeSidebar(); $refs.modalGoto.show()">Go to coordinates...</button>
         <hr>
-        <p><button type="button" class="btn btn-secondary btn-sm btn-block" @click="closeSidebar(); showGreatPlateauBarrier()" title="Right click on the Plateau to hide the barrier.">Show Great Plateau barrier</button></p>
+        <p><button type="button" class="btn btn-secondary btn-sm d-block w-100" @click="closeSidebar(); showGreatPlateauBarrier()" title="Right click on the Plateau to hide the barrier.">Show Great Plateau barrier</button></p>
         <p>The Great Plateau barrier prevents Link from leaving the Great Plateau before he has acquired the paraglider. For more information, read the <a href="https://zeldamods.org/wiki/The_Great_Plateau_barrier">article</a>.</p>
 
         <hr>
@@ -405,9 +405,9 @@
   color: white;
   text-align: center;
 
-  .close {
+  .btn-close {
+    font-size: .75rem;
     margin-left: 20px;
-    color: white;
   }
 }
 

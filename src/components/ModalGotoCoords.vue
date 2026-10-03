@@ -5,13 +5,13 @@
         <div class="modal-content">
           <header class="modal-header">
             <h5 class="modal-title" id="modal-goto-title">Enter target coordinates.</h5>
-            <button type="button" aria-label="Close" class="close" @click="hide">×</button>
+            <button type="button" aria-label="Close" class="btn-close" data-bs-theme="dark" @click="hide"></button>
           </header>
           <div class="modal-body">
-            <form class="form-inline justify-content-center" @submit.prevent="onSubmit">
-              <input type="text" class="form-control mb-2 mr-sm-2 mb-sm-0" placeholder="X coordinate" v-model="x" ref="formGotoX" required @paste="onPaste">
-              <input type="text" class="form-control mb-2 mr-sm-2 mb-sm-0" placeholder="Z coordinate" v-model="z" required>
-              <button type="submit" class="btn btn-primary">Go</button>
+            <form class="row row-cols-sm-auto g-2 align-items-center justify-content-center" @submit.prevent="onSubmit">
+              <div class="col-12"><input type="text" class="form-control" placeholder="X coordinate" v-model="x" ref="formGotoX" required @paste="onPaste"></div>
+              <div class="col-12"><input type="text" class="form-control" placeholder="Z coordinate" v-model="z" required></div>
+              <div class="col-12"><button type="submit" class="btn btn-primary">Go</button></div>
             </form>
           </div>
         </div>

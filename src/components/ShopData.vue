@@ -3,11 +3,11 @@
     <hr>
     <h4 class="subsection-heading">{{shop_name()}}</h4>
     <div v-if="shop_name() != 'Beedle Shop Data' && tables().length > 1">
-      <select class="custom-select custom-select-sm mb-2 select_table" v-model="table">
+      <select class="form-select form-select-sm mb-2 select_table" v-model="table">
         <option v-for="t in tables()" :key="t" :value="t">{{t}}</option>
       </select>
     </div>
-    <div class="table">
+    <div class="shop-table">
         <div v-for="idx in length()" :key="idx" class="table-row">
           <div class="cell">{{name(idx)}}</div>
           <div class="cell">{{num(idx)}}</div>
@@ -18,10 +18,11 @@
   </section>
 </template>
 <style scoped>
-  .table {
+  .shop-table {
       color: white;
       display: table;
       width: 100%;
+      margin-bottom: 1rem;
   }
   .table-row {
       display: table-row;
