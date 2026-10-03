@@ -30,6 +30,7 @@ body {
 }
 
 :root {
+  --fa-width: auto;
   --bs-border-radius: .25rem;
   --bs-border-radius-sm: .2rem;
   --bs-border-radius-lg: .3rem;
