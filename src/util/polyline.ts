@@ -41,6 +41,6 @@ export function calcLayerLength(layer: L.Marker | L.Polyline) {
   // Tell Popup the length parameter
   let z: any = layer;
   if (z.popup) {
-    z.popup.pathLength = layer.feature.properties.pathLength;
+    z.popup.props.pathLength = layer.feature.properties.pathLength;
   }
 }

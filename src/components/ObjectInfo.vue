@@ -1,5 +1,5 @@
 <template>
-  <div :class="className + (isStatic ? ' static' : '')">
+  <div :class="className + (isStatic ? ' static' : '')" @click="$emit('click', $event)">
     <section class="search-result-name">{{name(true)}}</section>
     <section class="search-result-location">
       <i class="fa fa-map-marker-alt fa-fw"></i>

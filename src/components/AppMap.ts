@@ -41,16 +41,12 @@ import { Point } from '@/util/map';
 import { Settings } from '@/util/settings';
 import * as ui from '@/util/ui';
 import { calcLayerLength } from '@/util/polyline';
+import { mountComponent, MountedComponent } from '@/util/mount';
+import { appMapBus, ObjectIdentifier, onAppMapEvents } from '@/util/bus';
 import '@/util/leaflet_tile_workaround.js';
-import AppMapPopup from '@/components/AppMapPopup';
+import AppMapPopup, { AppMapPopupProps } from '@/components/AppMapPopup';
 
 import draggable from 'vuedraggable';
-
-interface ObjectIdentifier {
-  mapType: string;
-  mapName: string;
-  hashId: number;
-}
 
 function valueOrDefault<T>(value: T | undefined, defaultValue: T) {
   return value === undefined ? defaultValue : value;
@@ -175,8 +171,8 @@ function layerSetTooltip(layer: L.Marker | L.Polyline) {
   }
 }
 
-function layerSetPopup(layer: L.Marker | L.Polyline, popup: AppMapPopup) {
-  layer.bindPopup(popup.$el as HTMLElement, { minWidth: 200 });
+function layerSetPopup(layer: L.Marker | L.Polyline, popup: MountedComponent<AppMapPopupProps>) {
+  layer.bindPopup(popup.el, { minWidth: 200 });
   // @ts-ignore
   // popup instance is needed later to update the length
   layer.popup = popup;
@@ -184,22 +180,21 @@ function layerSetPopup(layer: L.Marker | L.Polyline, popup: AppMapPopup) {
 
 function addPopupAndTooltip(layer: L.Marker | L.Polyline, root: any) {
   if (layer && layer.feature) {
-    let popup = new AppMapPopup({ propsData: layer.feature.properties });
-    // Initiate the Element as $el
-    popup.$mount();
-    // Respond to `title` and `text` messages
-    popup.$on('title', (txt: string) => {
-      if (layer && layer.feature) {
-        layer.feature.properties.title = txt;
-        layerSetTooltip(layer);
-        root.updateDrawLayerOpts({ title: txt, layer });
-      }
-    });
-    popup.$on('text', (txt: string) => {
-      if (layer && layer.feature) {
-        layer.feature.properties.text = txt;
-        root.updateDrawLayerOpts({ txt: txt, layer });
-      }
+    const { title, text, pathLength } = layer.feature.properties;
+    const popup = mountComponent<AppMapPopupProps>(AppMapPopup, { title, text, pathLength }, {
+      title: (txt: string) => {
+        if (layer && layer.feature) {
+          layer.feature.properties.title = txt;
+          layerSetTooltip(layer);
+          root.updateDrawLayerOpts({ title: txt, layer });
+        }
+      },
+      text: (txt: string) => {
+        if (layer && layer.feature) {
+          layer.feature.properties.text = txt;
+          root.updateDrawLayerOpts({ txt: txt, layer });
+        }
+      },
     });
     // Create Popup and Tooltip
     layerSetPopup(layer, popup);
@@ -234,6 +229,8 @@ export default class AppMap extends mixins(MixinUtil) {
   private drawLayerOpts: any[] = [];
   private drawLineColor = '#3388ff';
   private setLineColorThrottler!: () => void;
+
+  private offAppMapEvents!: () => void;
 
   private previousGotoMarker: L.Marker | null = null;
   private greatPlateauBarrierShown = false;
@@ -1168,22 +1165,31 @@ export default class AppMap extends mixins(MixinUtil) {
   }
 
   initEvents() {
-    this.$on('AppMap:switch-pane', (pane: string) => {
-      this.switchPane(pane);
-    });
-    this.$on('AppMap:toggle-y-values', () => {
-      this.toggleY();
-    });
-    this.$on('AppMap:toggle-xz-values', () => {
-      this.toggleXZ();
-    });
-
-    this.$on('AppMap:open-obj', async (obj: ObjectData) => {
-      if (this.tempObjMarker)
-        this.tempObjMarker.data.getMarker().remove();
-      this.tempObjMarker = new ui.Unobservable(new MapMarkers.MapMarkerObj(this.map, obj, '#e02500', '#ff2a00'));
-      this.tempObjMarker.data.getMarker().addTo(this.map.m);
-      this.openMarkerDetails(getMarkerDetailsComponent(this.tempObjMarker.data), this.tempObjMarker.data);
+    this.offAppMapEvents = onAppMapEvents({
+      'AppMap:switch-pane': (pane) => {
+        this.switchPane(pane);
+      },
+      'AppMap:toggle-y-values': () => {
+        this.toggleY();
+      },
+      'AppMap:toggle-xz-values': () => {
+        this.toggleXZ();
+      },
+      'AppMap:open-obj': async (obj) => {
+        if (this.tempObjMarker)
+          this.tempObjMarker.data.getMarker().remove();
+        this.tempObjMarker = new ui.Unobservable(new MapMarkers.MapMarkerObj(this.map, obj, '#e02500', '#ff2a00'));
+        this.tempObjMarker.data.getMarker().addTo(this.map.m);
+        this.openMarkerDetails(getMarkerDetailsComponent(this.tempObjMarker.data), this.tempObjMarker.data);
+      },
+      'AppMap:show-gen-group': async (id) => {
+        const group = new SearchResultGroup('', `Generation group for ${id.mapType}/${id.mapName}:${id.hashId}`);
+        await group.init(this.map);
+        const objs = await MapMgr.getInstance().getObjGenGroup(id.mapType, id.mapName, id.hashId);
+        group.setObjects(this.map, objs);
+        group.update(SearchResultUpdateMode.UpdateStyle | SearchResultUpdateMode.UpdateVisibility, this.searchExcludedSets);
+        this.searchGroups.push(group);
+      },
     });
 
     this.map.m.on('click', () => {
@@ -1191,16 +1197,9 @@ export default class AppMap extends mixins(MixinUtil) {
         this.tempObjMarker.data.getMarker().remove();
     });
 
-    this.$on('AppMap:show-gen-group', async (id: ObjectIdentifier) => {
-      const group = new SearchResultGroup('', `Generation group for ${id.mapType}/${id.mapName}:${id.hashId}`);
-      await group.init(this.map);
-      const objs = await MapMgr.getInstance().getObjGenGroup(id.mapType, id.mapName, id.hashId);
-      group.setObjects(this.map, objs);
-      group.update(SearchResultUpdateMode.UpdateStyle | SearchResultUpdateMode.UpdateVisibility, this.searchExcludedSets);
-      this.searchGroups.push(group);
-    });
     this.map.m.on('AppMap:show-gen-group', (args) => {
-      this.$emit('AppMap:show-gen-group', args);
+      const { mapType, mapName, hashId } = args as L.LeafletEvent & ObjectIdentifier;
+      appMapBus.emit('AppMap:show-gen-group', { mapType, mapName, hashId });
     });
   }
 
@@ -1478,12 +1477,13 @@ export default class AppMap extends mixins(MixinUtil) {
       const [mapType, mapName, hashId] = this.$route.query.id.toString().split(',');
       MapMgr.getInstance().getObj(mapType, mapName, parseInt(hashId, 0)).then((obj) => {
         if (obj)
-          this.$emit('AppMap:open-obj', obj);
+          appMapBus.emit('AppMap:open-obj', obj);
       });
     }
   }
 
   beforeDestroy() {
+    this.offAppMapEvents();
     this.map.m.remove();
   }
 

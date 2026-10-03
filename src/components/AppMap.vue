@@ -214,7 +214,7 @@
                 <b-btn size="sm" variant="link" @click="searchOnExclude"><i class="far fa-eye-slash"></i> Hide</b-btn>
                 <b-btn size="sm" variant="link" @click="searchSetLink"><i class="fas fa-link"></i> Link</b-btn>
               </p>
-              <ObjectInfo v-for="(result, idx) in searchResults" :obj="result" :is-static="false" :key="result.objid" @click.native="searchJumpToResult(idx)" />
+              <ObjectInfo v-for="(result, idx) in searchResults" :obj="result" :is-static="false" :key="result.objid" @click="searchJumpToResult(idx)" />
             </div>
           </section>
       </div>

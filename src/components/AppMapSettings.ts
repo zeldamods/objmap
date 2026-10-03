@@ -3,6 +3,7 @@ import { Prop } from 'vue-property-decorator';
 import Component from 'vue-class-component';
 
 import { MsgMgr } from '@/services/MsgMgr';
+import { appMapBus } from '@/util/bus';
 import { Settings } from '@/util/settings';
 
 function makeMainFieldDungeonEntry(mapName: string) {
@@ -47,10 +48,10 @@ export default class AppMapSettings extends Vue {
   }
 
   toggleY() {
-    this.$parent.$emit('AppMap:toggle-y-values');
+    appMapBus.emit('AppMap:toggle-y-values');
   }
   toggleXZ() {
-    this.$parent.$emit('AppMap:toggle-xz-values');
+    appMapBus.emit('AppMap:toggle-xz-values');
   }
 
   private loadSettings() {

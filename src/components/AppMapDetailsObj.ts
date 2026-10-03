@@ -10,6 +10,7 @@ import ObjectInfo from '@/components/ObjectInfo';
 import ShopData from '@/components/ShopData';
 import { MapMgr, ObjectData, ObjectMinData, PlacementLink } from '@/services/MapMgr';
 import { MsgMgr } from '@/services/MsgMgr';
+import { appMapBus } from '@/util/bus';
 import * as ui from '@/util/ui';
 import { Settings } from '@/util/settings';
 
@@ -344,13 +345,13 @@ export default class AppMapDetailsObj extends AppMapDetailsBase<MapMarkerObj | M
   }
 
   emitBackToSearch() {
-    this.$parent.$emit('AppMap:switch-pane', 'spane-search');
+    appMapBus.emit('AppMap:switch-pane', 'spane-search');
   }
 
   jumpToObj(obj: ObjectData, updateHistory = true) {
     if (updateHistory && this.obj)
       this.staticData.history.push(this.obj);
-    this.$parent.$emit('AppMap:open-obj', obj);
+    appMapBus.emit('AppMap:open-obj', obj);
   }
 
   goBack() {
