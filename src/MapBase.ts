@@ -1,4 +1,5 @@
-import * as L from 'leaflet';
+// Default import: a namespace import is a snapshot that misses the L.RasterCoords added by the plugin.
+import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-rastercoords';
 import 'leaflet-contextmenu';
