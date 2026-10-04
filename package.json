@@ -15,7 +15,7 @@
     "@fortawesome/fontawesome-free": "^7.3.1",
     "@popperjs/core": "^2.11.8",
     "bootstrap": "^5.3.8",
-    "immer": "^10.0.4",
+    "immer": "^11.1.21",
     "leaflet-contextmenu": "^1.4.0",
     "leaflet-defaulticon-compatibility": "^0.1.1",
     "leaflet-draw": "^1.0.4",
