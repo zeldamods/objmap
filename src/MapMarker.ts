@@ -53,7 +53,7 @@ class MapMarkerCanvasImpl extends MapMarker {
   constructor(mb: MapBase, title: string, pos: Point, options: CanvasMarkerOptions = {}) {
     super(mb);
     this.title = title;
-    let extra: any = {};
+    const extra: any = {};
     if (options.showLabel) {
       extra['permanent'] = true;
     }
@@ -217,7 +217,7 @@ export class MapMarkerKorok extends MapMarkerCanvasImpl {
   public readonly info: any;
 
   constructor(mb: MapBase, info: any, extra: any) {
-    let id = info.id || 'Korok';
+    const id = info.id || 'Korok';
     super(mb, `${id}`, [info.Translate.X, info.Translate.Y, info.Translate.Z], {
       icon: KOROK_ICON,
       iconWidth: 20,
@@ -233,7 +233,7 @@ export class MapMarkerKorok extends MapMarkerCanvasImpl {
 
 // Convert first letter of Korok ID to CSS classname
 function classToColor(id: string): string {
-  let classes: any = {
+  const classes: any = {
     'A': 'akkala',
     'C': 'central',
     'E': 'eldin',
@@ -285,7 +285,7 @@ function setObjMarkerTooltip(title: string, layer: L.Layer, obj: ObjectMinData) 
 
 function hashString(s: string) {
   // https://stackoverflow.com/a/7616484/1636285
-  var hash = 0, i, chr;
+  let hash = 0, i, chr;
   if (s.length === 0) return hash;
   for (i = 0; i < s.length; i++) {
     chr = s.charCodeAt(i);
@@ -296,6 +296,7 @@ function hashString(s: string) {
 }
 
 export const enum SearchResultUpdateMode {
+  None = 0,
   UpdateStyle = 1 << 0,
   UpdateVisibility = 1 << 1,
   UpdateTitle = 1 << 2,

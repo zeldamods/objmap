@@ -1,8 +1,7 @@
-import Vue from 'vue';
-import { Prop } from 'vue-property-decorator';
-import Component from 'vue-class-component';
+import { defineComponent } from 'vue';
 
 import { MsgMgr } from '@/services/MsgMgr';
+import { appMapBus } from '@/util/bus';
 import { Settings } from '@/util/settings';
 
 function makeMainFieldDungeonEntry(mapName: string) {
@@ -17,51 +16,57 @@ function makeCDungeonEntry(n: number) {
   return { value: mapName, text: `${text} (${mapName} - ${sub})` };
 }
 
-@Component
-export default class AppMapSettings extends Vue {
-  colorMode: string = '';
-  s: Settings | null = null;
+export default defineComponent({
+  name: 'AppMapSettings',
 
-  optionsMapType = Object.freeze([
-    { value: 'MainField', text: 'Hyrule (MainField)' },
-    { value: 'MainFieldDungeon', text: 'Divine Beasts (MainFieldDungeon)' },
-    { value: 'CDungeon', text: 'Shrines (CDungeon)' },
-    { value: 'AocField', text: 'Trial of the Sword (AocField)' },
-  ]);
+  data() {
+    return {
+      colorMode: '',
+      s: Settings.getInstance(),
 
-  optionsMapNameForMapType: { [type: string]: any } = Object.freeze({
-    'MainField': [
-      { value: '', text: 'All' },
-    ],
-    'MainFieldDungeon': [{ value: '', text: 'All' }].concat(['RemainsWind', 'RemainsWater', 'RemainsElectric', 'RemainsFire', 'FinalTrial'].map(makeMainFieldDungeonEntry)),
-    'CDungeon': [{ value: '', text: 'All' }].concat([...Array(136).keys()].map(makeCDungeonEntry)),
-    'AocField': [
-      { value: '', text: 'All' },
-    ],
-  });
+      optionsMapType: Object.freeze([
+        { value: 'MainField', text: 'Hyrule (MainField)' },
+        { value: 'MainFieldDungeon', text: 'Divine Beasts (MainFieldDungeon)' },
+        { value: 'CDungeon', text: 'Shrines (CDungeon)' },
+        { value: 'AocField', text: 'Trial of the Sword (AocField)' },
+      ]),
+
+      optionsMapNameForMapType: Object.freeze({
+        'MainField': [
+          { value: '', text: 'All' },
+        ],
+        'MainFieldDungeon': [{ value: '', text: 'All' }].concat(['RemainsWind', 'RemainsWater', 'RemainsElectric', 'RemainsFire', 'FinalTrial'].map(makeMainFieldDungeonEntry)),
+        'CDungeon': [{ value: '', text: 'All' }].concat([...Array(136).keys()].map(makeCDungeonEntry)),
+        'AocField': [
+          { value: '', text: 'All' },
+        ],
+      }) as { [type: string]: any },
+    };
+  },
 
   created() {
-    this.s = Settings.getInstance();
     Settings.getInstance().registerCallback(() => this.loadSettings());
     this.loadSettings();
-  }
+  },
 
-  toggleY() {
-    this.$parent.$emit('AppMap:toggle-y-values');
-  }
-  toggleXZ() {
-    this.$parent.$emit('AppMap:toggle-xz-values');
-  }
+  methods: {
+    toggleY(): void {
+      appMapBus.emit('AppMap:toggle-y-values');
+    },
+    toggleXZ(): void {
+      appMapBus.emit('AppMap:toggle-xz-values');
+    },
 
-  private loadSettings() {
-    this.colorMode = Settings.getInstance().colorPerActor ? 'per-actor' : 'per-group';
-  }
+    loadSettings(): void {
+      this.colorMode = Settings.getInstance().colorPerActor ? 'per-actor' : 'per-group';
+    },
 
-  private onColorModeChange(mode: string) {
-    Settings.getInstance().colorPerActor = mode === 'per-actor';
-  }
+    onColorModeChange(mode: string): void {
+      Settings.getInstance().colorPerActor = mode === 'per-actor';
+    },
 
-  private resetMapName() {
-    this.s!.mapName = this.optionsMapNameForMapType[this.s!.mapType][0].value;
-  }
-}
+    resetMapName(): void {
+      this.s.mapName = this.optionsMapNameForMapType[this.s.mapType][0].value;
+    },
+  },
+});

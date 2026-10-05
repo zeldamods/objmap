@@ -1,7 +1,7 @@
 <template>
   <div>
-    <input class="w-100" placeholder="Title ..." v-model="title">
-    <textarea class="w-100" placeholder="Description ..." v-model="text"></textarea>
+    <input class="w-100" placeholder="Title ..." v-model="currentTitle">
+    <textarea class="w-100" placeholder="Description ..." v-model="currentText"></textarea>
     <div v-if="pathLength > 0">
       Length: {{pathLength.toFixed(2)}}
     </div>

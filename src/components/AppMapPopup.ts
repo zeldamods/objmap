@@ -1,21 +1,31 @@
+import { defineComponent } from 'vue';
 
-import Vue from 'vue';
-import Component from 'vue-class-component';
+export interface AppMapPopupProps {
+  title?: string;
+  text?: string;
+  pathLength?: number;
+}
 
-@Component({
+export default defineComponent({
+  name: 'AppMapPopup',
   props: {
     title: String,
     text: String,
     pathLength: Number,
   },
-  watch: {
-    title: function(new_val: string, old_val: string) {
-      this.$emit('title', new_val);
-    },
-    text: function(new_val: string, old_val: string) {
-      this.$emit('text', new_val);
-    }
+  emits: ['title', 'text'],
+  data() {
+    return {
+      currentTitle: this.title,
+      currentText: this.text,
+    };
   },
-})
-
-export default class AppMapPopup extends Vue { }
+  watch: {
+    currentTitle(val: string) {
+      this.$emit('title', val);
+    },
+    currentText(val: string) {
+      this.$emit('text', val);
+    },
+  },
+});

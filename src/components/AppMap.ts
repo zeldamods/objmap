@@ -1,20 +1,17 @@
 import * as L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import 'leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.webpack.css';
+import 'leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css';
 import 'leaflet-defaulticon-compatibility';
 import 'leaflet-sidebar-v2';
 import 'leaflet-sidebar-v2/css/leaflet-sidebar.css';
 
+import '@/util/leaflet_draw_globals';
 import 'leaflet-draw';
 import 'leaflet-draw/dist/leaflet.draw.css';
 
-import VueRouter from 'vue-router';
-const { isNavigationFailure, NavigationFailureType } = VueRouter;
-
 import debounce from 'lodash/debounce';
 import { produce } from 'immer';
-import Vue from 'vue';
-import Component, { mixins } from 'vue-class-component';
+import { defineComponent, markRaw, reactive } from 'vue';
 
 import { MapBase, SHOW_ALL_OBJS_FOR_MAP_UNIT_EVENT } from '@/MapBase';
 import * as MapIcons from '@/MapIcon';
@@ -24,14 +21,14 @@ import { MapMarkerGroup } from '@/MapMarkerGroup';
 import { SearchResultGroup, SearchExcludeSet, SEARCH_PRESETS } from '@/MapSearch';
 import * as save from '@/save';
 
-import MixinUtil from '@/components/MixinUtil';
-import AppMapDetailsDungeon from '@/components/AppMapDetailsDungeon';
-import AppMapDetailsObj from '@/components/AppMapDetailsObj';
-import AppMapDetailsPlace from '@/components/AppMapDetailsPlace';
-import AppMapFilterMainButton from '@/components/AppMapFilterMainButton';
-import AppMapSettings from '@/components/AppMapSettings';
-import ModalGotoCoords from '@/components/ModalGotoCoords';
-import ObjectInfo from '@/components/ObjectInfo';
+import AppDropdown from '@/components/AppDropdown.vue';
+import AppMapDetailsDungeon from '@/components/AppMapDetailsDungeon.vue';
+import AppMapDetailsObj from '@/components/AppMapDetailsObj.vue';
+import AppMapDetailsPlace from '@/components/AppMapDetailsPlace.vue';
+import AppMapFilterMainButton from '@/components/AppMapFilterMainButton.vue';
+import AppMapSettings from '@/components/AppMapSettings.vue';
+import ModalGotoCoords from '@/components/ModalGotoCoords.vue';
+import ObjectInfo from '@/components/ObjectInfo.vue';
 
 import { MapMgr, ObjectData, ObjectMinData } from '@/services/MapMgr';
 import { MsgMgr } from '@/services/MsgMgr';
@@ -41,16 +38,13 @@ import { Point } from '@/util/map';
 import { Settings } from '@/util/settings';
 import * as ui from '@/util/ui';
 import { calcLayerLength } from '@/util/polyline';
+import { mountComponent, MountedComponent } from '@/util/mount';
+import { appMapBus, ObjectIdentifier, onAppMapEvents } from '@/util/bus';
 import '@/util/leaflet_tile_workaround.js';
-import AppMapPopup from '@/components/AppMapPopup';
+import AppMapPopup from '@/components/AppMapPopup.vue';
+import type { AppMapPopupProps } from '@/components/AppMapPopup';
 
-import draggable from 'vuedraggable';
-
-interface ObjectIdentifier {
-  mapType: string;
-  mapName: string;
-  hashId: number;
-}
+import { VueDraggable } from 'vue-draggable-plus';
 
 function valueOrDefault<T>(value: T | undefined, defaultValue: T) {
   return value === undefined ? defaultValue : value;
@@ -175,31 +169,37 @@ function layerSetTooltip(layer: L.Marker | L.Polyline) {
   }
 }
 
-function layerSetPopup(layer: L.Marker | L.Polyline, popup: AppMapPopup) {
-  layer.bindPopup(popup.$el as HTMLElement, { minWidth: 200 });
+function layerSetPopup(layer: L.Marker | L.Polyline, popup: MountedComponent<AppMapPopupProps>) {
+  layer.bindPopup(popup.el, { minWidth: 200 });
   // @ts-ignore
   // popup instance is needed later to update the length
   layer.popup = popup;
 }
 
+function unmountPopup(layer: any) {
+  if (layer.popup) {
+    layer.popup.unmount();
+    delete layer.popup;
+  }
+}
+
 function addPopupAndTooltip(layer: L.Marker | L.Polyline, root: any) {
   if (layer && layer.feature) {
-    let popup = new AppMapPopup({ propsData: layer.feature.properties });
-    // Initiate the Element as $el
-    popup.$mount();
-    // Respond to `title` and `text` messages
-    popup.$on('title', (txt: string) => {
-      if (layer && layer.feature) {
-        layer.feature.properties.title = txt;
-        layerSetTooltip(layer);
-        root.updateDrawLayerOpts({ title: txt, layer });
-      }
-    });
-    popup.$on('text', (txt: string) => {
-      if (layer && layer.feature) {
-        layer.feature.properties.text = txt;
-        root.updateDrawLayerOpts({ txt: txt, layer });
-      }
+    const { title, text, pathLength } = layer.feature.properties;
+    const popup = mountComponent<AppMapPopupProps>(AppMapPopup, { title, text, pathLength }, {
+      title: (txt: string) => {
+        if (layer && layer.feature) {
+          layer.feature.properties.title = txt;
+          layerSetTooltip(layer);
+          root.updateDrawLayerOpts({ title: txt, layer });
+        }
+      },
+      text: (txt: string) => {
+        if (layer && layer.feature) {
+          layer.feature.properties.text = txt;
+          root.updateDrawLayerOpts({ txt: txt, layer });
+        }
+      },
     });
     // Create Popup and Tooltip
     layerSetPopup(layer, popup);
@@ -208,8 +208,10 @@ function addPopupAndTooltip(layer: L.Marker | L.Polyline, root: any) {
 }
 
 
-@Component({
+export default defineComponent({
+  name: 'AppMap',
   components: {
+    AppDropdown,
     AppMapDetailsDungeon,
     AppMapDetailsObj,
     AppMapDetailsPlace,
@@ -217,1240 +219,90 @@ function addPopupAndTooltip(layer: L.Marker | L.Polyline, root: any) {
     AppMapSettings,
     ModalGotoCoords,
     ObjectInfo,
-    draggable,
+    VueDraggable,
   },
-})
-export default class AppMap extends mixins(MixinUtil) {
-  private map!: MapBase;
-  private updatingRoute = false;
-  private zoom = map.DEFAULT_ZOOM;
+  setup() {
+    return {
+      map: ui.late<MapBase>(),
+      sidebar: ui.late<L.Control.Sidebar>(),
+      sidebarPaneScrollPos: new Map<string, number>(),
+      drawControl: ui.late<L.Control.Draw>(),
+      drawLayer: ui.late<L.GeoJSON>(),
+      setLineColorThrottler: ui.late<() => void>(),
 
-  private sidebar!: L.Control.Sidebar;
-  private sidebarActivePane = '';
-  private sidebarPaneScrollPos: Map<string, number> = new Map();
-  private drawControlEnabled = false;
-  private drawControl: any;
-  private drawLayer!: L.GeoJSON;
-  private drawLayerOpts: any[] = [];
-  private drawLineColor = '#3388ff';
-  private setLineColorThrottler!: () => void;
+      offAppMapEvents: ui.late<() => void>(),
 
-  private previousGotoMarker: L.Marker | null = null;
-  private greatPlateauBarrierShown = false;
+      previousGotoMarker: null as L.Marker | null,
 
-  private detailsComponent = '';
-  private detailsMarker: ui.Unobservable<MapMarker> | null = null;
-  private detailsPaneOpened = false;
-  private detailsPinMarker: ui.Unobservable<L.Marker> | null = null;
+      markerGroups: new Map<string, MapMarkerGroup>(),
 
-  private markerComponents = MARKER_COMPONENTS;
-  private markerGroups: Map<string, MapMarkerGroup> = new Map();
+      searchThrottler: ui.late<() => void>(),
+      searchResultMarkers: [] as MapMarkers.MapMarkerSearchResult[],
 
-  private searching = false;
-  private searchQuery = '';
-  private searchThrottler!: () => void;
-  private searchLastSearchFailed = false;
-  private searchResults: ObjectMinData[] = [];
-  private searchResultMarkers: ui.Unobservable<MapMarkers.MapMarkerSearchResult>[] = [];
-  private searchGroups: SearchResultGroup[] = [];
-  private searchPresets = SEARCH_PRESETS;
-  private searchExcludedSets: SearchExcludeSet[] = [];
-  private readonly MAX_SEARCH_RESULT_COUNT = 2000;
+      hardModeExcludeSet: ui.late<SearchExcludeSet>(),
+      lastBossExcludeSet: ui.late<SearchExcludeSet>(),
+      ohoExcludeSet: ui.late<SearchExcludeSet>(),
 
-  private hardModeExcludeSet!: SearchExcludeSet;
-  private lastBossExcludeSet!: SearchExcludeSet;
-  private ohoExcludeSet!: SearchExcludeSet;
+      tempObjMarker: null as MapMarker | null,
 
-  private areaMapLayer = new ui.Unobservable(L.layerGroup());
-  private areaMapLayersByData: ui.Unobservable<Map<any, L.Layer[]>> = new ui.Unobservable(new Map());
-  private areaAutoItem = new ui.Unobservable(L.layerGroup());
+      detailsPinMarker: null as L.Marker | null,
 
-  shownAreaMap = '';
-  areaWhitelist = '';
-  showKorokIDs = false;
-  shownAutoItem = '';
-  staticTooltipY = false;
-  staticTooltipXZ = false;
+      areaMapLayer: L.layerGroup(),
+      areaMapLayersByData: new Map<any, L.Layer[]>(),
+      areaAutoItem: L.layerGroup(),
 
-  private mapUnitGrid = new ui.Unobservable(L.layerGroup());
-  showMapUnitGrid = false;
-
-  private mapSafeAreas = new ui.Unobservable(L.layerGroup());
-  showSafeAreas = false;
-
-  private mapCastleAreas = new ui.Unobservable(L.layerGroup());
-  showCastleAreas = false;
-
-  showBaseMap = true;
-  showReferenceGrid = false;
-
-  private tempObjMarker: ui.Unobservable<MapMarker> | null = null;
-
-  private settings: Settings | null = null;
-
-  // Replace current markers
-  private importReplace: boolean = true;
-
-  setViewFromRoute(route: any) {
-    const x = parseFloat(route.params.x);
-    const z = parseFloat(route.params.z);
-    if (isNaN(x) || isNaN(z)) {
-      this.$router.replace({ name: 'map' });
-      return;
-    }
-
-    let zoom = parseInt(route.params.zoom);
-    if (isNaN(zoom))
-      zoom = 3;
-
-    this.map.setView([x, 0, z], zoom);
-  }
-  updateRoute() {
-    this.updatingRoute = true;
-    // @ts-ignore
-    this.$router.replace({
-      name: 'map',
-      params: {
-        x: this.map.center[0],
-        z: this.map.center[2],
-        zoom: this.map.m.getZoom(),
-      },
-      query: this.$route.query,
-    }).catch(err => {
-      if (!isNavigationFailure(err, NavigationFailureType.duplicated)) {
-        // eslint-disable-next-line no-console
-        console.error(err);
-      }
-    });
-    this.updatingRoute = false;
-  }
-
-  initMapRouteIntegration() {
-    this.setViewFromRoute(this.$route);
-    this.map.zoom = this.map.m.getZoom();
-    this.map.center = this.map.toXYZ(this.map.m.getCenter());
-    this.map.registerMoveEndCb(() => this.updateRoute());
-    this.map.registerZoomEndCb(() => this.updateRoute());
-    this.updateRoute();
-  }
-
-  initMarkers() {
-    this.map.registerZoomCb(() => this.updateMarkers());
-    this.updateMarkers();
-  }
-
-  // Similar to updateMarkers() but only called
-  //   on toggle of KorokIDs
-  updateKorokIDs() {
-    let type = "Korok";
-    const info = MapMgr.getInstance().getInfoMainField();
-    if (Settings.getInstance().shownGroups.has(type)) {
-      this.markerGroups.get(type)!.destroy();
-      this.markerGroups.delete(type);
-
-      const markers: any[] = info.markers[type];
-      const component = MARKER_COMPONENTS[type];
-      const group = new MapMarkerGroup(
-        markers.map((m: any) => new (component.cl)(this.map, m, { showLabel: this.showKorokIDs })),
-        valueOrDefault(component.preloadPad, 1.0),
-        valueOrDefault(component.enableUpdates, true));
-      this.markerGroups.set(type, group);
-      group.addToMap(this.map.m);
-      group.update();
-    }
-  }
-
-  updateMarkers() {
-    const info = MapMgr.getInstance().getInfoMainField();
-    for (const type of Object.keys(info.markers)) {
-      if (!Settings.getInstance().shownGroups.has(type)) {
-        // Group exists and needs to be removed.
-        if (this.markerGroups.has(type)) {
-          this.markerGroups.get(type)!.destroy();
-          this.markerGroups.delete(type);
-        }
-        continue;
-      }
-
-      // Nothing to do -- the group already exists.
-      if (this.markerGroups.has(type))
-        continue;
-
-      const markers: any[] = info.markers[type];
-      const component = MARKER_COMPONENTS[type];
-      const group = new MapMarkerGroup(
-        markers.map((m: any) => new (component.cl)(this.map, m, { showLabel: this.showKorokIDs })),
-        valueOrDefault(component.preloadPad, 1.0),
-        valueOrDefault(component.enableUpdates, true));
-      this.markerGroups.set(type, group);
-      group.addToMap(this.map.m);
-    }
-
-    for (const group of this.markerGroups.values())
-      group.update();
-  }
-
-  initSidebar() {
-    this.sidebar = L.control.sidebar({
-      closeButton: true,
-      container: 'sidebar',
-      position: 'left',
-    })
-    this.sidebar.addTo(this.map.m);
-    const el = (document.getElementById('sidebar-content'))!;
-    const origOpen = this.sidebar.open;
-    // Fires before switching the active pane.
-    this.sidebar.open = (id: string) => {
-      this.sidebarPaneScrollPos.set(this.sidebarActivePane, el.scrollTop);
-      return origOpen.apply(this.sidebar, [id]);
+      mapUnitGrid: L.layerGroup(),
+      mapSafeAreas: L.layerGroup(),
+      mapCastleAreas: L.layerGroup(),
     };
-    // Fires after switching the active pane.
-    this.sidebar.on('content', (e) => {
-      // @ts-ignore
-      const id: string = e.id;
-      this.sidebarActivePane = id;
-      el.scrollTop = this.sidebarPaneScrollPos.get(this.sidebarActivePane) || 0;
-    });
-    this.updateSidebarClass();
-    this.updateHylianMode();
-  }
+  },
+  data() {
+    return {
+      zoom: map.DEFAULT_ZOOM,
 
-  closeSidebar() {
-    this.sidebar.close();
-  }
+      sidebarActivePane: '',
+      drawLayerOpts: [] as any[],
+      drawLineColor: '#3388ff',
 
-  toggleSidebarSide() {
-    Settings.getInstance().left = !Settings.getInstance().left;
-    this.updateSidebarClass();
-  }
+      greatPlateauBarrierShown: false,
 
-  toggleHylianMode() {
-    Settings.getInstance().hylianMode = !Settings.getInstance().hylianMode;
-    this.updateHylianMode();
-  }
+      detailsComponent: '',
+      detailsMarker: null as MapMarker | null,
+      detailsPaneOpened: false,
 
-  updateSidebarClass() {
-    const el = (document.getElementById('sidebar'))!;
-    if (Settings.getInstance().left) {
-      el.classList.remove('leaflet-sidebar-right');
-      el.classList.add('leaflet-sidebar-left');
-    } else {
-      el.classList.add('leaflet-sidebar-right');
-      el.classList.remove('leaflet-sidebar-left');
-    }
-  }
+      markerComponents: MARKER_COMPONENTS,
 
-  updateHylianMode() {
-    const el = (document.getElementById('app'))!;
-    if (Settings.getInstance().hylianMode) {
-      el.classList.add('hylian-mode');
-    } else {
-      el.classList.remove('hylian-mode');
-    }
-  }
+      searching: false,
+      searchQuery: '',
+      searchLastSearchFailed: false,
+      searchResults: [] as ObjectMinData[],
+      searchGroups: [] as SearchResultGroup[],
+      searchPresets: SEARCH_PRESETS,
+      searchExcludedSets: [] as SearchExcludeSet[],
+      MAX_SEARCH_RESULT_COUNT: 2000,
 
-  switchPane(pane: string) {
-    this.sidebar.open(pane);
-  }
+      shownAreaMap: '',
+      areaWhitelist: '',
+      showKorokIDs: false,
+      shownAutoItem: '',
+      staticTooltipY: false,
+      staticTooltipXZ: false,
 
-  private initGeojsonFeature(layer: any) {
-    if (!(layer.setStyle))
-      return;
+      showMapUnitGrid: false,
 
-    layer.on('mouseover', () => {
-      layer.setStyle({ weight: 5 });
-    });
-    layer.on('mouseout', () => {
-      layer.setStyle({ weight: 3 });
-    });
-    if (!layer.bindContextMenu) {
-      return;
-    }
-    // @ts-ignore
-    layer.bindContextMenu({
-      contextmenu: true,
-      contextmenuItems: [{
-        text: 'Change color to current polyline color',
-        index: 0,
-        callback: () => {
-          layer.setStyle({ color: this.drawLineColor });
-        },
-      }, {
-        text: 'Break line here',
-        index: 1,
-        callback: ({latlng} : ui.LeafletContextMenuCbArg) => {
-          this.breakPolylineAt(layer, latlng)
-        },
-      }, {
-        separator: true,
-        index: 2,
-      }],
-    });
-  }
+      showSafeAreas: false,
 
-  private breakPolylineAt(layer: any, latlng: L.LatLng) {
-    if (!this.map.m.hasLayer(layer)) {
-      return;
-    }
-    if (!layer.toGeoJSON) {
-      return;
-    }
-    const geojson: GeoJSON.Feature = layer.toGeoJSON();
-    if (geojson.geometry.type != "LineString") {
-      return;
-    }
-    const line = geojson.geometry;
+      showCastleAreas: false,
 
-    // find where to break
-    let minDistSq = 0;
-    let minIndex = -1;
+      showBaseMap: true,
+      showReferenceGrid: false,
 
-    for (let i=0;i<line.coordinates.length-1;i++) {
-      const start = line.coordinates[i];
-      const end = line.coordinates[i+1];
-      if (!this.isPointInBound(latlng, start, end)) {
-        continue;
-      }
-      const distSq = this.getPointToLineDistSq(latlng, start, end);
-      if (minIndex < 0 || distSq < minDistSq) {
-        minDistSq = distSq;
-        minIndex = i;
-      }
-    }
+      settings: Settings.getInstance(),
 
-    if (minIndex < 0) {
-      return;
-    }
-
-    const line1 = produce(line, (draft) => {
-      const temp = draft.coordinates.slice(0, minIndex+1);
-      temp.push([latlng.lng, latlng.lat]);
-      draft.coordinates = temp;
-    });
-    const line2 = produce(line, (draft) => {
-      const temp = [[latlng.lng, latlng.lat]];
-      temp.push(...draft.coordinates.slice(minIndex+1));
-      draft.coordinates = temp;
-    });
-    const newGeojson1 = produce(geojson, (draft) => {
-      draft.geometry = line1;
-      // @ts-ignore
-      draft.style = { color: layer.options.color };
-    });
-    const newGeojson2 = produce(geojson, (draft) => {
-      draft.geometry = line2;
-      // @ts-ignore
-      draft.style = { color: layer.options.color };
-    });
-
-    layer.remove();
-    this.drawLayer.removeLayer(layer);
-    this.drawFromGeojsonFeature(newGeojson1);
-    this.drawFromGeojsonFeature(newGeojson2);
-    this.updateDrawLayerOpts();
-
-  }
-
-  // Get if the point is inside the rectangle defined by start and end
-  // start and end are [lng, lat] from geojson LineString
-  private isPointInBound(point: L.LatLng, start: number[], end: number[]) {
-    const [startLng, startLat] = start;
-    const [endLng, endLat] = end;
-    // point must be in the bounding box of the start and end
-    const boxMinLat = Math.min(startLat, endLat);
-    const boxMaxLat = Math.max(startLat, endLat);
-    if (point.lat < boxMinLat || point.lat > boxMaxLat) {
-      return false;
-    }
-    const boxMinLng = Math.min(startLng, endLng);
-    const boxMaxLng = Math.max(startLng, endLng);
-    if (point.lng < boxMinLng || point.lng > boxMaxLng) {
-      return false;
-    }
-
-    return true;
-  }
-
-  // Get the distance squared from the point to the line defined by start and end
-  // start and end are [lng, lat] from geojson LineString
-  private getPointToLineDistSq(point: L.LatLng, start: number[], end: number[]) {
-    const [startLng, startLat] = start;
-    const [endLng, endLat] = end;
-    // https://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line#Line_defined_by_two_points
-    const x2Minusx1 = endLng - startLng;
-    const y2Minusy1 = endLat - startLat;
-    const x1Minusx0 = startLng - point.lng;
-    const y1Minusy0 = startLat - point.lat;
-
-    const a = x2Minusx1 * y1Minusy0 - x1Minusx0 * y2Minusy1;
-    const numerator = a * a;
-    const denominator = x2Minusx1 * x2Minusx1 + y2Minusy1 * y2Minusy1;
-    return numerator / denominator;
-  }
-
-  toggleLayerVisibility(event: any) {
-    const layer = this.drawLayer.getLayer(event.target.id);
-    if (!layer)
-      return;
-    if (this.map.m.hasLayer(layer)) {
-      layer.remove();
-    } else {
-      layer.addTo(this.map.m);
-    }
-  }
-
-  toggleAllLayers(on: boolean) {
-    this.drawLayerOpts.forEach((opt: any) => {
-      opt.visible = on
-      let layer = this.drawLayer.getLayer(opt.id);
-      if (!layer)
-        return;
-      if (on)
-        layer.addTo(this.map.m)
-      else
-        layer.remove()
-    })
-  }
-
-  
-  changeLayerColor(event: any) {
-    const id = Number(event.target.attributes.layer_id.value);
-    const color = event.target.value;
-    const layer: any = this.drawLayer.getLayer(id);
-    if (!layer)
-      return;
-    layer.options.color = color;
-    if (ui.leafletType(layer) == ui.LeafletType.Marker) {
-      layer.setIcon(ui.svgIcon(color));
-    } else {
-      layer.setStyle({ color: layer.options.color });
-    }
-    const layerOpt = this.drawLayerOpts.find((layer: any) => layer.id == id);
-    if (layerOpt) {
-      layerOpt.color = color;
-    }
-  }
-
-  createDrawLayerOpts() {
-    if (!this.drawLayer)
-      return [];
-    const layerIDs = this.drawLayer.getLayers().map((layer: any) => {
-      let props = layer.feature.properties;
-      const id = this.drawLayer.getLayerId(layer);
-      return {
-        id,
-        color: layer.options.color,
-        order: props.order,
-        title: props.title,
-        text: props.text,
-        length: (ui.leafletType(layer) == ui.LeafletType.Marker) ? "" : props.pathLength.toFixed(2),
-        visible: true,
-      };
-    })
-    // order values < 0 are appended at the end and given a value
-    const ordered = layerIDs.filter((layer: any) => layer.order >= 0);
-    const unordered = layerIDs.filter((layer: any) => layer.order < 0);
-    let n = ordered.length;
-    unordered.forEach((layer: any) => { layer.order = n++; });
-    ordered.push(...unordered);
-    layerIDs.sort((a: any, b: any) => a.order - b.order);
-    return layerIDs;
-  }
-
-  updateDrawLayerOptsIndex() {
-    this.drawLayerOpts.forEach((layer: any, k: number) => {
-      layer.order = k;
-      // @ts-ignore
-      this.drawLayer.getLayer(layer.id).feature.properties.order = k;
-    });
-  }
-
-  updateDrawLayerOpts(updates: any = {}) {
-    this.$nextTick(() => {
-      if (updates.layer) {
-        let id = this.drawLayer.getLayerId(updates.layer);
-        let opt = this.drawLayerOpts.find((layer: any) => layer.id == id)
-        if (opt) {
-          opt.title = updates.title || opt.title;
-          opt.text = updates.text || opt.text;
-        }
-      } else {
-        this.drawLayerOpts = this.createDrawLayerOpts();
-      }
-      this.updateDrawLayerOptsIndex();
-    });
-  }
-
-  initDrawTools() {
-    this.drawLayer = new L.GeoJSON(undefined, {
-      style: (feature) => {
-        // @ts-ignore
-        return feature.style || {};
-      },
-      onEachFeature: (feature, layer) => { this.initGeojsonFeature(layer); },
-    });
-    const savedData = Settings.getInstance().drawLayerGeojson;
-    if (savedData)
-      this.drawFromGeojson(JSON.parse(savedData));
-    this.drawLayer.addTo(this.map.m);
-    const options = {
-      position: 'topleft',
-      draw: {
-        circlemarker: false,
-        rectangle: { showRadius: false },
-        marker: {
-          icon: ui.svgIcon(this.drawLineColor),
-          repeatMode: false,
-        }
-      },
-      edit: {
-        featureGroup: this.drawLayer,
-      },
+      // Replace current markers
+      importReplace: true,
     };
-    // @ts-ignore
-    this.drawControl = new L.Control.Draw(options);
-    this.setLineColorThrottler = debounce(() => this.setLineColor(), 100);
-    this.map.m.on({
-      // @ts-ignore
-      'draw:created': (e: any) => {
-        addGeoJSONFeatureToLayer(e.layer);
-        calcLayerLength(e.layer);
-        addPopupAndTooltip(e.layer, this);
-        this.drawLayer.addLayer(e.layer);
-        this.initGeojsonFeature(e.layer);
-        if (!e.layer.options.color) {
-          e.layer.options.color = this.drawLineColor;
-        }
-        this.updateDrawLayerOpts();
-      },
-      'draw:edited': (e: any) => {
-        e.layers.eachLayer((layer: L.Marker | L.Polyline) => {
-          calcLayerLength(layer);
-          layerSetTooltip(layer);
-        });
-        this.updateDrawLayerOpts();
-      },
-      'draw:deleted': (e: any) => {
-        // Only use confirm dialog if editable layer is empty and
-        //   the layers passed are not empty
-        // A 'Save' action should have a possibly non-empty editable layer
-        if (this.drawLayer.getLayers().length == 0 && e.layers.getLayers().length != 0) {
-          let ans = confirm("Clear all map items?");
-          if (!ans) {
-            e.layers.eachLayer((layer: L.Marker | L.Polyline) => this.drawLayer.addLayer(layer));
-          }
-        }
-        this.updateDrawLayerOpts();
-      },
-    });
-    this.drawOnColorChange({});
-    Settings.getInstance().registerBeforeSaveCallback(() => {
-      Settings.getInstance().drawLayerGeojson = JSON.stringify(this.drawToGeojson());
-    });
-    this.updateDrawControlsVisibility();
-    this.updateDrawLayerOpts();
-  }
-
-  private layerFromGeoJSON(feat: any): L.Layer {
-    let isCircle = feat.geometry.type == "Point" && feat.properties.radius;
-    if (isCircle) {
-      let latlon = L.latLng(feat.geometry.coordinates[1], feat.geometry.coordinates[0]);
-      return new L.Circle(latlon, { radius: feat.properties.radius });
-    }
-    return L.GeoJSON.geometryToLayer(feat);
-  }
-
-  private drawFromGeojson(data: any) {
-    if (this.importReplace) {
-      this.drawLayer.clearLayers();
-    }
-    data.features.forEach((feat: any) => {
-      this.drawFromGeojsonFeature(feat);
-    });
-    this.updateDrawLayerOpts();
-  }
-
-  private drawFromGeojsonFeature(feat: any) {
-    let layer: any = this.layerFromGeoJSON(feat);
-    // Only set style for Polylines not Markers
-    let color = feat.style.color || this.drawLineColor;
-    if (ui.leafletType(layer) == ui.LeafletType.Marker) {
-      layer.options.color = color;
-      layer.setIcon(ui.svgIcon(color));
-    } else {
-      layer.setStyle({ color: color });
-    }
-    // Create Feature.Properties on Layer
-    addGeoJSONFeatureToLayer(layer);
-    // Copy Properties from GeoJSON
-    layer.feature.properties.fromGeoJSON(feat);
-    calcLayerLength(layer);
-    addPopupAndTooltip(layer, this);
-    this.drawLayer.addLayer(layer);
-    this.initGeojsonFeature(layer);
-  }
-
-  private drawToGeojson(): GeoJSON.FeatureCollection {
-    const data = <GeoJSON.FeatureCollection>(this.drawLayer.toGeoJSON());
-    // XXX: Terrible hack to add colors to LineStrings.
-    let i = 0;
-    this.drawLayer.eachLayer(layer => {
-      // @ts-ignore
-      data.features[i].style = {
-        // @ts-ignore
-        color: layer.options.color,
-      };
-      if (ui.leafletType(layer) == ui.LeafletType.Circle) {
-        // @ts-ignore
-        data.features[i].properties.radius = (layer as L.Circle).options.radius;
-      }
-      ++i;
-    });
-    return data;
-  }
-
-  toggleDraw() {
-    Settings.getInstance().drawControlsShown = !Settings.getInstance().drawControlsShown;
-    this.updateDrawControlsVisibility();
-  }
-
-  updateDrawControlsVisibility() {
-    if (Settings.getInstance().drawControlsShown)
-      this.drawControl.addTo(this.map.m);
-    else
-      this.drawControl.remove();
-  }
-
-  drawImport() {
-    const input = <HTMLInputElement>(document.getElementById('fileinput'));
-    input.click();
-  }
-
-  private async drawImportCb() {
-    const input = <HTMLInputElement>(document.getElementById('fileinput'));
-    if (!input.files!.length)
-      return;
-    try {
-      const rawData = await (new Response(input.files![0])).json();
-      const version: number | undefined = rawData.OBJMAP_SV_VERSION;
-      if (!version) {
-        this.drawFromGeojson(rawData);
-      } else {
-        const data = <save.SaveData>(rawData);
-        this.drawFromGeojson(data.drawData);
-        if (version >= 2) {
-          data.searchGroups.forEach(g => {
-            this.searchAddGroup(g.query, g.label, g.enabled);
-          });
-          data.searchExcludeSets.forEach(g => {
-            this.searchAddExcludedSet(g.query, g.label);
-          });
-        }
-      }
-    } catch (e) {
-      alert(e);
-    } finally {
-      input.value = '';
-    }
-  }
-
-  drawExport() {
-    const data: save.SaveData = {
-      OBJMAP_SV_VERSION: save.CURRENT_OBJMAP_SV_VERSION,
-      drawData: this.drawToGeojson(),
-      searchGroups: this.searchGroups.map(g => ({
-        label: g.label,
-        query: g.query,
-        enabled: g.enabled,
-      })),
-      searchExcludeSets: this.searchExcludedSets.filter(g => !g.hidden).map(g => ({
-        label: g.label,
-        query: g.query,
-      })),
-    };
-    const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'objmap_save.json';
-    a.click();
-  }
-
-  setLineColor() {
-    this.drawControl.setDrawingOptions({
-      polyline: { shapeOptions: { color: this.drawLineColor, opacity: 1.0 } },
-      polygon: { shapeOptions: { color: this.drawLineColor, opacity: 1.0 } },
-      circle: { shapeOptions: { color: this.drawLineColor, opacity: 1.0 } },
-      rectangle: { shapeOptions: { color: this.drawLineColor, opacity: 1.0 } },
-      marker: {
-        icon: ui.svgIcon(this.drawLineColor),
-        repeatMode: false,
-      }
-    });
-  }
-
-  drawOnColorChange(ev: any) {
-    if (ev.target) {
-      this.drawLineColor = ev.target.value;
-    }
-    this.setLineColorThrottler();
-  }
-
-  showGreatPlateauBarrier() {
-    if (!this.greatPlateauBarrierShown) {
-      const RESPAWN_POS: Point = [-1021.7286376953125, 0, 1792.6009521484375];
-      const respawnPosMarker = new MapMarkers.MapMarkerPlateauRespawnPos(this.map, RESPAWN_POS);
-      const topLeft = this.map.fromXYZ([-1600, 0, 1400]);
-      const bottomRight = this.map.fromXYZ([-350, 0, 2400]);
-      const rect = L.rectangle(L.latLngBounds(topLeft, bottomRight), {
-        fill: false,
-        stroke: true,
-        color: '#c50000',
-        weight: 2,
-        // @ts-ignore
-        contextmenu: true,
-        contextmenuItems: [{
-          text: 'Hide barrier and respawn point',
-          callback: () => {
-            respawnPosMarker.getMarker().remove();
-            rect.remove();
-            this.greatPlateauBarrierShown = false;
-          },
-        }],
-      });
-      rect.addTo(this.map.m);
-      respawnPosMarker.getMarker().addTo(this.map.m);
-      this.greatPlateauBarrierShown = true;
-    }
-    this.map.setView([-965, 0.0, 1875], 5);
-  }
-
-  gotoOnSubmit(xyz: Point) {
-    this.map.setView(xyz);
-    if (this.previousGotoMarker)
-      this.previousGotoMarker.remove();
-    this.previousGotoMarker = L.marker(this.map.fromXYZ(xyz), {
-      // @ts-ignore
-      contextmenu: true,
-      contextmenuItems: [{
-        text: 'Hide',
-        callback: () => { this.previousGotoMarker!.remove(); this.previousGotoMarker = null; },
-      }],
-    }).addTo(this.map.m);
-  }
-
-  initMarkerDetails() {
-    this.map.registerMarkerSelectedCb((marker: MapMarker) => {
-      this.openMarkerDetails(getMarkerDetailsComponent(marker), marker);
-    });
-    this.map.m.on({ 'click': () => this.closeMarkerDetails() });
-  }
-
-  openMarkerDetails(component: string, marker: MapMarker, zoom = -1) {
-    this.closeMarkerDetails(true);
-    this.detailsMarker = new ui.Unobservable(marker);
-    this.detailsComponent = component;
-    this.switchPane('spane-details');
-    this.detailsPaneOpened = true;
-    this.detailsPinMarker = new ui.Unobservable(L.marker(marker.getMarker().getLatLng(), {
-      pane: 'front',
-    }).addTo(this.map.m));
-    if (zoom == -1)
-      this.map.m.panTo(marker.getMarker().getLatLng());
-    else
-      this.map.m.setView(marker.getMarker().getLatLng(), zoom);
-  }
-
-  closeMarkerDetails(forOpen = false) {
-    if (!this.detailsPaneOpened)
-      return;
-    this.detailsComponent = '';
-    this.detailsMarker = null;
-    if (!forOpen) {
-      this.sidebar.close();
-    }
-    if (this.detailsPinMarker) {
-      this.detailsPinMarker.data.remove();
-      this.detailsPinMarker = null;
-    }
-    this.detailsPaneOpened = false;
-  }
-
-  initSearch() {
-    this.searchThrottler = debounce(() => this.search(), 200);
-
-    this.map.registerZoomCb(() => {
-      for (const group of this.searchGroups)
-        group.update(0, this.searchExcludedSets);
-    });
-  }
-
-  searchGetQuery() {
-    let query = this.searchQuery;
-    if (/^0x[0-9A-Fa-f]{6}/g.test(query))
-      query = parseInt(query, 16).toString(10);
-    return query;
-  }
-
-  searchJumpToResult(idx: number) {
-    const marker = this.searchResultMarkers[idx];
-    this.openMarkerDetails(getMarkerDetailsComponent(marker.data), marker.data, 6);
-  }
-
-  searchOnInput() {
-    this.searching = true;
-    this.searchThrottler();
-  }
-
-  searchSetLink() {
-    const query = this.searchGetQuery();
-    this.$router.replace({
-      path: this.$route.fullPath,
-      query: {
-        q: query,
-      }
-    })
-  }
-
-  searchOnAdd() {
-    this.searchAddGroup(this.searchGetQuery());
-    this.searchQuery = '';
-    this.search();
-  }
-
-  searchOnExclude() {
-    this.searchAddExcludedSet(this.searchGetQuery());
-    this.searchQuery = '';
-    this.search();
-  }
-
-  async searchAddExcludedSet(query: string, label?: string) {
-    if (this.searchExcludedSets.some(g => !!g.query && g.query == query))
-      return;
-
-    const set = new SearchExcludeSet(query, query);
-    this.searchExcludedSets.push(set);
-    await set.init();
-    for (const group of this.searchGroups)
-      group.update(SearchResultUpdateMode.UpdateVisibility, this.searchExcludedSets);
-  }
-
-  async searchAddGroup(query: string, label?: string, enabled = true) {
-    if (this.searchGroups.some(g => !!g.query && g.query == query))
-      return;
-
-    const group = new SearchResultGroup(query, label || query, enabled);
-    await group.init(this.map);
-    group.update(SearchResultUpdateMode.UpdateStyle | SearchResultUpdateMode.UpdateVisibility, this.searchExcludedSets);
-    this.searchGroups.push(group);
-    this.updateTooltips();
-  }
-
-  searchToggleGroupEnabledStatus(idx: number) {
-    const group = this.searchGroups[idx];
-    group.update(SearchResultUpdateMode.UpdateVisibility, this.searchExcludedSets);
-  }
-
-  searchViewGroup(idx: number) {
-    const group = this.searchGroups[idx];
-    this.searchQuery = group.query;
-    this.search();
-  }
-
-  searchRemoveGroup(idx: number) {
-    const group = this.searchGroups[idx];
-    group.remove();
-    this.searchGroups.splice(idx, 1);
-  }
-
-  searchRemoveExcludeSet(idx: number) {
-    this.searchExcludedSets.splice(idx, 1);
-    for (const group of this.searchGroups)
-      group.update(SearchResultUpdateMode.UpdateVisibility, this.searchExcludedSets);
-  }
-
-  async search() {
-    this.searching = true;
-    this.searchResultMarkers.forEach(m => m.data.getMarker().remove());
-    this.searchResultMarkers = [];
-
-    const query = this.searchGetQuery();
-    try {
-      this.searchResults = await MapMgr.getInstance().getObjs(this.settings!.mapType, this.settings!.mapName, query, false, this.MAX_SEARCH_RESULT_COUNT);
-      this.searchLastSearchFailed = false;
-    } catch (e) {
-      this.searchResults = [];
-      this.searchLastSearchFailed = true;
-    }
-
-    for (const result of this.searchResults) {
-      const marker = new ui.Unobservable(new MapMarkers.MapMarkerSearchResult(this.map, result));
-      this.searchResultMarkers.push(marker);
-      marker.data.getMarker().addTo(this.map.m);
-    }
-
-    this.updateTooltips();
-    this.searching = false;
-  }
-
-  enableTooltip(marker: any) {
-    let m: any = marker.getMarker();
-    if (!('_tooltip' in marker.obj)) {
-      // @ts-ignore
-      let tt = m.getTooltip();
-      marker.obj._tooltip = tt.getContent();
-      marker.obj._tooltip_options = tt.options;
-    }
-    //To update the tooltip with the permanent flag,
-    //   we needed to unbind() then re-bind() the tooltip
-    //   with a different permanent flag value.
-    this.disableTooltip(marker);
-    if (!m.getTooltip().options.permanent) {
-      m.unbindTooltip();
-      let tip = [] // Position indicies
-      if(this.staticTooltipXZ)
-        tip.push(...[0,2]) // X and Z (0 and 2)
-      if(this.staticTooltipY)
-        tip.push(1) // Y (1)
-      tip.sort()
-      let str = tip.map(id => marker.obj.pos[id].toFixed(2)).join(", ")
-      m.bindTooltip(str, { permanent: true });
-      m.openTooltip();
-    }
-  }
-
-  disableTooltip(marker: any) {
-    let m: any = marker.getMarker();
-    if (m.getTooltip().options.permanent) {
-      m.getTooltip().options.permanent = false;
-      m.unbindTooltip();
-      m.bindTooltip(marker.obj._tooltip, marker.obj._tooltip_options);
-      m.closeTooltip();
-    }
-  }
-
-  toggleTooltipOnAllMarkers(on: boolean) {
-    let func = on ? this.enableTooltip : this.disableTooltip;
-    this.searchResultMarkers.map(m => m.data).forEach(func);
-    this.searchGroups.forEach(group => {
-      group.getMarkers().forEach(func);
-    });
-  }
-
-  updateTooltips() {
-    this.toggleTooltipOnAllMarkers(this.staticTooltipY || this.staticTooltipXZ);
-  }
-
-  toggleY() {
-    this.staticTooltipY = !this.staticTooltipY
-    this.updateTooltips();
-  }
-
-  toggleXZ() {
-    this.staticTooltipXZ = !this.staticTooltipXZ
-    this.updateTooltips();
-  }
-
-  initContextMenu() {
-    this.map.m.on(SHOW_ALL_OBJS_FOR_MAP_UNIT_EVENT, (e) => {
-      let mapType = Settings.getInstance().mapType;
-      if (mapType !== 'MainField' && mapType !== 'AocField') {
-        this.searchAddGroup(`map:"${mapType}/${Settings.getInstance().mapName}"`);
-        return;
-      }
-
-      // @ts-ignore
-      const latlng: L.LatLng = e.latlng;
-      const xyz = this.map.toXYZ(latlng);
-      if (!map.isValidPoint(xyz))
-        return;
-      this.searchAddGroup(`map:"${mapType}/${map.pointToMapUnit(xyz)}"`);
-    });
-  }
-
-  initEvents() {
-    this.$on('AppMap:switch-pane', (pane: string) => {
-      this.switchPane(pane);
-    });
-    this.$on('AppMap:toggle-y-values', () => {
-      this.toggleY();
-    });
-    this.$on('AppMap:toggle-xz-values', () => {
-      this.toggleXZ();
-    });
-
-    this.$on('AppMap:open-obj', async (obj: ObjectData) => {
-      if (this.tempObjMarker)
-        this.tempObjMarker.data.getMarker().remove();
-      this.tempObjMarker = new ui.Unobservable(new MapMarkers.MapMarkerObj(this.map, obj, '#e02500', '#ff2a00'));
-      this.tempObjMarker.data.getMarker().addTo(this.map.m);
-      this.openMarkerDetails(getMarkerDetailsComponent(this.tempObjMarker.data), this.tempObjMarker.data);
-    });
-
-    this.map.m.on('click', () => {
-      if (this.tempObjMarker)
-        this.tempObjMarker.data.getMarker().remove();
-    });
-
-    this.$on('AppMap:show-gen-group', async (id: ObjectIdentifier) => {
-      const group = new SearchResultGroup('', `Generation group for ${id.mapType}/${id.mapName}:${id.hashId}`);
-      await group.init(this.map);
-      const objs = await MapMgr.getInstance().getObjGenGroup(id.mapType, id.mapName, id.hashId);
-      group.setObjects(this.map, objs);
-      group.update(SearchResultUpdateMode.UpdateStyle | SearchResultUpdateMode.UpdateVisibility, this.searchExcludedSets);
-      this.searchGroups.push(group);
-    });
-    this.map.m.on('AppMap:show-gen-group', (args) => {
-      this.$emit('AppMap:show-gen-group', args);
-    });
-  }
-
-  initSettings() {
-    this.hardModeExcludeSet = new SearchExcludeSet('hard:1', '', true);
-    this.lastBossExcludeSet = new SearchExcludeSet('lastboss:0', '', true);
-    this.ohoExcludeSet = new SearchExcludeSet('onehit:1', '', true);
-    Promise.all([this.hardModeExcludeSet.init(), this.lastBossExcludeSet.init(), this.ohoExcludeSet.init()]).then(() => {
-      for (const group of this.searchGroups)
-        group.update(SearchResultUpdateMode.UpdateVisibility, this.searchExcludedSets);
-    });
-
-    this.reloadSettings();
-    Settings.getInstance().registerCallback(() => this.reloadSettings());
-  }
-
-  private reloadSettings() {
-    this.searchExcludedSets = this.searchExcludedSets.filter(set =>
-      set != this.hardModeExcludeSet && set != this.lastBossExcludeSet && set != this.ohoExcludeSet);
-
-    if (!Settings.getInstance().hardMode)
-      this.searchExcludedSets.push(this.hardModeExcludeSet);
-    if (Settings.getInstance().lastBossMode)
-      this.searchExcludedSets.push(this.lastBossExcludeSet);
-    if (!Settings.getInstance().ohoMode)
-      this.searchExcludedSets.push(this.ohoExcludeSet);
-
-    for (const group of this.searchGroups)
-      group.update(SearchResultUpdateMode.UpdateVisibility | SearchResultUpdateMode.UpdateStyle | SearchResultUpdateMode.UpdateTitle, this.searchExcludedSets);
-
-    this.searchResultMarkers.forEach(m => m.data.updateTitle());
-  }
-
-  initAreaMap() {
-    this.areaMapLayer.data.addTo(this.map.m);
-  }
-  initAutoItem() {
-    this.areaAutoItem.data.addTo(this.map.m);
-  }
-
-  async loadAutoItem(name: string) {
-    this.areaAutoItem.data.clearLayers();
-    if (!name)
-      return;
-    const areas = await MapMgr.getInstance().fetchAreaMap(name);
-    let layers: L.Path[] = ui.areaMapToLayers(areas);
-    layers.forEach(l => this.areaAutoItem.data.addLayer(l));
-    this.areaAutoItem.data.setZIndex(1000);
-  }
-
-
-  async loadAreaMap(name: string) {
-    this.areaMapLayer.data.clearLayers();
-    this.areaMapLayersByData.data.clear();
-    if (!name)
-      return;
-    // Order matches that in MapTower.json
-    const mapTowerAreas = ["Hebra", "Tabantha", "Gerudo", "Wasteland",
-      "Woodland", "Central", "Great Plateau", "Dueling Peaks",
-      "Lake", "Eldin", "Akkala", "Lanayru", "Hateno",
-      "Faron", "Ridgeland"];
-    const climate_names = [
-      'HyrulePlainClimate',
-      'NorthHyrulePlainClimate',
-      'HebraFrostClimate',
-      'TabantaAridClimate',
-      'FrostClimate',
-      'GerudoDesertClimate',
-      'GerudoPlateauClimate',
-      'EldinClimateLv0',
-      'TamourPlainClimate',
-      'ZoraTemperateClimate',
-      'HateruPlainClimate',
-      'FiloneSubtropicalClimate',
-      'SouthHateruHumidTemperateClimate',
-      'EldinClimateLv1',
-      'EldinClimateLv2',
-      // sic
-      'DarkWoodsClimat',
-      'LostWoodClimate',
-      'GerudoFrostClimate',
-      'KorogForest',
-      'GerudoDesertClimateLv2'
-    ];
-
-    const areas = await MapMgr.getInstance().fetchAreaMap(name);
-    const entries = Object.entries(areas);
-    let i = 0;
-    for (const [data, features] of entries) {
-      const layers: L.GeoJSON[] = features.map((feature) => {
-        return L.geoJSON(feature, {
-          style: function(_) {
-            return { weight: 2, fillOpacity: 0.2, color: ui.genColor(entries.length, i) };
-          },
-          // @ts-ignore
-          contextmenu: true,
-        });
-      });
-      this.areaMapLayersByData.data.set(data, layers);
-      for (const layer of layers) {
-        let label = (name == "MapTower") ? mapTowerAreas[parseInt(data)] : 'Area ' + data.toString();
-        if (name == 'FieldMapArea') {
-          const area = await MsgMgr.getInstance().getAreaData(parseInt(data));
-          const climate = await MsgMgr.getInstance().getClimateData(climate_names.indexOf(area.Climate));
-          for (const kind of ['Bluesky', 'Cloudy', 'Rain', 'HeavyRain', 'Storm']) {
-            const name = `Weather${kind}Rate`;
-            if (climate[name] > 0) {
-              label += `<br>${climate[name]}%: ${kind}`;
-            }
-          }
-          if (climate.BlueSkyRainPat > 0) {
-            label += `<br>${climate.BlueSkyRainPat}: BlueSkyRain Pattern`;
-          }
-          if (climate.IgnitedLevel > 0) {
-            label += `<br>${climate.IgnitedLevel}: IgnitedLevel`;
-          }
-        }
-        layer.bindTooltip(label);
-        layer.on('mouseover', () => {
-          layers.forEach(l => {
-            l.setStyle({ weight: 4, fillOpacity: 0.3 });
-          });
-        });
-        layer.on('mouseout', () => {
-          layers.forEach(l => l.setStyle({ weight: 2, fillOpacity: 0.2 }));
-        });
-      }
-      ++i;
-    }
-    this.updateAreaMapVisibility();
-  }
-
-  updateAreaMapVisibility() {
-    const hasWhitelist = !!this.areaWhitelist;
-    const shown = this.areaWhitelist.trim().split(',').map(s => s.trim());
-    this.areaMapLayer.data.clearLayers();
-    for (const [data, layers] of this.areaMapLayersByData.data.entries()) {
-      if (!hasWhitelist || shown.includes(data))
-        layers.forEach(l => this.areaMapLayer.data.addLayer(l));
-    }
-  }
-
-  onShownAreaMapChanged() {
-    this.$nextTick(() => this.loadAreaMap(this.shownAreaMap));
-  }
-  onShownAutoItemChanged() {
-    this.$nextTick(() => this.loadAutoItem(this.shownAutoItem));
-  }
-
-  async initMapSafeAreas() {
-    const areas = await MapMgr.getInstance().fetchAreaMap("AutoSafe");
-    let layers: L.Path[] = ui.areaMapToLayers(areas);
-    layers.forEach(l => this.mapSafeAreas.data.addLayer(l));
-  }
-
-  async initMapCastleAreas() {
-    const areas: any = await MapMgr.getInstance().fetchAreaMap("castle");
-    const features = areas.features;
-
-    const layers: L.GeoJSON[] = features.map((feature: any, i: number) => {
-      let color = ui.genColor(300, feature.properties.y);
-      let layer = L.geoJSON(feature, {
-        style: function(_) {
-          return { weight: 2, fillOpacity: 0.2, color: color };
-        },
-        // @ts-ignore
-        contextmenu: true,
-      });
-      layer.bindTooltip(`${feature.properties.name} @ ${feature.properties.y}`);
-      layer.on('mouseover', () => { layer.setStyle({ weight: 4, fillOpacity: 0.3 }); });
-      layer.on('mouseout', () => { layer.setStyle({ weight: 2, fillOpacity: 0.2 }); });
-      return layer;
-    });
-    layers.forEach(l => this.mapCastleAreas.data.addLayer(l));
-
-    this.mapCastleAreas.data.setZIndex(1000);
-  }
-
-
-  initMapUnitGrid() {
-    for (let i = 0; i < 10; ++i) {
-      for (let j = 0; j < 8; ++j) {
-        const topLeft: Point = [-5000.0 + i * 1000.0, 0.0, -4000.0 + j * 1000.0];
-        const bottomRight: Point = [-5000.0 + (i + 1) * 1000.0, 0.0, -4000.0 + (j + 1) * 1000.0];
-        const rect = L.rectangle(L.latLngBounds(this.map.fromXYZ(topLeft), this.map.fromXYZ(bottomRight)), {
-          fill: true,
-          stroke: true,
-          color: '#009dff',
-          fillOpacity: 0.13,
-          weight: 2,
-          // @ts-ignore
-          contextmenu: true,
-        });
-        rect.bringToBack();
-        rect.bindTooltip(map.pointToMapUnit(topLeft), {
-          permanent: true,
-          direction: 'center',
-        });
-        this.mapUnitGrid.data.addLayer(rect);
-      }
-    }
-  }
-
-  onShowMapUnitGridChanged() {
-    this.$nextTick(() => {
-      this.mapUnitGrid.data.remove();
-      if (this.showMapUnitGrid)
-        this.mapUnitGrid.data.addTo(this.map.m);
-    });
-  }
-
-  onShowCastleAreas() {
-    this.$nextTick(() => {
-      this.mapCastleAreas.data.remove();
-      if (this.showCastleAreas) {
-        if (this.mapCastleAreas.data.getLayers().length <= 0) {
-          this.initMapCastleAreas();
-        }
-        this.mapCastleAreas.data.addTo(this.map.m);
-      }
-    });
-  }
-
-  onShowSafeAreas() {
-    this.$nextTick(() => {
-      this.mapSafeAreas.data.remove();
-      if (this.showSafeAreas) {
-        if (this.mapSafeAreas.data.getLayers().length <= 0) {
-          this.initMapSafeAreas();
-        }
-        this.mapSafeAreas.data.addTo(this.map.m);
-      }
-    });
-  }
-
-  onShowBaseMap() {
-    this.$nextTick(() => {
-      this.map.showBaseMap(this.showBaseMap);
-    });
-  }
-  onShowReferenceGrid() {
-    this.$nextTick(() => {
-      this.map.showReferenceGrid(this.showReferenceGrid);
-    });
-  }
-
-  created() {
-    this.settings = Settings.getInstance();
-  }
-
+  },
   mounted() {
     this.map = new MapBase('lmap');
     this.map.registerZoomChangeCb((zoom) => this.zoom = zoom);
@@ -1478,18 +330,1171 @@ export default class AppMap extends mixins(MixinUtil) {
       const [mapType, mapName, hashId] = this.$route.query.id.toString().split(',');
       MapMgr.getInstance().getObj(mapType, mapName, parseInt(hashId, 0)).then((obj) => {
         if (obj)
-          this.$emit('AppMap:open-obj', obj);
+          appMapBus.emit('AppMap:open-obj', obj);
       });
     }
-  }
+  },
 
-  beforeDestroy() {
+  beforeUnmount() {
+    this.offAppMapEvents();
     this.map.m.remove();
-  }
+  },
+  methods: {
+    setViewFromRoute(route: any) {
+      const x = parseFloat(route.params.x);
+      const z = parseFloat(route.params.z);
+      if (isNaN(x) || isNaN(z)) {
+        this.map.setView([0, 0, 0], 3);
+        return;
+      }
 
-  beforeRouteUpdate(to: any, from: any, next: any) {
-    if (!this.updatingRoute)
-      this.setViewFromRoute(to);
-    next();
-  }
-}
+      let zoom = parseInt(route.params.zoom);
+      if (isNaN(zoom))
+        zoom = 3;
+
+      this.map.setView([x, 0, z], zoom);
+    },
+    updateRoute() {
+      this.$router.replace({
+        name: 'map',
+        params: {
+          x: this.map.center[0],
+          z: this.map.center[2],
+          zoom: this.map.m.getZoom(),
+        },
+        query: this.$route.query,
+      });
+    },
+
+    initMapRouteIntegration() {
+      this.setViewFromRoute(this.$route);
+      this.map.zoom = this.map.m.getZoom();
+      this.map.center = this.map.toXYZ(this.map.m.getCenter());
+      this.map.registerMoveEndCb(() => this.updateRoute());
+      this.map.registerZoomEndCb(() => this.updateRoute());
+      this.updateRoute();
+    },
+
+    initMarkers() {
+      this.map.registerZoomCb(() => this.updateMarkers());
+      this.updateMarkers();
+    },
+
+    // Similar to updateMarkers() but only called
+    //   on toggle of KorokIDs
+    updateKorokIDs() {
+      const type = "Korok";
+      const info = MapMgr.getInstance().getInfoMainField();
+      if (Settings.getInstance().shownGroups.has(type)) {
+        this.markerGroups.get(type)!.destroy();
+        this.markerGroups.delete(type);
+
+        const markers: any[] = info.markers[type];
+        const component = MARKER_COMPONENTS[type];
+        const group = new MapMarkerGroup(
+          markers.map((m: any) => new (component.cl)(this.map, m, { showLabel: this.showKorokIDs })),
+          valueOrDefault(component.preloadPad, 1.0),
+          valueOrDefault(component.enableUpdates, true));
+        this.markerGroups.set(type, group);
+        group.addToMap(this.map.m);
+        group.update();
+      }
+    },
+
+    updateMarkers() {
+      const info = MapMgr.getInstance().getInfoMainField();
+      for (const type of Object.keys(info.markers)) {
+        if (!Settings.getInstance().shownGroups.has(type)) {
+          // Group exists and needs to be removed.
+          if (this.markerGroups.has(type)) {
+            this.markerGroups.get(type)!.destroy();
+            this.markerGroups.delete(type);
+          }
+          continue;
+        }
+
+        // Nothing to do -- the group already exists.
+        if (this.markerGroups.has(type))
+          continue;
+
+        const markers: any[] = info.markers[type];
+        const component = MARKER_COMPONENTS[type];
+        const group = new MapMarkerGroup(
+          markers.map((m: any) => new (component.cl)(this.map, m, { showLabel: this.showKorokIDs })),
+          valueOrDefault(component.preloadPad, 1.0),
+          valueOrDefault(component.enableUpdates, true));
+        this.markerGroups.set(type, group);
+        group.addToMap(this.map.m);
+      }
+
+      for (const group of this.markerGroups.values())
+        group.update();
+    },
+
+    initSidebar() {
+      this.sidebar = L.control.sidebar({
+        closeButton: true,
+        container: 'sidebar',
+        position: 'left',
+      })
+      this.sidebar.addTo(this.map.m);
+      const el = (document.getElementById('sidebar-content'))!;
+      const origOpen = this.sidebar.open;
+      // Fires before switching the active pane.
+      this.sidebar.open = (id: string) => {
+        this.sidebarPaneScrollPos.set(this.sidebarActivePane, el.scrollTop);
+        return origOpen.apply(this.sidebar, [id]);
+      };
+      // Fires after switching the active pane.
+      this.sidebar.on('content', (e) => {
+        // @ts-ignore
+        const id: string = e.id;
+        this.sidebarActivePane = id;
+        el.scrollTop = this.sidebarPaneScrollPos.get(this.sidebarActivePane) || 0;
+      });
+      this.updateSidebarClass();
+      this.updateHylianMode();
+    },
+
+    closeSidebar() {
+      this.sidebar.close();
+    },
+
+    toggleSidebarSide() {
+      Settings.getInstance().left = !Settings.getInstance().left;
+      this.updateSidebarClass();
+    },
+
+    toggleHylianMode() {
+      Settings.getInstance().hylianMode = !Settings.getInstance().hylianMode;
+      this.updateHylianMode();
+    },
+
+    updateSidebarClass() {
+      const el = (document.getElementById('sidebar'))!;
+      if (Settings.getInstance().left) {
+        el.classList.remove('leaflet-sidebar-right');
+        el.classList.add('leaflet-sidebar-left');
+      } else {
+        el.classList.add('leaflet-sidebar-right');
+        el.classList.remove('leaflet-sidebar-left');
+      }
+    },
+
+    updateHylianMode() {
+      const el = (document.getElementById('app'))!;
+      if (Settings.getInstance().hylianMode) {
+        el.classList.add('hylian-mode');
+      } else {
+        el.classList.remove('hylian-mode');
+      }
+    },
+
+    switchPane(pane: string) {
+      this.sidebar.open(pane);
+    },
+
+    initGeojsonFeature(layer: any) {
+      if (!(layer.setStyle))
+        return;
+
+      layer.on('mouseover', () => {
+        layer.setStyle({ weight: 5 });
+      });
+      layer.on('mouseout', () => {
+        layer.setStyle({ weight: 3 });
+      });
+      if (!layer.bindContextMenu) {
+        return;
+      }
+      // @ts-ignore
+      layer.bindContextMenu({
+        contextmenu: true,
+        contextmenuItems: [{
+          text: 'Change color to current polyline color',
+          index: 0,
+          callback: () => {
+            layer.setStyle({ color: this.drawLineColor });
+          },
+        }, {
+          text: 'Break line here',
+          index: 1,
+          callback: ({latlng} : ui.LeafletContextMenuCbArg) => {
+            this.breakPolylineAt(layer, latlng)
+          },
+        }, {
+          separator: true,
+          index: 2,
+        }],
+      });
+    },
+
+    breakPolylineAt(layer: any, latlng: L.LatLng) {
+      if (!this.map.m.hasLayer(layer)) {
+        return;
+      }
+      if (!layer.toGeoJSON) {
+        return;
+      }
+      const geojson: GeoJSON.Feature = layer.toGeoJSON();
+      if (geojson.geometry.type != "LineString") {
+        return;
+      }
+      const line = geojson.geometry;
+
+      // find where to break
+      let minDistSq = 0;
+      let minIndex = -1;
+
+      for (let i=0;i<line.coordinates.length-1;i++) {
+        const start = line.coordinates[i];
+        const end = line.coordinates[i+1];
+        if (!this.isPointInBound(latlng, start, end)) {
+          continue;
+        }
+        const distSq = this.getPointToLineDistSq(latlng, start, end);
+        if (minIndex < 0 || distSq < minDistSq) {
+          minDistSq = distSq;
+          minIndex = i;
+        }
+      }
+
+      if (minIndex < 0) {
+        return;
+      }
+
+      const line1 = produce(line, (draft) => {
+        const temp = draft.coordinates.slice(0, minIndex+1);
+        temp.push([latlng.lng, latlng.lat]);
+        draft.coordinates = temp;
+      });
+      const line2 = produce(line, (draft) => {
+        const temp = [[latlng.lng, latlng.lat]];
+        temp.push(...draft.coordinates.slice(minIndex+1));
+        draft.coordinates = temp;
+      });
+      const newGeojson1 = produce(geojson, (draft) => {
+        draft.geometry = line1;
+        // @ts-ignore
+        draft.style = { color: layer.options.color };
+      });
+      const newGeojson2 = produce(geojson, (draft) => {
+        draft.geometry = line2;
+        // @ts-ignore
+        draft.style = { color: layer.options.color };
+      });
+
+      layer.remove();
+      this.drawLayer.removeLayer(layer);
+      unmountPopup(layer);
+      this.drawFromGeojsonFeature(newGeojson1);
+      this.drawFromGeojsonFeature(newGeojson2);
+      this.updateDrawLayerOpts();
+
+    },
+
+    // Get if the point is inside the rectangle defined by start and end
+    // start and end are [lng, lat] from geojson LineString
+    isPointInBound(point: L.LatLng, start: number[], end: number[]): boolean {
+      const [startLng, startLat] = start;
+      const [endLng, endLat] = end;
+      // point must be in the bounding box of the start and end
+      const boxMinLat = Math.min(startLat, endLat);
+      const boxMaxLat = Math.max(startLat, endLat);
+      if (point.lat < boxMinLat || point.lat > boxMaxLat) {
+        return false;
+      }
+      const boxMinLng = Math.min(startLng, endLng);
+      const boxMaxLng = Math.max(startLng, endLng);
+      if (point.lng < boxMinLng || point.lng > boxMaxLng) {
+        return false;
+      }
+
+      return true;
+    },
+
+    // Get the distance squared from the point to the line defined by start and end
+    // start and end are [lng, lat] from geojson LineString
+    getPointToLineDistSq(point: L.LatLng, start: number[], end: number[]): number {
+      const [startLng, startLat] = start;
+      const [endLng, endLat] = end;
+      // https://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line#Line_defined_by_two_points
+      const x2Minusx1 = endLng - startLng;
+      const y2Minusy1 = endLat - startLat;
+      const x1Minusx0 = startLng - point.lng;
+      const y1Minusy0 = startLat - point.lat;
+
+      const a = x2Minusx1 * y1Minusy0 - x1Minusx0 * y2Minusy1;
+      const numerator = a * a;
+      const denominator = x2Minusx1 * x2Minusx1 + y2Minusy1 * y2Minusy1;
+      return numerator / denominator;
+    },
+
+    toggleLayerVisibility(event: any) {
+      const layer = this.drawLayer.getLayer(event.target.id);
+      if (!layer)
+        return;
+      if (this.map.m.hasLayer(layer)) {
+        layer.remove();
+      } else {
+        layer.addTo(this.map.m);
+      }
+    },
+
+    toggleAllLayers(on: boolean) {
+      this.drawLayerOpts.forEach((opt: any) => {
+        opt.visible = on
+        const layer = this.drawLayer.getLayer(opt.id);
+        if (!layer)
+          return;
+        if (on)
+          layer.addTo(this.map.m)
+        else
+          layer.remove()
+      })
+    },
+
+    
+    changeLayerColor(event: any) {
+      const id = Number(event.target.attributes.layer_id.value);
+      const color = event.target.value;
+      const layer: any = this.drawLayer.getLayer(id);
+      if (!layer)
+        return;
+      layer.options.color = color;
+      if (ui.leafletType(layer) == ui.LeafletType.Marker) {
+        layer.setIcon(ui.svgIcon(color));
+      } else {
+        layer.setStyle({ color: layer.options.color });
+      }
+      const layerOpt = this.drawLayerOpts.find((layer: any) => layer.id == id);
+      if (layerOpt) {
+        layerOpt.color = color;
+      }
+    },
+
+    createDrawLayerOpts(): any[] {
+      if (!this.drawLayer)
+        return [];
+      const layerIDs = this.drawLayer.getLayers().map((layer: any) => {
+        const props = layer.feature.properties;
+        const id = this.drawLayer.getLayerId(layer);
+        return {
+          id,
+          color: layer.options.color,
+          order: props.order,
+          title: props.title,
+          text: props.text,
+          length: (ui.leafletType(layer) == ui.LeafletType.Marker) ? "" : props.pathLength.toFixed(2),
+          visible: true,
+        };
+      })
+      // order values < 0 are appended at the end and given a value
+      const ordered = layerIDs.filter((layer: any) => layer.order >= 0);
+      const unordered = layerIDs.filter((layer: any) => layer.order < 0);
+      let n = ordered.length;
+      unordered.forEach((layer: any) => { layer.order = n++; });
+      ordered.push(...unordered);
+      layerIDs.sort((a: any, b: any) => a.order - b.order);
+      return layerIDs;
+    },
+
+    updateDrawLayerOptsIndex() {
+      this.drawLayerOpts.forEach((layer: any, k: number) => {
+        layer.order = k;
+        // @ts-ignore
+        this.drawLayer.getLayer(layer.id).feature.properties.order = k;
+      });
+    },
+
+    updateDrawLayerOpts(updates: any = {}) {
+      this.$nextTick(() => {
+        if (updates.layer) {
+          const id = this.drawLayer.getLayerId(updates.layer);
+          const opt = this.drawLayerOpts.find((layer: any) => layer.id == id)
+          if (opt) {
+            opt.title = updates.title || opt.title;
+            opt.text = updates.text || opt.text;
+          }
+        } else {
+          this.drawLayerOpts = this.createDrawLayerOpts();
+        }
+        this.updateDrawLayerOptsIndex();
+      });
+    },
+
+    initDrawTools() {
+      this.drawLayer = new L.GeoJSON(undefined, {
+        style: (feature) => {
+          // @ts-ignore
+          return feature.style || {};
+        },
+        onEachFeature: (feature, layer) => { this.initGeojsonFeature(layer); },
+      });
+      const savedData = Settings.getInstance().drawLayerGeojson;
+      if (savedData)
+        this.drawFromGeojson(JSON.parse(savedData));
+      this.drawLayer.addTo(this.map.m);
+      const options = {
+        position: 'topleft',
+        draw: {
+          circlemarker: false,
+          rectangle: { showRadius: false },
+          marker: {
+            icon: ui.svgIcon(this.drawLineColor),
+            repeatMode: false,
+          }
+        },
+        edit: {
+          featureGroup: this.drawLayer,
+        },
+      };
+      // @ts-ignore
+      this.drawControl = new L.Control.Draw(options);
+      this.setLineColorThrottler = debounce(() => this.setLineColor(), 100);
+      const drawHandlers: { [event: string]: (e: any) => void } = {
+        'draw:created': (e: any) => {
+          addGeoJSONFeatureToLayer(e.layer);
+          calcLayerLength(e.layer);
+          addPopupAndTooltip(e.layer, this);
+          this.drawLayer.addLayer(e.layer);
+          this.initGeojsonFeature(e.layer);
+          if (!e.layer.options.color) {
+            e.layer.options.color = this.drawLineColor;
+          }
+          this.updateDrawLayerOpts();
+        },
+        'draw:edited': (e: any) => {
+          e.layers.eachLayer((layer: L.Marker | L.Polyline) => {
+            calcLayerLength(layer);
+            layerSetTooltip(layer);
+          });
+          this.updateDrawLayerOpts();
+        },
+        'draw:deleted': (e: any) => {
+          // Only use confirm dialog if editable layer is empty and
+          //   the layers passed are not empty
+          // A 'Save' action should have a possibly non-empty editable layer
+          if (this.drawLayer.getLayers().length == 0 && e.layers.getLayers().length != 0) {
+            const ans = confirm("Clear all map items?");
+            if (!ans) {
+              e.layers.eachLayer((layer: L.Marker | L.Polyline) => this.drawLayer.addLayer(layer));
+            }
+          }
+          e.layers.eachLayer((layer: L.Layer) => {
+            if (!this.drawLayer.hasLayer(layer))
+              unmountPopup(layer);
+          });
+          this.updateDrawLayerOpts();
+        },
+      };
+      this.map.m.on(drawHandlers);
+      this.drawOnColorChange({});
+      Settings.getInstance().registerBeforeSaveCallback(() => {
+        Settings.getInstance().drawLayerGeojson = JSON.stringify(this.drawToGeojson());
+      });
+      this.updateDrawControlsVisibility();
+      this.updateDrawLayerOpts();
+    },
+
+    layerFromGeoJSON(feat: any): L.Layer {
+      const isCircle = feat.geometry.type == "Point" && feat.properties.radius;
+      if (isCircle) {
+        const latlon = L.latLng(feat.geometry.coordinates[1], feat.geometry.coordinates[0]);
+        return new L.Circle(latlon, { radius: feat.properties.radius });
+      }
+      return L.GeoJSON.geometryToLayer(feat);
+    },
+
+    drawFromGeojson(data: any) {
+      if (this.importReplace) {
+        this.drawLayer.eachLayer(unmountPopup);
+        this.drawLayer.clearLayers();
+      }
+      data.features.forEach((feat: any) => {
+        this.drawFromGeojsonFeature(feat);
+      });
+      this.updateDrawLayerOpts();
+    },
+
+    drawFromGeojsonFeature(feat: any) {
+      const layer: any = this.layerFromGeoJSON(feat);
+      // Only set style for Polylines not Markers
+      const color = feat.style.color || this.drawLineColor;
+      if (ui.leafletType(layer) == ui.LeafletType.Marker) {
+        layer.options.color = color;
+        layer.setIcon(ui.svgIcon(color));
+      } else {
+        layer.setStyle({ color: color });
+      }
+      // Create Feature.Properties on Layer
+      addGeoJSONFeatureToLayer(layer);
+      // Copy Properties from GeoJSON
+      layer.feature.properties.fromGeoJSON(feat);
+      calcLayerLength(layer);
+      addPopupAndTooltip(layer, this);
+      this.drawLayer.addLayer(layer);
+      this.initGeojsonFeature(layer);
+    },
+
+    drawToGeojson(): GeoJSON.FeatureCollection {
+      const data = <GeoJSON.FeatureCollection>(this.drawLayer.toGeoJSON());
+      // XXX: Terrible hack to add colors to LineStrings.
+      let i = 0;
+      this.drawLayer.eachLayer(layer => {
+        // @ts-ignore
+        data.features[i].style = {
+          // @ts-ignore
+          color: layer.options.color,
+        };
+        if (ui.leafletType(layer) == ui.LeafletType.Circle) {
+          // @ts-ignore
+          data.features[i].properties.radius = (layer as L.Circle).options.radius;
+        }
+        ++i;
+      });
+      return data;
+    },
+
+    toggleDraw() {
+      Settings.getInstance().drawControlsShown = !Settings.getInstance().drawControlsShown;
+      this.updateDrawControlsVisibility();
+    },
+
+    updateDrawControlsVisibility() {
+      if (Settings.getInstance().drawControlsShown)
+        this.drawControl.addTo(this.map.m);
+      else
+        this.drawControl.remove();
+    },
+
+    drawImport() {
+      const input = <HTMLInputElement>(document.getElementById('fileinput'));
+      input.click();
+    },
+
+    async drawImportCb(): Promise<void> {
+      const input = <HTMLInputElement>(document.getElementById('fileinput'));
+      if (!input.files!.length)
+        return;
+      try {
+        const rawData = await (new Response(input.files![0])).json();
+        const version: number | undefined = rawData.OBJMAP_SV_VERSION;
+        if (!version) {
+          this.drawFromGeojson(rawData);
+        } else {
+          const data = <save.SaveData>(rawData);
+          this.drawFromGeojson(data.drawData);
+          if (version >= 2) {
+            data.searchGroups.forEach(g => {
+              this.searchAddGroup(g.query, g.label, g.enabled);
+            });
+            data.searchExcludeSets.forEach(g => {
+              this.searchAddExcludedSet(g.query, g.label);
+            });
+          }
+        }
+      } catch (e) {
+        alert(e);
+      } finally {
+        input.value = '';
+      }
+    },
+
+    drawExport() {
+      const data: save.SaveData = {
+        OBJMAP_SV_VERSION: save.CURRENT_OBJMAP_SV_VERSION,
+        drawData: this.drawToGeojson(),
+        searchGroups: this.searchGroups.map(g => ({
+          label: g.label,
+          query: g.query,
+          enabled: g.enabled,
+        })),
+        searchExcludeSets: this.searchExcludedSets.filter(g => !g.hidden).map(g => ({
+          label: g.label,
+          query: g.query,
+        })),
+      };
+      const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'objmap_save.json';
+      a.click();
+    },
+
+    setLineColor() {
+      this.drawControl.setDrawingOptions({
+        polyline: { shapeOptions: { color: this.drawLineColor, opacity: 1.0 } },
+        polygon: { shapeOptions: { color: this.drawLineColor, opacity: 1.0 } },
+        circle: { shapeOptions: { color: this.drawLineColor, opacity: 1.0 } },
+        rectangle: { shapeOptions: { color: this.drawLineColor, opacity: 1.0 } },
+        marker: {
+          icon: ui.svgIcon(this.drawLineColor),
+          repeatMode: false,
+        }
+      });
+    },
+
+    drawOnColorChange(ev: any) {
+      if (ev.target) {
+        this.drawLineColor = ev.target.value;
+      }
+      this.setLineColorThrottler();
+    },
+
+    showGreatPlateauBarrier() {
+      if (!this.greatPlateauBarrierShown) {
+        const RESPAWN_POS: Point = [-1021.7286376953125, 0, 1792.6009521484375];
+        const respawnPosMarker = new MapMarkers.MapMarkerPlateauRespawnPos(this.map, RESPAWN_POS);
+        const topLeft = this.map.fromXYZ([-1600, 0, 1400]);
+        const bottomRight = this.map.fromXYZ([-350, 0, 2400]);
+        const rect = L.rectangle(L.latLngBounds(topLeft, bottomRight), {
+          fill: false,
+          stroke: true,
+          color: '#c50000',
+          weight: 2,
+          // @ts-ignore
+          contextmenu: true,
+          contextmenuItems: [{
+            text: 'Hide barrier and respawn point',
+            callback: () => {
+              respawnPosMarker.getMarker().remove();
+              rect.remove();
+              this.greatPlateauBarrierShown = false;
+            },
+          }],
+        });
+        rect.addTo(this.map.m);
+        respawnPosMarker.getMarker().addTo(this.map.m);
+        this.greatPlateauBarrierShown = true;
+      }
+      this.map.setView([-965, 0.0, 1875], 5);
+    },
+
+    gotoOnSubmit(xyz: Point) {
+      this.map.setView(xyz);
+      if (this.previousGotoMarker)
+        this.previousGotoMarker.remove();
+      this.previousGotoMarker = L.marker(this.map.fromXYZ(xyz), {
+        // @ts-ignore
+        contextmenu: true,
+        contextmenuItems: [{
+          text: 'Hide',
+          callback: () => { this.previousGotoMarker!.remove(); this.previousGotoMarker = null; },
+        }],
+      }).addTo(this.map.m);
+    },
+
+    initMarkerDetails() {
+      this.map.registerMarkerSelectedCb((marker: MapMarker) => {
+        this.openMarkerDetails(getMarkerDetailsComponent(marker), marker);
+      });
+      this.map.m.on({ 'click': () => this.closeMarkerDetails() });
+    },
+
+    openMarkerDetails(component: string, marker: MapMarker, zoom = -1) {
+      this.closeMarkerDetails(true);
+      this.detailsMarker = markRaw(marker);
+      this.detailsComponent = component;
+      this.switchPane('spane-details');
+      this.detailsPaneOpened = true;
+      this.detailsPinMarker = L.marker(marker.getMarker().getLatLng(), {
+        pane: 'front',
+      }).addTo(this.map.m);
+      if (zoom == -1)
+        this.map.m.panTo(marker.getMarker().getLatLng());
+      else
+        this.map.m.setView(marker.getMarker().getLatLng(), zoom);
+    },
+
+    closeMarkerDetails(forOpen = false) {
+      if (!this.detailsPaneOpened)
+        return;
+      this.detailsComponent = '';
+      this.detailsMarker = null;
+      if (!forOpen) {
+        this.sidebar.close();
+      }
+      if (this.detailsPinMarker) {
+        this.detailsPinMarker.remove();
+        this.detailsPinMarker = null;
+      }
+      this.detailsPaneOpened = false;
+    },
+
+    initSearch() {
+      this.searchThrottler = debounce(() => this.search(), 200);
+
+      this.map.registerZoomCb(() => {
+        for (const group of this.searchGroups)
+          group.update(SearchResultUpdateMode.None, this.searchExcludedSets);
+      });
+    },
+
+    searchGetQuery(): string {
+      let query = this.searchQuery;
+      if (/^0x[0-9A-Fa-f]{6}/g.test(query))
+        query = parseInt(query, 16).toString(10);
+      return query;
+    },
+
+    searchJumpToResult(idx: number) {
+      const marker = this.searchResultMarkers[idx];
+      this.openMarkerDetails(getMarkerDetailsComponent(marker), marker, 6);
+    },
+
+    searchOnInput() {
+      this.searching = true;
+      this.searchThrottler();
+    },
+
+    searchSetLink() {
+      const query = this.searchGetQuery();
+      this.$router.replace({
+        query: {
+          ...this.$route.query,
+          q: query,
+        }
+      })
+    },
+
+    searchOnAdd() {
+      this.searchAddGroup(this.searchGetQuery());
+      this.searchQuery = '';
+      this.search();
+    },
+
+    searchOnExclude() {
+      this.searchAddExcludedSet(this.searchGetQuery());
+      this.searchQuery = '';
+      this.search();
+    },
+
+    async searchAddExcludedSet(query: string, label?: string): Promise<void> {
+      if (this.searchExcludedSets.some(g => !!g.query && g.query == query))
+        return;
+
+      const set = reactive(new SearchExcludeSet(query, query));
+      this.searchExcludedSets.push(set);
+      await set.init();
+      for (const group of this.searchGroups)
+        group.update(SearchResultUpdateMode.UpdateVisibility, this.searchExcludedSets);
+    },
+
+    async searchAddGroup(query: string, label?: string, enabled = true): Promise<void> {
+      if (this.searchGroups.some(g => !!g.query && g.query == query))
+        return;
+
+      const group = new SearchResultGroup(query, label || query, enabled);
+      await group.init(this.map);
+      group.update(SearchResultUpdateMode.UpdateStyle | SearchResultUpdateMode.UpdateVisibility, this.searchExcludedSets);
+      this.searchGroups.push(group);
+      this.updateTooltips();
+    },
+
+    searchToggleGroupEnabledStatus(idx: number) {
+      const group = this.searchGroups[idx];
+      group.update(SearchResultUpdateMode.UpdateVisibility, this.searchExcludedSets);
+    },
+
+    searchViewGroup(idx: number) {
+      const group = this.searchGroups[idx];
+      this.searchQuery = group.query;
+      this.search();
+    },
+
+    searchRemoveGroup(idx: number) {
+      const group = this.searchGroups[idx];
+      group.remove();
+      this.searchGroups.splice(idx, 1);
+    },
+
+    searchRemoveExcludeSet(idx: number) {
+      this.searchExcludedSets.splice(idx, 1);
+      for (const group of this.searchGroups)
+        group.update(SearchResultUpdateMode.UpdateVisibility, this.searchExcludedSets);
+    },
+
+    async search(): Promise<void> {
+      this.searching = true;
+      this.searchResultMarkers.forEach(m => m.getMarker().remove());
+      this.searchResultMarkers = [];
+
+      const query = this.searchGetQuery();
+      try {
+        this.searchResults = await MapMgr.getInstance().getObjs(this.settings.mapType, this.settings.mapName, query, false, this.MAX_SEARCH_RESULT_COUNT);
+        this.searchLastSearchFailed = false;
+      } catch (e) {
+        this.searchResults = [];
+        this.searchLastSearchFailed = true;
+      }
+
+      for (const result of this.searchResults) {
+        const marker = new MapMarkers.MapMarkerSearchResult(this.map, result);
+        this.searchResultMarkers.push(marker);
+        marker.getMarker().addTo(this.map.m);
+      }
+
+      this.updateTooltips();
+      this.searching = false;
+    },
+
+    enableTooltip(marker: any) {
+      const m: any = marker.getMarker();
+      if (!('_tooltip' in marker.obj)) {
+        // @ts-ignore
+        const tt = m.getTooltip();
+        marker.obj._tooltip = tt.getContent();
+        marker.obj._tooltip_options = tt.options;
+      }
+      //To update the tooltip with the permanent flag,
+      //   we needed to unbind() then re-bind() the tooltip
+      //   with a different permanent flag value.
+      this.disableTooltip(marker);
+      if (!m.getTooltip().options.permanent) {
+        m.unbindTooltip();
+        const tip = [] // Position indicies
+        if(this.staticTooltipXZ)
+          tip.push(...[0,2]) // X and Z (0 and 2)
+        if(this.staticTooltipY)
+          tip.push(1) // Y (1)
+        tip.sort()
+        const str = tip.map(id => marker.obj.pos[id].toFixed(2)).join(", ")
+        m.bindTooltip(str, { permanent: true });
+        m.openTooltip();
+      }
+    },
+
+    disableTooltip(marker: any) {
+      const m: any = marker.getMarker();
+      if (m.getTooltip().options.permanent) {
+        m.getTooltip().options.permanent = false;
+        m.unbindTooltip();
+        m.bindTooltip(marker.obj._tooltip, marker.obj._tooltip_options);
+        m.closeTooltip();
+      }
+    },
+
+    toggleTooltipOnAllMarkers(on: boolean) {
+      const func = on ? this.enableTooltip : this.disableTooltip;
+      this.searchResultMarkers.forEach(func);
+      this.searchGroups.forEach(group => {
+        group.getMarkers().forEach(func);
+      });
+    },
+
+    updateTooltips() {
+      this.toggleTooltipOnAllMarkers(this.staticTooltipY || this.staticTooltipXZ);
+    },
+
+    toggleY() {
+      this.staticTooltipY = !this.staticTooltipY
+      this.updateTooltips();
+    },
+
+    toggleXZ() {
+      this.staticTooltipXZ = !this.staticTooltipXZ
+      this.updateTooltips();
+    },
+
+    initContextMenu() {
+      this.map.m.on(SHOW_ALL_OBJS_FOR_MAP_UNIT_EVENT, (e) => {
+        const mapType = Settings.getInstance().mapType;
+        if (mapType !== 'MainField' && mapType !== 'AocField') {
+          this.searchAddGroup(`map:"${mapType}/${Settings.getInstance().mapName}"`);
+          return;
+        }
+
+        // @ts-ignore
+        const latlng: L.LatLng = e.latlng;
+        const xyz = this.map.toXYZ(latlng);
+        if (!map.isValidPoint(xyz))
+          return;
+        this.searchAddGroup(`map:"${mapType}/${map.pointToMapUnit(xyz)}"`);
+      });
+    },
+
+    initEvents() {
+      this.offAppMapEvents = onAppMapEvents({
+        'AppMap:switch-pane': (pane) => {
+          this.switchPane(pane);
+        },
+        'AppMap:toggle-y-values': () => {
+          this.toggleY();
+        },
+        'AppMap:toggle-xz-values': () => {
+          this.toggleXZ();
+        },
+        'AppMap:open-obj': async (obj) => {
+          if (this.tempObjMarker)
+            this.tempObjMarker.getMarker().remove();
+          this.tempObjMarker = new MapMarkers.MapMarkerObj(this.map, obj, '#e02500', '#ff2a00');
+          this.tempObjMarker.getMarker().addTo(this.map.m);
+          this.openMarkerDetails(getMarkerDetailsComponent(this.tempObjMarker), this.tempObjMarker);
+        },
+        'AppMap:show-gen-group': async (id) => {
+          const group = new SearchResultGroup('', `Generation group for ${id.mapType}/${id.mapName}:${id.hashId}`);
+          await group.init(this.map);
+          const objs = await MapMgr.getInstance().getObjGenGroup(id.mapType, id.mapName, id.hashId);
+          group.setObjects(this.map, objs);
+          group.update(SearchResultUpdateMode.UpdateStyle | SearchResultUpdateMode.UpdateVisibility, this.searchExcludedSets);
+          this.searchGroups.push(group);
+        },
+      });
+
+      this.map.m.on('click', () => {
+        if (this.tempObjMarker)
+          this.tempObjMarker.getMarker().remove();
+      });
+
+      this.map.m.on('AppMap:show-gen-group', (args) => {
+        const { mapType, mapName, hashId } = args as L.LeafletEvent & ObjectIdentifier;
+        appMapBus.emit('AppMap:show-gen-group', { mapType, mapName, hashId });
+      });
+    },
+
+    initSettings() {
+      // Raw so they stay identical to their entries in the reactive searchExcludedSets.
+      this.hardModeExcludeSet = markRaw(new SearchExcludeSet('hard:1', '', true));
+      this.lastBossExcludeSet = markRaw(new SearchExcludeSet('lastboss:0', '', true));
+      this.ohoExcludeSet = markRaw(new SearchExcludeSet('onehit:1', '', true));
+      Promise.all([this.hardModeExcludeSet.init(), this.lastBossExcludeSet.init(), this.ohoExcludeSet.init()]).then(() => {
+        for (const group of this.searchGroups)
+          group.update(SearchResultUpdateMode.UpdateVisibility, this.searchExcludedSets);
+      });
+
+      this.reloadSettings();
+      Settings.getInstance().registerCallback(() => this.reloadSettings());
+    },
+
+    reloadSettings() {
+      this.searchExcludedSets = this.searchExcludedSets.filter(set =>
+        set != this.hardModeExcludeSet && set != this.lastBossExcludeSet && set != this.ohoExcludeSet);
+
+      if (!Settings.getInstance().hardMode)
+        this.searchExcludedSets.push(this.hardModeExcludeSet);
+      if (Settings.getInstance().lastBossMode)
+        this.searchExcludedSets.push(this.lastBossExcludeSet);
+      if (!Settings.getInstance().ohoMode)
+        this.searchExcludedSets.push(this.ohoExcludeSet);
+
+      for (const group of this.searchGroups)
+        group.update(SearchResultUpdateMode.UpdateVisibility | SearchResultUpdateMode.UpdateStyle | SearchResultUpdateMode.UpdateTitle, this.searchExcludedSets);
+
+      this.searchResultMarkers.forEach(m => m.updateTitle());
+    },
+
+    initAreaMap() {
+      this.areaMapLayer.addTo(this.map.m);
+    },
+    initAutoItem() {
+      this.areaAutoItem.addTo(this.map.m);
+    },
+
+    async loadAutoItem(name: string): Promise<void> {
+      this.areaAutoItem.clearLayers();
+      if (!name)
+        return;
+      const areas = await MapMgr.getInstance().fetchAreaMap(name);
+      const layers: L.Path[] = ui.areaMapToLayers(areas);
+      layers.forEach(l => this.areaAutoItem.addLayer(l));
+      this.areaAutoItem.setZIndex(1000);
+    },
+
+
+    async loadAreaMap(name: string): Promise<void> {
+      this.areaMapLayer.clearLayers();
+      this.areaMapLayersByData.clear();
+      if (!name)
+        return;
+      // Order matches that in MapTower.json
+      const mapTowerAreas = ["Hebra", "Tabantha", "Gerudo", "Wasteland",
+        "Woodland", "Central", "Great Plateau", "Dueling Peaks",
+        "Lake", "Eldin", "Akkala", "Lanayru", "Hateno",
+        "Faron", "Ridgeland"];
+      const climate_names = [
+        'HyrulePlainClimate',
+        'NorthHyrulePlainClimate',
+        'HebraFrostClimate',
+        'TabantaAridClimate',
+        'FrostClimate',
+        'GerudoDesertClimate',
+        'GerudoPlateauClimate',
+        'EldinClimateLv0',
+        'TamourPlainClimate',
+        'ZoraTemperateClimate',
+        'HateruPlainClimate',
+        'FiloneSubtropicalClimate',
+        'SouthHateruHumidTemperateClimate',
+        'EldinClimateLv1',
+        'EldinClimateLv2',
+        // sic
+        'DarkWoodsClimat',
+        'LostWoodClimate',
+        'GerudoFrostClimate',
+        'KorogForest',
+        'GerudoDesertClimateLv2'
+      ];
+
+      const areas = await MapMgr.getInstance().fetchAreaMap(name);
+      const entries = Object.entries(areas);
+      let i = 0;
+      for (const [data, features] of entries) {
+        const layers: L.GeoJSON[] = features.map((feature) => {
+          return L.geoJSON(feature, {
+            style: function(_) {
+              return { weight: 2, fillOpacity: 0.2, color: ui.genColor(entries.length, i) };
+            },
+            // @ts-ignore
+            contextmenu: true,
+          });
+        });
+        this.areaMapLayersByData.set(data, layers);
+        for (const layer of layers) {
+          let label = (name == "MapTower") ? mapTowerAreas[parseInt(data)] : 'Area ' + data.toString();
+          if (name == 'FieldMapArea') {
+            const area = await MsgMgr.getInstance().getAreaData(parseInt(data));
+            const climate = await MsgMgr.getInstance().getClimateData(climate_names.indexOf(area.Climate));
+            for (const kind of ['Bluesky', 'Cloudy', 'Rain', 'HeavyRain', 'Storm']) {
+              const name = `Weather${kind}Rate`;
+              if (climate[name] > 0) {
+                label += `<br>${climate[name]}%: ${kind}`;
+              }
+            }
+            if (climate.BlueSkyRainPat > 0) {
+              label += `<br>${climate.BlueSkyRainPat}: BlueSkyRain Pattern`;
+            }
+            if (climate.IgnitedLevel > 0) {
+              label += `<br>${climate.IgnitedLevel}: IgnitedLevel`;
+            }
+          }
+          layer.bindTooltip(label);
+          layer.on('mouseover', () => {
+            layers.forEach(l => {
+              l.setStyle({ weight: 4, fillOpacity: 0.3 });
+            });
+          });
+          layer.on('mouseout', () => {
+            layers.forEach(l => l.setStyle({ weight: 2, fillOpacity: 0.2 }));
+          });
+        }
+        ++i;
+      }
+      this.updateAreaMapVisibility();
+    },
+
+    updateAreaMapVisibility() {
+      const hasWhitelist = !!this.areaWhitelist;
+      const shown = this.areaWhitelist.trim().split(',').map(s => s.trim());
+      this.areaMapLayer.clearLayers();
+      for (const [data, layers] of this.areaMapLayersByData.entries()) {
+        if (!hasWhitelist || shown.includes(data))
+          layers.forEach(l => this.areaMapLayer.addLayer(l));
+      }
+    },
+
+    onShownAreaMapChanged() {
+      this.$nextTick(() => this.loadAreaMap(this.shownAreaMap));
+    },
+    onShownAutoItemChanged() {
+      this.$nextTick(() => this.loadAutoItem(this.shownAutoItem));
+    },
+
+    async initMapSafeAreas(): Promise<void> {
+      const areas = await MapMgr.getInstance().fetchAreaMap("AutoSafe");
+      const layers: L.Path[] = ui.areaMapToLayers(areas);
+      layers.forEach(l => this.mapSafeAreas.addLayer(l));
+    },
+
+    async initMapCastleAreas(): Promise<void> {
+      const areas: any = await MapMgr.getInstance().fetchAreaMap("castle");
+      const features = areas.features;
+
+      const layers: L.GeoJSON[] = features.map((feature: any, i: number) => {
+        const color = ui.genColor(300, feature.properties.y);
+        const layer = L.geoJSON(feature, {
+          style: function(_) {
+            return { weight: 2, fillOpacity: 0.2, color: color };
+          },
+          // @ts-ignore
+          contextmenu: true,
+        });
+        layer.bindTooltip(`${feature.properties.name} @ ${feature.properties.y}`);
+        layer.on('mouseover', () => { layer.setStyle({ weight: 4, fillOpacity: 0.3 }); });
+        layer.on('mouseout', () => { layer.setStyle({ weight: 2, fillOpacity: 0.2 }); });
+        return layer;
+      });
+      layers.forEach(l => this.mapCastleAreas.addLayer(l));
+
+      this.mapCastleAreas.setZIndex(1000);
+    },
+
+
+    initMapUnitGrid() {
+      for (let i = 0; i < 10; ++i) {
+        for (let j = 0; j < 8; ++j) {
+          const topLeft: Point = [-5000.0 + i * 1000.0, 0.0, -4000.0 + j * 1000.0];
+          const bottomRight: Point = [-5000.0 + (i + 1) * 1000.0, 0.0, -4000.0 + (j + 1) * 1000.0];
+          const rect = L.rectangle(L.latLngBounds(this.map.fromXYZ(topLeft), this.map.fromXYZ(bottomRight)), {
+            fill: true,
+            stroke: true,
+            color: '#009dff',
+            fillOpacity: 0.13,
+            weight: 2,
+            // @ts-ignore
+            contextmenu: true,
+          });
+          rect.bringToBack();
+          rect.bindTooltip(map.pointToMapUnit(topLeft), {
+            permanent: true,
+            direction: 'center',
+          });
+          this.mapUnitGrid.addLayer(rect);
+        }
+      }
+    },
+
+    onShowMapUnitGridChanged() {
+      this.$nextTick(() => {
+        this.mapUnitGrid.remove();
+        if (this.showMapUnitGrid)
+          this.mapUnitGrid.addTo(this.map.m);
+      });
+    },
+
+    onShowCastleAreas() {
+      this.$nextTick(() => {
+        this.mapCastleAreas.remove();
+        if (this.showCastleAreas) {
+          if (this.mapCastleAreas.getLayers().length <= 0) {
+            this.initMapCastleAreas();
+          }
+          this.mapCastleAreas.addTo(this.map.m);
+        }
+      });
+    },
+
+    onShowSafeAreas() {
+      this.$nextTick(() => {
+        this.mapSafeAreas.remove();
+        if (this.showSafeAreas) {
+          if (this.mapSafeAreas.getLayers().length <= 0) {
+            this.initMapSafeAreas();
+          }
+          this.mapSafeAreas.addTo(this.map.m);
+        }
+      });
+    },
+
+    onShowBaseMap() {
+      this.$nextTick(() => {
+        this.map.showBaseMap(this.showBaseMap);
+      });
+    },
+    onShowReferenceGrid() {
+      this.$nextTick(() => {
+        this.map.showReferenceGrid(this.showReferenceGrid);
+      });
+    },
+  },
+});

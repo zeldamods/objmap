@@ -1,22 +1,20 @@
-import BootstrapVue from 'bootstrap-vue';
 import 'bootstrap/dist/css/bootstrap.css';
-import 'bootstrap-vue/dist/bootstrap-vue.css';
 import '@fortawesome/fontawesome-free/css/fontawesome.css';
 import '@fortawesome/fontawesome-free/css/regular.css';
 import '@fortawesome/fontawesome-free/css/solid.css';
 
-import Vue from 'vue';
-import Component from 'vue-class-component'
+import { createApp } from 'vue';
 
 import App from './App.vue';
 import router from './router';
 
 import { MapMgr } from '@/services/MapMgr';
 import { MsgMgr } from '@/services/MsgMgr';
+import { vTooltip } from '@/util/tooltip';
 
 async function main() {
   await initServices();
-  initUi();
+  await initUi();
 }
 
 async function initServices() {
@@ -26,21 +24,10 @@ async function initServices() {
   ]);
 }
 
-function initUi() {
-  Vue.use(BootstrapVue);
-
-  Vue.config.productionTip = false;
-
-  Component.registerHooks([
-    'beforeRouteEnter',
-    'beforeRouteLeave',
-    'beforeRouteUpdate',
-  ]);
-
-  new Vue({
-    router,
-    render: h => h(App)
-  }).$mount('#app');
+async function initUi() {
+  const app = createApp(App).use(router).directive('tooltip', vTooltip);
+  await router.isReady();
+  app.mount('#app');
 }
 
 main();

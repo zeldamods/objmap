@@ -5,7 +5,7 @@ function range(n: number): number[] {
 
 // Calculate Bezier coefficients: A row of Pascal's Triangle
 function bezierCoeff(n: number): number[] {
-  let row = Array(n + 1).fill(0);
+  const row = Array(n + 1).fill(0);
   row[0] = 1;
   for (let i = 0; i <= n; i++) {
     for (let j = i; j > 0; j--) {
@@ -39,28 +39,28 @@ function ptAdd(a: number[], b: number[]): number[] {
 //
 function bezier(pts: any) {
   let steps = 4;
-  let out = [];
-  let n = pts.length;
+  const out = [];
+  const n = pts.length;
   if (n == 2) {
     return pts;
   }
   {
-    let dx = pts[0][0] - pts.at(-1)[0]
-    let dz = pts[0][0] - pts.at(-1)[0]
-    let dist = Math.sqrt(dx * dx + dz * dz)
+    const dx = pts[0][0] - pts.at(-1)[0]
+    const dz = pts[0][0] - pts.at(-1)[0]
+    const dist = Math.sqrt(dx * dx + dz * dz)
     steps = Math.max(steps, Math.floor(dist / 10) + 1)
   }
 
   const coeff = bezierCoeff(n - 1);
-  let t0 = 0;
-  let dt = 1.0 / (steps - 1);
-  let xi = pts.map((p: any) => p[0]);
-  let yi = pts.map((p: any) => p[1]);
-  let zi = pts.map((p: any) => p[2]);
+  const t0 = 0;
+  const dt = 1.0 / (steps - 1);
+  const xi = pts.map((p: any) => p[0]);
+  const yi = pts.map((p: any) => p[1]);
+  const zi = pts.map((p: any) => p[2]);
   for (let k = 0; k < steps; k++) {
     const t = t0 + k * dt;
     const ti = range(n).map((i: number) => coeff[i] * Math.pow(1.0 - t, n - 1 - i) * Math.pow(t, i));
-    let pt = [dot(ti, xi), dot(ti, yi), dot(ti, zi)];
+    const pt = [dot(ti, xi), dot(ti, yi), dot(ti, zi)];
     out.push(pt);
   }
   return out;
@@ -68,7 +68,7 @@ function bezier(pts: any) {
 
 // Linear Rail path without any Control Points
 function railPathLinear(rail: any): any {
-  let pts = rail.RailPoints.map((pt: any) => pt.Translate);
+  const pts = rail.RailPoints.map((pt: any) => pt.Translate);
   if (rail['IsClosed']) {
     pts.push(pts[0])
   }
@@ -96,7 +96,7 @@ function railPathLinear(rail: any): any {
 //  If the curve is open, do not use the last point as a curve starting point
 //
 function railPathBezier(rail: any): any {
-  let out = [];
+  const out = [];
   let n = rail.RailPoints.length;
   if (!rail['IsClosed']) {
     n -= 1;
@@ -107,9 +107,9 @@ function railPathBezier(rail: any): any {
     if (rail['IsClosed']) {
       j = j % n;
     }
-    let p0 = rail.RailPoints[i].Translate;
-    let p1 = rail.RailPoints[j].Translate;
-    let bez = [p0];
+    const p0 = rail.RailPoints[i].Translate;
+    const p1 = rail.RailPoints[j].Translate;
+    const bez = [p0];
     if (rail.RailPoints[i].ControlPoints) {
       bez.push(ptAdd(p0, rail.RailPoints[i].ControlPoints[1]));
     }

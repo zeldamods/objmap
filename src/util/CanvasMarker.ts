@@ -8,7 +8,7 @@ export interface CanvasMarkerOptions extends L.CircleMarkerOptions {
 }
 
 export class CanvasMarker extends L.CircleMarker {
-  options!: CanvasMarkerOptions;
+  declare options: CanvasMarkerOptions;
 
   _updatePath() {
     if (!this.options.icon) {
