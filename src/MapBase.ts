@@ -211,6 +211,7 @@ export class MapBase {
 
     const baseLayer = L.tileLayer(`${map.GAME_FILES}/maptex/{z}/{x}/{y}.png`, {
       maxNativeZoom: 7,
+      detectRetina: true,
     });
     baseLayer.addTo(this.m);
     this.baseLayer = baseLayer;

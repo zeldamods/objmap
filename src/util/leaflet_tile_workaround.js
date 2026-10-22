@@ -41,6 +41,7 @@ L.TileLayer.include({
         this._container
       );
       level.ctx = level.canvas.getContext("2d");
+      level.canvasSize = L.point(0, 0);
       this._resetCanvasSize(level);
     }
   },
@@ -82,26 +83,29 @@ L.TileLayer.include({
 
     // Resize the canvas, if needed, and only to make it bigger.
     if (
-      neededSize.x > level.canvas.width ||
-      neededSize.y > level.canvas.height
+      neededSize.x > level.canvasSize.x ||
+      neededSize.y > level.canvasSize.y
     ) {
       // Resizing canvases erases the currently drawn content, I'm afraid.
       // To keep it, dump the pixels to another canvas, then display it on
       // top. This could be done with getImageData/putImageData, but that
       // would break for tainted canvases (in non-CORS tilesets)
-      var oldSize = { x: level.canvas.width, y: level.canvas.height };
-      // console.info('Resizing canvas from ', oldSize, 'to ', neededSize);
-
       var tmpCanvas = L.DomUtil.create("canvas");
-      tmpCanvas.style.width = (tmpCanvas.width = oldSize.x) + "px";
-      tmpCanvas.style.height = (tmpCanvas.height = oldSize.y) + "px";
+      tmpCanvas.width = level.canvas.width;
+      tmpCanvas.height = level.canvas.height;
       tmpCanvas.getContext("2d").drawImage(level.canvas, 0, 0);
-      // var data = level.ctx.getImageData(0, 0, oldSize.x, oldSize.y);
 
-      level.canvas.style.width = (level.canvas.width = neededSize.x) + "px";
-      level.canvas.style.height = (level.canvas.height = neededSize.y) + "px";
+      // The backing store holds the tiles' own pixels, so tiles that
+      // detectRetina draws at half their CSS size are not downsampled.
+      // Resizing resets the context transform, so it is set again after the copy.
+      var canvasScale = this.options.detectRetina && L.Browser.retina ? 2 : 1;
+      level.canvas.width = neededSize.x * canvasScale;
+      level.canvas.height = neededSize.y * canvasScale;
+      level.canvas.style.width = neededSize.x + "px";
+      level.canvas.style.height = neededSize.y + "px";
       level.ctx.drawImage(tmpCanvas, 0, 0);
-      // level.ctx.putImageData(data, 0, 0, 0, 0, oldSize.x, oldSize.y);
+      level.ctx.setTransform(canvasScale, 0, 0, canvasScale, 0, 0);
+      level.canvasSize = neededSize;
     }
 
     // Translate the canvas contents if it's moved around
@@ -118,25 +122,19 @@ L.TileLayer.include({
         // This will also clear the sides, so no clearRect() calls are needed to make room
         // for the new tiles.
         level.ctx.globalCompositeOperation = "copy";
-        level.ctx.drawImage(level.canvas, offset.x, offset.y);
+        level.ctx.drawImage(level.canvas, offset.x, offset.y, level.canvasSize.x, level.canvasSize.y);
         level.ctx.globalCompositeOperation = "source-over";
       } else {
         // Safari clears the canvas when copying from itself :-(
         if (!this._tmpCanvas) {
-          var t = (this._tmpCanvas = L.DomUtil.create("canvas"));
-          t.width = level.canvas.width;
-          t.height = level.canvas.height;
-          this._tmpContext = t.getContext("2d");
+          this._tmpCanvas = L.DomUtil.create("canvas");
+          this._tmpContext = this._tmpCanvas.getContext("2d");
         }
-        this._tmpContext.clearRect(
-          0,
-          0,
-          level.canvas.width,
-          level.canvas.height
-        );
+        this._tmpCanvas.width = level.canvas.width;
+        this._tmpCanvas.height = level.canvas.height;
         this._tmpContext.drawImage(level.canvas, 0, 0);
-        level.ctx.clearRect(0, 0, level.canvas.width, level.canvas.height);
-        level.ctx.drawImage(this._tmpCanvas, offset.x, offset.y);
+        level.ctx.clearRect(0, 0, level.canvasSize.x, level.canvasSize.y);
+        level.ctx.drawImage(this._tmpCanvas, offset.x, offset.y, level.canvasSize.x, level.canvasSize.y);
       }
 
       mustRepositionCanvas = true; // Wait until new props are set
