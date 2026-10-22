@@ -210,7 +210,8 @@ export class MapBase {
     this.baseImage.addTo(this.m);
 
     const baseLayer = L.tileLayer(`${map.GAME_FILES}/maptex/{z}/{x}/{y}.png`, {
-      maxNativeZoom: 7,
+      // detectRetina adds 1 to the zoom in tile URLs but leaves maxNativeZoom alone.
+      maxNativeZoom: L.Browser.retina ? 6 : 7,
       detectRetina: true,
     });
     baseLayer.addTo(this.m);
