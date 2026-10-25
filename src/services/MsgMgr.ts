@@ -30,6 +30,8 @@ export class MsgMgr {
       this.names = d;
     }));
     await Promise.all(fileLoadPromises);
+    // Pre-fetch object_meta.json (the first search causes simultaneous access) 
+    await this.getObjectMetaData('')
   }
 
   private getFile(file: string) {
