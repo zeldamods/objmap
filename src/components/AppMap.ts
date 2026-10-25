@@ -236,7 +236,7 @@ export default defineComponent({
 
       markerGroups: new Map<string, MapMarkerGroup>(),
 
-      searchThrottler: ui.late<(id: number) => void>(),
+      searchThrottler: ui.late<(id: string) => void>(),
       searchResultMarkers: [] as MapMarkers.MapMarkerSearchResult[],
 
       hardModeExcludeSet: ui.late<SearchExcludeSet>(),
@@ -280,7 +280,6 @@ export default defineComponent({
       searchPresets: SEARCH_PRESETS,
       searchExcludedSets: [] as SearchExcludeSet[],
       MAX_SEARCH_RESULT_COUNT: 2000,
-      searchID: 0,
 
       shownAreaMap: '',
       areaWhitelist: '',
@@ -1024,7 +1023,7 @@ export default defineComponent({
     },
 
     initSearch() {
-      this.searchThrottler = debounce((id: number) => this.search(id), 200);
+      this.searchThrottler = debounce((query: string) => this.search(query), 200);
 
       this.map.registerZoomCb(() => {
         for (const group of this.searchGroups)
@@ -1046,8 +1045,7 @@ export default defineComponent({
 
     searchOnInput() {
       this.searching = true;
-      this.searchID += 1
-      this.searchThrottler(this.searchID);
+      this.searchThrottler(this.searchQuery);
     },
 
     searchSetLink() {
@@ -1117,7 +1115,7 @@ export default defineComponent({
         group.update(SearchResultUpdateMode.UpdateVisibility, this.searchExcludedSets);
     },
 
-    async search(searchID: number): Promise<void> {
+    async search(searchQuery: string): Promise<void> {
       this.searching = true;
       this.searchResultMarkers.forEach(m => m.getMarker().remove());
       this.searchResultMarkers = [];
@@ -1136,8 +1134,8 @@ export default defineComponent({
         searchResults = [];
         searchLastSearchFailed = true;
       }
-      // Async - end interuptable (this.searchID may changed during async work)
-      if(searchID != this.searchID) {
+      // Async - end interuptable (this.searchQuery may changed during async work)
+      if(searchQuery != this.searchQuery) {
         // If the search input was updated during network activity, discard the results
         return
       }
