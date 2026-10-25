@@ -1117,7 +1117,7 @@ export default defineComponent({
         group.update(SearchResultUpdateMode.UpdateVisibility, this.searchExcludedSets);
     },
 
-    async search(time: number): Promise<void> {
+    async search(searchID: number): Promise<void> {
       this.searching = true;
       this.searchResultMarkers.forEach(m => m.getMarker().remove());
       this.searchResultMarkers = [];
@@ -1137,7 +1137,7 @@ export default defineComponent({
         searchLastSearchFailed = true;
       }
       // Async - end interuptable (this.searchID may changed during async work)
-      if(time != this.searchID) {
+      if(searchID != this.searchID) {
         // If the search input was updated during network activity, discard the results
         return
       }
