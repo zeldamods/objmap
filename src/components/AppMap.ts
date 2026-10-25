@@ -236,7 +236,7 @@ export default defineComponent({
 
       markerGroups: new Map<string, MapMarkerGroup>(),
 
-      searchThrottler: ui.late<() => void>(),
+      searchThrottler: ui.late<(id: number) => void>(),
       searchResultMarkers: [] as MapMarkers.MapMarkerSearchResult[],
 
       hardModeExcludeSet: ui.late<SearchExcludeSet>(),
@@ -280,6 +280,7 @@ export default defineComponent({
       searchPresets: SEARCH_PRESETS,
       searchExcludedSets: [] as SearchExcludeSet[],
       MAX_SEARCH_RESULT_COUNT: 2000,
+      searchID: 0,
 
       shownAreaMap: '',
       areaWhitelist: '',
@@ -321,7 +322,7 @@ export default defineComponent({
 
     if (this.$route.query.q) {
       this.searchQuery = this.$route.query.q.toString();
-      this.search();
+      this.searchOnInput();
       this.switchPane('spane-search');
     }
 
@@ -1023,7 +1024,7 @@ export default defineComponent({
     },
 
     initSearch() {
-      this.searchThrottler = debounce(() => this.search(), 200);
+      this.searchThrottler = debounce((id: number) => this.search(id), 200);
 
       this.map.registerZoomCb(() => {
         for (const group of this.searchGroups)
@@ -1045,7 +1046,8 @@ export default defineComponent({
 
     searchOnInput() {
       this.searching = true;
-      this.searchThrottler();
+      this.searchID += 1
+      this.searchThrottler(this.searchID);
     },
 
     searchSetLink() {
@@ -1061,13 +1063,13 @@ export default defineComponent({
     searchOnAdd() {
       this.searchAddGroup(this.searchGetQuery());
       this.searchQuery = '';
-      this.search();
+      this.searchOnInput();
     },
 
     searchOnExclude() {
       this.searchAddExcludedSet(this.searchGetQuery());
       this.searchQuery = '';
-      this.search();
+      this.searchOnInput();
     },
 
     async searchAddExcludedSet(query: string, label?: string): Promise<void> {
@@ -1100,7 +1102,7 @@ export default defineComponent({
     searchViewGroup(idx: number) {
       const group = this.searchGroups[idx];
       this.searchQuery = group.query;
-      this.search();
+      this.searchOnInput();
     },
 
     searchRemoveGroup(idx: number) {
@@ -1115,20 +1117,33 @@ export default defineComponent({
         group.update(SearchResultUpdateMode.UpdateVisibility, this.searchExcludedSets);
     },
 
-    async search(): Promise<void> {
+    async search(time: number): Promise<void> {
       this.searching = true;
       this.searchResultMarkers.forEach(m => m.getMarker().remove());
       this.searchResultMarkers = [];
 
+      let searchResults: ObjectMinData[] = []
+      let searchLastSearchFailed = false;
+
       const query = this.searchGetQuery();
+      // Async - start interuptable
       try {
-        this.searchResults = await MapMgr.getInstance().getObjs(this.settings.mapType, this.settings.mapName, query, false, this.MAX_SEARCH_RESULT_COUNT);
-        this.searchLastSearchFailed = false;
+        if(query.trim().length) {
+          searchResults = await MapMgr.getInstance().getObjs(this.settings.mapType, this.settings.mapName, query, false, this.MAX_SEARCH_RESULT_COUNT);
+          searchLastSearchFailed = false;
+        }
       } catch (e) {
-        this.searchResults = [];
-        this.searchLastSearchFailed = true;
+        searchResults = [];
+        searchLastSearchFailed = true;
+      }
+      // Async - end interuptable (this.searchID may changed during async work)
+      if(time != this.searchID) {
+        // If the search input was updated during network activity, discard the results
+        return
       }
 
+      this.searchResults = [...searchResults];
+      this.searchLastSearchFailed = searchLastSearchFailed;
       for (const result of this.searchResults) {
         const marker = new MapMarkers.MapMarkerSearchResult(this.map, result);
         this.searchResultMarkers.push(marker);
