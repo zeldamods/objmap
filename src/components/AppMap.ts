@@ -31,7 +31,7 @@ import ModalGotoCoords from '@/components/ModalGotoCoords.vue';
 import ObjectInfo from '@/components/ObjectInfo.vue';
 
 import { MapMgr, ObjectData, ObjectMinData } from '@/services/MapMgr';
-import { MsgMgr } from '@/services/MsgMgr';
+import { MetaMgr } from '@/services/MetaMgr';
 
 import * as map from '@/util/map';
 import { Point } from '@/util/map';
@@ -1353,8 +1353,8 @@ export default defineComponent({
         for (const layer of layers) {
           let label = (name == "MapTower") ? mapTowerAreas[parseInt(data)] : 'Area ' + data.toString();
           if (name == 'FieldMapArea') {
-            const area = await MsgMgr.getInstance().getAreaData(parseInt(data));
-            const climate = await MsgMgr.getInstance().getClimateData(climate_names.indexOf(area.Climate));
+            const area = await MetaMgr.getInstance().getAreaData(parseInt(data));
+            const climate = await MetaMgr.getInstance().getClimateData(climate_names.indexOf(area.Climate));
             for (const kind of ['Bluesky', 'Cloudy', 'Rain', 'HeavyRain', 'Storm']) {
               const name = `Weather${kind}Rate`;
               if (climate[name] > 0) {

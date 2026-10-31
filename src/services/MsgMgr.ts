@@ -12,9 +12,6 @@ export class MsgMgr {
 
   private names: { [actorName: string]: string } = {};
   private files: Map<string, File> = new Map();
-  private climate: any | null = null;
-  private area: any | null = null;
-  private metadata: any | null = null;
 
   async init() {
     const PREFIX = `${GAME_FILES}/text/`;
@@ -39,36 +36,6 @@ export class MsgMgr {
   getMsgWithFile(file: string, label: string): string {
     const f = this.getFile(file);
     return f === undefined ? "???" : f[label];
-  }
-
-  async getAreaData(item: number) {
-    if (!this.area) {
-      const res = await fetch(`${GAME_FILES}/area_data.json`);
-      this.area = await res.json();
-    }
-    if (this.area) {
-      return this.area.find((val: any) => val.AreaNumber == item);
-    }
-    return null;
-  }
-
-  async getClimateData(item: number) {
-    if (!this.climate) {
-      const res = await fetch(`${GAME_FILES}/climate_data.json`);
-      this.climate = await res.json();
-    }
-    if (this.climate) {
-      return this.climate[`ClimateDefines_${item}`];
-    }
-    return null;
-  }
-
-  async getObjectMetaData(item: string) {
-    if (!this.metadata) {
-      const res = await fetch(`${GAME_FILES}/object_meta.json`);
-      this.metadata = await res.json();
-    }
-    return this.metadata[item];
   }
 
   /// Get a message by its message ID (e.g. EventFlowMsg/AncientBall_Kakariko:Label).

@@ -3,6 +3,7 @@ import { defineComponent, PropType } from 'vue';
 import { rankUpEnemyForHardMode } from '@/level_scaling';
 import MixinUtil from '@/components/MixinUtil';
 import { MsgMgr } from '@/services/MsgMgr';
+import { MetaMgr } from '@/services/MetaMgr';
 import { ObjectData, ObjectMinData, PlacementLink } from '@/services/MapMgr';
 
 export default defineComponent({
@@ -45,7 +46,7 @@ export default defineComponent({
     async loadMetaIfNeeded(): Promise<void> {
       if (!this.metadata) {
         const data = this.data;
-        const metadata = await MsgMgr.getInstance().getObjectMetaData(this.getRankedUpActorNameForObj(data));
+        const metadata = await MetaMgr.getInstance().getObjectMetaData(this.getRankedUpActorNameForObj(data));
         if (data === this.data)
           this.metadata = metadata;
       }
