@@ -10,6 +10,7 @@ import router from './router';
 
 import { MapMgr } from '@/services/MapMgr';
 import { MsgMgr } from '@/services/MsgMgr';
+import { MetaMgr } from '@/services/MetaMgr';
 import { vTooltip } from '@/util/tooltip';
 
 async function main() {
@@ -21,6 +22,7 @@ async function initServices() {
   await Promise.all([
     MsgMgr.getInstance().init(),
     MapMgr.getInstance().init(),
+    MetaMgr.getInstance().init(),
   ]);
 }
 
