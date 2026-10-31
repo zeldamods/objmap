@@ -1134,7 +1134,7 @@ export default defineComponent({
         searchResults = [];
         searchLastSearchFailed = true;
       }
-      // Async - end interuptable (this.searchQuery may changed during async work)
+      // Async - end interuptable (this.searchQuery may have changed during async work)
       if(searchQuery != this.searchQuery) {
         // If the search input was updated during network activity, discard the results
         return
